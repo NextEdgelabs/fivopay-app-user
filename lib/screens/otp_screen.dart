@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -25,6 +26,7 @@ class _OtpScreenState extends State<OtpScreen> {
   bool _isLoading = false;
   bool _isResendLoading = false;
   int _resendTimer = 30;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -35,16 +37,20 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   void dispose() {
     _otpController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
   void _startResendTimer() {
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted && _resendTimer > 0) {
+    _timer?.cancel();
+    _resendTimer = 30;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_resendTimer > 0) {
         setState(() {
           _resendTimer--;
         });
-        _startResendTimer();
+      } else {
+        timer.cancel();
       }
     });
   }
