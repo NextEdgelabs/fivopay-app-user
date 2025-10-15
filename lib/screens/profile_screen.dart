@@ -121,13 +121,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.all(AppSizes.paddingL),
                 decoration: BoxDecoration(
                   color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
                   border: Border.all(color: AppColors.border),
+                  // Minimal shadow
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.shadowLight,
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
+                      color: AppColors.shadow,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -137,13 +138,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        // Sky blue gradient
+                        gradient: LinearGradient(
+                          colors: [AppColors.primaryDark, AppColors.primaryLight],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         borderRadius: BorderRadius.circular(50),
+                        // Minimal shadow
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                            color: AppColors.shadow,
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),

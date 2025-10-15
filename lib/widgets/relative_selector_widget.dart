@@ -61,7 +61,7 @@ class _RelativeSelectorWidgetState extends State<RelativeSelectorWidget> {
           padding: const EdgeInsets.all(AppSizes.paddingL),
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+            borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
             border: Border.all(color: AppColors.border),
           ),
           child: Column(
@@ -94,7 +94,7 @@ class _RelativeSelectorWidgetState extends State<RelativeSelectorWidget> {
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusM), // Smaller radius
                   border: Border.all(color: AppColors.border),
                 ),
                 child: DropdownButtonFormField<String>(

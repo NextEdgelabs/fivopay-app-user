@@ -45,30 +45,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onDestinationSelected: (index) {
           setState(() => _currentIndex = index);
         },
+        height: 70, // More spacious
+        elevation: 0,
+        backgroundColor: AppColors.cardBackground,
+        indicatorColor: AppColors.primary.withOpacity(0.12),
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined, size: 24),
+            selectedIcon: Icon(Icons.home, size: 24),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
-            label: 'Transactions',
+            icon: Icon(Icons.receipt_long_outlined, size: 24),
+            selectedIcon: Icon(Icons.receipt_long, size: 24),
+            label: 'History',
           ),
           NavigationDestination(
-            icon: Icon(Icons.description_outlined),
-            selectedIcon: Icon(Icons.description),
-            label: 'Applications',
+            icon: Icon(Icons.description_outlined, size: 24),
+            selectedIcon: Icon(Icons.description, size: 24),
+            label: 'Apps',
           ),
           NavigationDestination(
-            icon: Icon(Icons.share_outlined),
-            selectedIcon: Icon(Icons.share),
-            label: 'Referral',
+            icon: Icon(Icons.share_outlined, size: 24),
+            selectedIcon: Icon(Icons.share, size: 24),
+            label: 'Refer',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline, size: 24),
+            selectedIcon: Icon(Icons.person, size: 24),
             label: 'Profile',
           ),
         ],
@@ -82,34 +87,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppStrings.dashboard),
+        title: Text(
+          AppStrings.dashboard,
+          style: AppTextStyles.heading2.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        elevation: 0,
+        backgroundColor: AppColors.background,
+        surfaceTintColor: Colors.transparent,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications_outlined),
+            iconSize: 26,
             onPressed: () {
               // TODO: Implement notifications
             },
           ),
+          const SizedBox(width: AppSizes.paddingS),
         ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSizes.paddingL),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSizes.paddingL,
+            vertical: AppSizes.paddingM,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Welcome Card
               Container(
-                padding: const EdgeInsets.all(AppSizes.paddingL),
+                padding: const EdgeInsets.all(AppSizes.paddingXL),
                 decoration: BoxDecoration(
                   color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
                   border: Border.all(color: AppColors.border),
+                  // Minimal shadow
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.shadowLight,
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
+                      color: AppColors.shadow,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -119,21 +138,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Row(
                       children: [
                         Container(
-                          width: 50,
-                          height: 50,
+                          width: 56,
+                          height: 56,
                           decoration: BoxDecoration(
-                            color: AppColors.primary,
+                            // Sky blue gradient
+                            gradient: LinearGradient(
+                              colors: [AppColors.primaryDark, AppColors.primaryLight],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
                             borderRadius: BorderRadius.circular(
-                              AppSizes.radiusM,
+                              AppSizes.radiusL,
                             ),
                           ),
                           child: const Icon(
                             Icons.person,
                             color: Colors.white,
-                            size: 30,
+                            size: 32,
                           ),
                         ),
-                        const SizedBox(width: AppSizes.paddingM),
+                        const SizedBox(width: AppSizes.paddingL),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,14 +166,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 'Hello ${user?.name ?? 'Member'}',
                                 style: AppTextStyles.heading3,
                               ),
-                              const SizedBox(height: 2),
-                              Text('Welcome back!', style: AppTextStyles.body2),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Welcome back!',
+                                style: AppTextStyles.body2.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSizes.paddingL),
+                    const SizedBox(height: AppSizes.paddingXL),
                     Row(
                       children: [
                         Expanded(
@@ -159,7 +188,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Icons.account_balance,
                           ),
                         ),
-                        const SizedBox(width: AppSizes.paddingM),
+                        const SizedBox(width: AppSizes.paddingL),
                         Expanded(
                           child: _buildInfoCard(
                             'Member Since',
@@ -173,11 +202,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
 
-              const SizedBox(height: AppSizes.paddingL),
+              const SizedBox(height: AppSizes.sectionSpacing),
+
+              // Balance Card (Priority - Show first)
+              BalanceCard(
+                title: AppStrings.balance,
+                amountText:
+                    '₹${transactionProvider.currentBalance.toStringAsFixed(2)}',
+                onPrimary: () =>
+                    _showDepositDialog(context, transactionProvider),
+                onSecondary: () =>
+                    _showWithdrawDialog(context, transactionProvider),
+              ),
+
+              const SizedBox(height: AppSizes.sectionSpacing),
 
               // Membership Status
-              SectionHeader(title: 'Membership Status'),
-              const SizedBox(height: AppSizes.paddingM),
+              SectionHeader(
+                title: 'Membership Status',
+                subtitle: 'Your account information',
+              ),
+              const SizedBox(height: AppSizes.paddingL),
               Row(
                 children: [
                   Expanded(
@@ -192,12 +237,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           : AppColors.warning,
                     ),
                   ),
-                  const SizedBox(width: AppSizes.paddingM),
+                  const SizedBox(width: AppSizes.cardSpacing),
                   Expanded(
                     child: StatCard(
                       icon: Icons.person,
                       label: 'Member Type',
-                      value: user?.isMember == true ? 'Active Member' : 'Guest',
+                      value: user?.isMember == true ? 'Active' : 'Guest',
                       color: user?.isMember == true
                           ? AppColors.primary
                           : AppColors.textLight,
@@ -206,57 +251,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
 
-              const SizedBox(height: AppSizes.paddingL),
+              const SizedBox(height: AppSizes.sectionSpacing),
 
-              // Balance Card
-              BalanceCard(
-                title: AppStrings.balance,
-                amountText:
-                    '₹${transactionProvider.currentBalance.toStringAsFixed(2)}',
-                onPrimary: () =>
-                    _showDepositDialog(context, transactionProvider),
-                onSecondary: () =>
-                    _showWithdrawDialog(context, transactionProvider),
+              // Quick Actions (Priority - Show before savings)
+              SectionHeader(
+                title: 'Quick Actions',
+                subtitle: 'Access your services',
               ),
-
               const SizedBox(height: AppSizes.paddingL),
-
-              // Savings trend (sparkline)
-              Container(
-                padding: const EdgeInsets.all(AppSizes.paddingL),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SectionHeader(title: 'Savings'),
-                    const SizedBox(height: AppSizes.paddingM),
-                    SparklineChart(
-                      values: const [20, 24, 30, 28, 35, 40, 38, 45],
-                      lineColor: Theme.of(context).colorScheme.primary,
-                      fillColor: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.15),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: AppSizes.paddingL),
-
-              // Quick Actions
-              SectionHeader(title: 'Quick Actions'),
-              const SizedBox(height: AppSizes.paddingM),
 
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: 2,
-                crossAxisSpacing: AppSizes.paddingM,
-                mainAxisSpacing: AppSizes.paddingM,
+                crossAxisSpacing: AppSizes.cardSpacing,
+                mainAxisSpacing: AppSizes.cardSpacing,
+                childAspectRatio: 1.1, // Less square, more spacious
                 children: [
                   ActionTile(
                     title: 'Fixed Deposit',

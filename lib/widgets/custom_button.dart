@@ -34,11 +34,12 @@ class CustomButton extends StatelessWidget {
       height: height ?? AppSizes.buttonHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        // Minimal shadow for subtle depth (only for filled buttons)
         boxShadow: isOutlined ? null : [
           BoxShadow(
-            color: primaryColor.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: AppColors.shadow,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),

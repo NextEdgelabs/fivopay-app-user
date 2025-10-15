@@ -18,7 +18,7 @@ class VerificationStatusCard extends StatelessWidget {
           padding: const EdgeInsets.all(AppSizes.paddingL),
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+            borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced radius
             border: Border.all(
               color: allVerified ? AppColors.success : AppColors.border,
               width: allVerified ? 2 : 1,
@@ -47,8 +47,8 @@ class VerificationStatusCard extends StatelessWidget {
                         vertical: AppSizes.paddingXS,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.success.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                        color: AppColors.success.withOpacity(0.08), // More subtle
+                        borderRadius: BorderRadius.circular(AppSizes.radiusM), // Smaller radius
                       ),
                       child: Text(
                         'Complete',
@@ -93,9 +93,9 @@ class VerificationStatusCard extends StatelessWidget {
                 padding: const EdgeInsets.all(AppSizes.paddingM),
                 decoration: BoxDecoration(
                   color: allVerified 
-                      ? AppColors.success.withOpacity(0.1)
-                      : AppColors.info.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                      ? AppColors.success.withOpacity(0.08) // More subtle
+                      : AppColors.info.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusS), // Smaller radius
                 ),
                 child: Row(
                   children: [
@@ -136,9 +136,9 @@ class VerificationStatusCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSizes.paddingM),
       decoration: BoxDecoration(
         color: isVerified 
-            ? AppColors.success.withOpacity(0.05)
+            ? AppColors.success.withOpacity(0.04) // More subtle
             : AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        borderRadius: BorderRadius.circular(AppSizes.radiusS), // Smaller radius for minimalism
         border: Border.all(
           color: isVerified ? AppColors.success : AppColors.border,
         ),

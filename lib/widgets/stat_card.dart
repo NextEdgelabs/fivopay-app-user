@@ -22,41 +22,41 @@ class StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSizes.paddingL),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(AppSizes.radiusL),
+        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        // Minimal shadow for subtle depth
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: AppColors.shadow,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 44,
-            height: 44,
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: accent.withOpacity(0.12),
               borderRadius: BorderRadius.circular(AppSizes.radiusM),
             ),
-            child: Icon(icon, color: accent, size: 22),
+            child: Icon(icon, color: accent, size: 24),
           ),
-          const SizedBox(width: AppSizes.paddingM),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: AppTextStyles.caption),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: AppTextStyles.body1.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+          const SizedBox(height: AppSizes.paddingM),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: AppTextStyles.body1.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
             ),
           ),
         ],

@@ -102,6 +102,40 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
+  // Update user profile from Aadhaar verification
+  void updateFromAadhaarVerification({
+    required String name,
+    required String aadhaarNumber,
+    String? dateOfBirth,
+    String? gender,
+    String? address,
+  }) {
+    if (_currentUser != null) {
+      _currentUser = _currentUser!.copyWith(
+        name: name,
+        aadharNumber: aadhaarNumber,
+        dateOfBirth: dateOfBirth ?? _currentUser!.dateOfBirth,
+        gender: gender ?? _currentUser!.gender,
+        address: address ?? _currentUser!.address,
+      );
+      notifyListeners();
+    }
+  }
+
+  // Update user profile from PAN verification
+  void updateFromPanVerification({
+    required String panNumber,
+    String? name,
+  }) {
+    if (_currentUser != null) {
+      _currentUser = _currentUser!.copyWith(
+        panNumber: panNumber,
+        name: name ?? _currentUser!.name,
+      );
+      notifyListeners();
+    }
+  }
+
   // Clear user data
   void clearUser() {
     _currentUser = null;

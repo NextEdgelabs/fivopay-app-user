@@ -22,7 +22,7 @@ class ChipBadge extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(AppSizes.radiusS),
+        borderRadius: BorderRadius.circular(AppSizes.radiusS), // Smaller radius for minimalism
       ),
       child: Text(
         text,

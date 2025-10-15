@@ -140,7 +140,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
             builder: (BuildContext context) {
               return AlertDialog(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
                 ),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -274,7 +274,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                   padding: const EdgeInsets.all(AppSizes.paddingL),
                   decoration: BoxDecoration(
                     color: AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
                     border: Border.all(color: AppColors.border),
                   ),
                   child: Column(
@@ -307,7 +307,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                   padding: const EdgeInsets.all(AppSizes.paddingL),
                   decoration: BoxDecoration(
                     color: AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
                     border: Border.all(color: AppColors.border),
                   ),
                   child: Column(
@@ -347,7 +347,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                   padding: const EdgeInsets.all(AppSizes.paddingL),
                   decoration: BoxDecoration(
                     color: AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
                     border: Border.all(color: AppColors.border),
                   ),
                   child: Column(
@@ -382,7 +382,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                   padding: const EdgeInsets.all(AppSizes.paddingL),
                   decoration: BoxDecoration(
                     color: AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
                     border: Border.all(color: AppColors.border),
                   ),
                   child: Column(
@@ -512,7 +512,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

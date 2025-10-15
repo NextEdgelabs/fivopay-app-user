@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/loan_application.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
 import '../services/loan_service.dart';
+import '../services/kyc_service.dart';
 import '../utils/secure_storage.dart';
 
 class LoanProvider extends ChangeNotifier {
@@ -239,6 +241,46 @@ class LoanProvider extends ChangeNotifier {
       _isVerifyingPAN = false;
       notifyListeners();
     }
+  }
+
+  // Set PAN as verified with API response
+  Future<void> setPANVerified(String pan, dynamic verificationResponse) async {
+    _relativePAN = pan;
+    _isPANVerified = true;
+    _panVerificationDate = DateTime.now().toIso8601String();
+    
+    // Store verification transaction ID if available
+    if (verificationResponse != null && verificationResponse.transactionId != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('pan_verification_txn', verificationResponse.transactionId);
+    }
+    
+    notifyListeners();
+  }
+
+  // Set Aadhaar as verified with API response
+  Future<void> setAadhaarVerified(String aadhaar, dynamic verificationResponse) async {
+    _relativeAadhaar = aadhaar;
+    _isAadhaarVerified = true;
+    _aadhaarVerificationDate = DateTime.now().toIso8601String();
+    
+    // Store Aadhaar details from API response
+    if (verificationResponse != null && verificationResponse.data != null) {
+      _aadhaarDetails = {
+        'name': verificationResponse.data.name,
+        'dob': verificationResponse.data.dateOfBirth,
+        'gender': verificationResponse.data.gender,
+        'address': verificationResponse.data.address,
+      };
+      
+      // Store verification transaction ID if available
+      if (verificationResponse.transactionId != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('aadhaar_verification_txn', verificationResponse.transactionId);
+      }
+    }
+    
+    notifyListeners();
   }
 
   // Verify Aadhaar

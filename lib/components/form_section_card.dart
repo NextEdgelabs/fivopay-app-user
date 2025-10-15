@@ -13,13 +13,14 @@ class FormSectionCard extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(AppSizes.paddingL),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+        borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
         border: Border.all(color: AppColors.border),
+        // Minimal shadow for subtle depth
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+            color: AppColors.shadow,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),

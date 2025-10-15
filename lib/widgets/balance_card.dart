@@ -23,19 +23,21 @@ class BalanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingL),
+      padding: const EdgeInsets.all(AppSizes.paddingXL),
       decoration: BoxDecoration(
+        // Sky blue gradient from dark to light
         gradient: LinearGradient(
-          colors: [AppColors.primaryLight, AppColors.primary],
+          colors: [AppColors.primaryDark, AppColors.primary, AppColors.primaryLight],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+        // Subtle shadow for depth
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.25),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: AppColors.primary.withOpacity(0.2),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -44,27 +46,39 @@ class BalanceCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.account_balance_wallet,
-                color: Colors.white,
-                size: 24,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                ),
+                child: const Icon(
+                  Icons.account_balance_wallet,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
-              const SizedBox(width: AppSizes.paddingS),
+              const SizedBox(width: AppSizes.paddingM),
               Text(
                 title,
-                style: AppTextStyles.body2.copyWith(color: Colors.white70),
+                style: AppTextStyles.body1.copyWith(
+                  color: Colors.white.withOpacity(0.95),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: AppSizes.paddingS),
+          const SizedBox(height: AppSizes.paddingL),
           Text(
             amountText,
-            style: AppTextStyles.heading2.copyWith(
+            style: AppTextStyles.heading1.copyWith(
               color: Colors.white,
-              fontSize: 22,
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: AppSizes.paddingM),
+          const SizedBox(height: AppSizes.paddingXL),
           Row(
             children: [
               Expanded(
@@ -73,17 +87,17 @@ class BalanceCard extends StatelessWidget {
                   text: primaryText,
                   backgroundColor: Colors.white,
                   textColor: AppColors.primary,
-                  height: 40,
+                  height: 46,
                 ),
               ),
-              const SizedBox(width: AppSizes.paddingM),
+              const SizedBox(width: AppSizes.paddingL),
               Expanded(
                 child: CustomButton(
                   onPressed: onSecondary,
                   text: secondaryText,
-                  backgroundColor: Colors.white.withOpacity(0.2),
+                  backgroundColor: Colors.white.withOpacity(0.25),
                   textColor: Colors.white,
-                  height: 40,
+                  height: 46,
                 ),
               ),
             ],

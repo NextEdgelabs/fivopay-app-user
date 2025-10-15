@@ -74,13 +74,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          // Sky blue gradient
+                          gradient: LinearGradient(
+                            colors: [AppColors.primaryDark, AppColors.primaryLight],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                          // Minimal shadow for subtle depth
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primary.withOpacity(0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
+                              color: AppColors.shadow,
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),

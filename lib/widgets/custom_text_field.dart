@@ -44,18 +44,7 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextFormField(
+    return TextFormField(
         controller: controller,
         keyboardType: keyboardType,
         obscureText: obscureText,
@@ -121,7 +110,6 @@ class CustomTextField extends StatelessWidget {
           errorStyle: AppTextStyles.caption.copyWith(color: AppColors.error),
         ),
         style: AppTextStyles.body1,
-      ),
     );
   }
 }
