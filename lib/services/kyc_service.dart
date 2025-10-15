@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 
@@ -123,13 +124,57 @@ class KycService {
 
   /// Request OTP for Aadhaar verification
   /// 
+  /// 
+  /// Step 0: Get Access Token
+  /// 
+Future<String> getAccessToken() async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.authenticate}');
+      
+      // final body = {
+      //   'grant_type': 'client_credentials',
+      //   'client_id': ApiConfig.clientId,
+      //   'client_secret': ApiConfig.clientSecret,
+      // };
+
+      final response = await http.post(
+        url,
+        headers: ApiConfig.headers,
+        // body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        return jsonResponse['access_token'];
+      } else {
+        final errorBody = jsonDecode(response.body);
+        throw KycApiException(
+          message: errorBody['message'] ?? 'Failed to get access token',
+          statusCode: response.statusCode,
+          errorDetails: errorBody,
+        );
+      }
+    } catch (e) {
+      if (e is KycApiException) rethrow;
+      throw KycApiException(
+        message: 'Network error: ${e.toString()}',
+        statusCode: 0,
+        errorDetails: {'error': e.toString()},
+      );
+    }
+  }
   /// Step 1: Send OTP to Aadhaar registered mobile number
+  /// 
+  /// 
   Future<AadhaarOtpResponse> requestAadhaarOtp({
     required String aadhaarNumber,
     String consent = 'Y',
     String reason = 'For KYC verification purpose',
   }) async {
     try {
+//  var accesstoken = await getAccessToken();
+
+      
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.aadhaarOtpPath}');
       
       final body = {
@@ -142,7 +187,8 @@ class KycService {
       print('🔍 [KYC] Aadhaar OTP Request:');
       print('URL: $url');
       print('Body: ${jsonEncode(body)}');
-
+      // ApiConfig.headers['Authorization'] = accesstoken;
+      log(ApiConfig.headers.toString());
       final response = await http.post(
         url,
         headers: ApiConfig.headers,
@@ -337,7 +383,7 @@ class AadhaarOtpResponse {
     return AadhaarOtpResponse(
       code: json['code'] ?? 0,
       timestamp: json['timestamp'] ?? 0,
-      referenceId: json['reference_id'] ?? json['data']?['reference_id'] ?? '',
+      referenceId: json['reference_id'] ?? (json['data']?['reference_id']as int).toString() ?? '',
       message: json['message'] ?? 'OTP sent successfully',
     );
   }
@@ -369,7 +415,7 @@ class AadhaarVerificationResponse {
   }
 
   bool get isSuccess => code == 200 && data != null;
-  bool get isValid => data?.status == 'valid';
+  bool get isValid => data?.status.toLowerCase() == 'valid';
 }
 
 /// Aadhaar Data Model
@@ -403,7 +449,7 @@ class AadhaarData {
       name: json['name'],
       dateOfBirth: json['date_of_birth'] ?? json['dob'],
       gender: json['gender'],
-      address: json['address']?['full_address'] ?? json['address'],
+      address: json['full_address'] ?? "",  //json['address']?['full_address'] ?? json['address']
       photo: json['photo_link'],
       careOf: json['care_of'],
       splitAddress: json['split_address'] != null 

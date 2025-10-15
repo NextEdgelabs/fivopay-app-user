@@ -15,7 +15,8 @@ class ApiConfig {
   // API Endpoints
   static const String panVerifyPath = '/kyc/pan/verify';
   static const String aadhaarOtpPath = '/kyc/aadhaar/okyc/otp';
-  static const String aadhaarVerifyPath = '/kyc/aadhaar/okyc/verify';
+  static const String aadhaarVerifyPath = '/kyc/aadhaar/okyc/otp/verify';
+  static const String authenticate = '/authenticate';
   
   // Headers
   static Map<String, String> get headers => {

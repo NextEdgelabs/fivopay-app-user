@@ -215,7 +215,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
                   ? 'Address'
                   : 'Loan Details',
               currentStep: _currentStep + 1,
-              totalSteps: 5,
+              totalSteps: 4,
             ),
 
             // Page content
@@ -226,7 +226,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
                   controller: _pageController,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    _buildApplicantSelectionStep(),
+                    // _buildApplicantSelectionStep(),
                     _buildPersonalInfoStep(),
                     _buildVerificationStep(),
                     _buildAddressStep(),
@@ -470,7 +470,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Step 2: Personal Information',
+                'Step 1: Personal Information',
                 style: AppTextStyles.heading2,
               ),
               const SizedBox(height: AppSizes.paddingL),
@@ -543,7 +543,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Step 3: Document Verification', style: AppTextStyles.heading2),
+          Text('Step 2: Document Verification', style: AppTextStyles.heading2),
           const SizedBox(height: AppSizes.paddingL),
 
           const VerificationStatusCard(),
@@ -564,7 +564,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Step 4: Address Verification', style: AppTextStyles.heading2),
+          Text('Step 3: Address Verification', style: AppTextStyles.heading2),
           const SizedBox(height: AppSizes.paddingL),
 
           const AddressFormWidget(),
@@ -579,7 +579,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Step 5: Loan Details', style: AppTextStyles.heading2),
+          Text('Step 4: Loan Details', style: AppTextStyles.heading2),
           const SizedBox(height: AppSizes.paddingL),
 
           // Loan Type Selection
