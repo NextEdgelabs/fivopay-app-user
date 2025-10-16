@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/providers/wallet_provider.dart';
+import 'package:janseva/services/storage_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/user_provider.dart';
@@ -130,6 +132,7 @@ class _KycScreenState extends State<KycScreen> {
         );
 
         if (result == true && response.isSuccess) {
+          await SfService.saveJson(SfService.panKey, response.data.toJson());
           setState(() {
             _isPanVerified = true;
           });
@@ -339,12 +342,12 @@ class _KycScreenState extends State<KycScreen> {
           context,
           listen: false,
         );
-        final transactionProvider = Provider.of<TransactionProvider>(
+        final transactionProvider = Provider.of<WalletProvider>(
           context,
           listen: false,
         );
         referralProvider.initializeReferral(updatedUser);
-        transactionProvider.initialize(updatedUser);
+        transactionProvider.initializeWallet(updatedUser);
 
         if (referralCodeInput.isNotEmpty) {
           await referralProvider.redeemReferral(

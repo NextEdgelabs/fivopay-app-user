@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/services/storage_service.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
 
@@ -60,6 +61,7 @@ class AuthProvider extends ChangeNotifier {
 
       if (result['success']) {
         _currentUser = result['user'];
+        // SfService.saveJson(SfService.userKey, result['user']);
         notifyListeners();
         return true;
       } else {

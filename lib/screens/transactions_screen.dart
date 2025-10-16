@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/providers/wallet_provider.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/constants.dart';
@@ -24,7 +25,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<TransactionProvider>(context);
+    final provider = Provider.of<WalletProvider>(context);
     final stats = provider.getTransactionStats();
 
     List transactions = _selectedFilter == 'all'
@@ -43,7 +44,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 children: [
                   SectionHeader(title: 'Summary'),
                   const SizedBox(height: AppSizes.paddingM),
-                  _buildSummaryCard(stats, provider.currentBalance),
+                  _buildSummaryCard(stats, provider.balanceDisplay),
                 ],
               ),
             ),
@@ -122,7 +123,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     }
   }
 
-  Widget _buildSummaryCard(Map<String, dynamic> stats, double balance) {
+  Widget _buildSummaryCard(Map<String, dynamic> stats, String balance) {
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingL),
       decoration: BoxDecoration(
@@ -141,7 +142,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         children: [
           Text('Current Balance', style: AppTextStyles.body2),
           const SizedBox(height: AppSizes.paddingXS),
-          Text('₹${balance.toStringAsFixed(2)}', style: AppTextStyles.heading2),
+          // ignore: unnecessary_brace_in_string_interps
+          Text(balance, style: AppTextStyles.heading2),
           const Divider(height: AppSizes.paddingL * 2),
           Wrap(
             spacing: AppSizes.paddingL,

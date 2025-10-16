@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/providers/wallet_provider.dart';
+import 'package:janseva/screens/withdraw_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/transaction_provider.dart';
@@ -83,7 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildHomeTab() {
     final user = Provider.of<UserProvider>(context).currentUser;
-    final transactionProvider = Provider.of<TransactionProvider>(context);
+    final transactionProvider = Provider.of<WalletProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -208,11 +210,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               BalanceCard(
                 title: AppStrings.balance,
                 amountText:
-                    '₹${transactionProvider.currentBalance.toStringAsFixed(2)}',
+                    transactionProvider.balanceDisplay,
                 onPrimary: () =>
                     _showDepositDialog(context, transactionProvider),
-                onSecondary: () =>
-                    _showWithdrawDialog(context, transactionProvider),
+                onSecondary: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WithdrawScreen(),
+                    ),
+                  ),
+                    // _showWithdrawDialog(context, transactionProvider),
               ),
 
               const SizedBox(height: AppSizes.sectionSpacing),
@@ -364,7 +371,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Deposit Dialog
   void _showDepositDialog(
     BuildContext context,
-    TransactionProvider transactionProvider,
+    WalletProvider transactionProvider,
   ) {
     final amountController = TextEditingController();
 
@@ -394,7 +401,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final amount = double.tryParse(amountController.text);
               if (amount != null && amount > 0) {
                 Navigator.pop(context);
-                final success = await transactionProvider.deposit(amount);
+                final success = await transactionProvider.addMoney(amount: amount);
                 if (success && mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -426,7 +433,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Withdraw Dialog
   void _showWithdrawDialog(
     BuildContext context,
-    TransactionProvider transactionProvider,
+    WalletProvider transactionProvider,
   ) {
     final amountController = TextEditingController();
 
@@ -456,7 +463,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final amount = double.tryParse(amountController.text);
               if (amount != null && amount > 0) {
                 Navigator.pop(context);
-                final success = await transactionProvider.withdraw(amount);
+                final success = await transactionProvider.withdrawMoney(amount: amount);
                 if (success && mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

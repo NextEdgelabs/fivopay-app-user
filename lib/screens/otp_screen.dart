@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:janseva/providers/wallet_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../providers/auth_provider.dart';
@@ -87,14 +88,14 @@ class _OtpScreenState extends State<OtpScreen> {
           context,
           listen: false,
         );
-        final transactionProvider = Provider.of<TransactionProvider>(
+        final transactionProvider = Provider.of<WalletProvider>(
           context,
           listen: false,
         );
 
         userProvider.updateUserFromAuth(user);
         referralProvider.initializeReferral(user);
-        transactionProvider.initialize(user);
+        transactionProvider.initializeWallet(user);
 
         if (isNewUser) {
           // New user - go to KYC

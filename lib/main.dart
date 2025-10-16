@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/providers/wallet_provider.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/user_provider.dart';
@@ -26,7 +27,7 @@ class JanSevaApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ReferralProvider()),
-        ChangeNotifierProvider(create: (_) => TransactionProvider()),
+        ChangeNotifierProvider(create: (_) => WalletProvider()),
         ChangeNotifierProvider(create: (_) => LoanProvider()),
       ],
       child: MaterialApp(
@@ -64,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
       context,
       listen: false,
     );
-    final transactionProvider = Provider.of<TransactionProvider>(
+    final transactionProvider = Provider.of<WalletProvider>(
       context,
       listen: false,
     );
@@ -91,7 +92,7 @@ class _SplashScreenState extends State<SplashScreen> {
         if (user != null) {
           userProvider.updateUserFromAuth(user);
           referralProvider.initializeReferral(user);
-          transactionProvider.initialize(user);
+          transactionProvider.initializeWallet(user);
         }
 
         Navigator.pushReplacement(

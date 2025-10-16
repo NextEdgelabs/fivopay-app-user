@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:janseva/providers/wallet_provider.dart';
 import '../models/user.dart';
 import '../providers/transaction_provider.dart';
 
@@ -173,7 +174,7 @@ class ReferralProvider extends ChangeNotifier {
   Future<bool> redeemReferral({
     required String code,
     required User newUser,
-    required TransactionProvider transactionProvider,
+    required WalletProvider transactionProvider,
   }) async {
     if (code.isEmpty) {
       _setError('Invalid referral code');

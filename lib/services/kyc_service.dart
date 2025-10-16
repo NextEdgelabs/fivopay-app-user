@@ -347,6 +347,20 @@ class PanData {
       return 'PAN verification failed';
     }
   }
+
+  //tojson
+  Map<String, dynamic> toJson() {
+    return {
+      '@entity': entity,
+      'pan': pan,
+      'status': status,
+      'remarks': remarks,
+      'name_as_per_pan_match': nameMatch,
+      'date_of_birth_match': dobMatch,
+      'category': category,
+      'aadhaar_seeding_status': aadhaarSeedingStatus,
+    };
+  }
 }
 
 /// Custom Exception for KYC API Errors

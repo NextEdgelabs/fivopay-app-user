@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/services/storage_service.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
 
@@ -68,6 +69,7 @@ class UserProvider extends ChangeNotifier {
       // For now, just update locally
       // In production, this would make an API call
       _currentUser = user;
+      await SfService.saveJson(SfService.userKey,user.toJson());
       notifyListeners();
       return true;
     } catch (e) {

@@ -82,7 +82,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
   }
 
   void _nextStep() {
-    if (_currentStep < 4) {
+    if (_currentStep < 3) {
       setState(() {
         _currentStep++;
       });
@@ -109,20 +109,18 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
     final loanProvider = context.read<LoanProvider>();
 
     switch (_currentStep) {
-      case 0: // Applicant selection
-        return true;
-      case 1: // Personal info and verification
+      case 0: // Personal info and verification
         if (loanProvider.applicantType == 'relative') {
           return loanProvider.selectedRelation != null &&
               loanProvider.relativeName != null &&
               loanProvider.relativeName!.isNotEmpty;
         }
         return true;
-      case 2: // Document verification
+      case 1: // Document verification
         return loanProvider.isPANVerified && loanProvider.isAadhaarVerified;
-      case 3: // Address details
+      case 2: // Address details
         return loanProvider.isAadhaarVerified;
-      case 4: // Loan details
+      case 3: // Loan details
         return _amountController.text.isNotEmpty &&
             _purposeController.text.isNotEmpty &&
             (double.tryParse(_amountController.text) ?? 0) >= 5000;
@@ -206,12 +204,10 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
           children: [
             StepHeader(
               title: _currentStep == 0
-                  ? 'Applicant'
-                  : _currentStep == 1
                   ? 'Personal Info'
-                  : _currentStep == 2
+                  : _currentStep == 1
                   ? 'Verification'
-                  : _currentStep == 3
+                  : _currentStep == 2
                   ? 'Address'
                   : 'Loan Details',
               currentStep: _currentStep + 1,
@@ -226,7 +222,6 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
                   controller: _pageController,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    // _buildApplicantSelectionStep(),
                     _buildPersonalInfoStep(),
                     _buildVerificationStep(),
                     _buildAddressStep(),
@@ -258,7 +253,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
                   Expanded(
                     child: Consumer<LoanProvider>(
                       builder: (context, loanProvider, child) {
-                        if (_currentStep == 4) {
+                        if (_currentStep == 3) {
                           return CustomButton(
                             onPressed: _isLoading
                                 ? null
@@ -282,182 +277,6 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildApplicantSelectionStep() {
-    return Consumer<LoanProvider>(
-      builder: (context, loanProvider, child) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSizes.paddingL),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Step 1: Who is applying for the loan?',
-                style: AppTextStyles.heading2,
-              ),
-              const SizedBox(height: AppSizes.paddingL),
-
-              // Self application card
-              GestureDetector(
-                onTap: () => loanProvider.setApplicantType('self'),
-                child: Container(
-                  padding: const EdgeInsets.all(AppSizes.paddingL),
-                  decoration: BoxDecoration(
-                    color: loanProvider.applicantType == 'self'
-                        ? AppColors.primary.withOpacity(0.1)
-                        : AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-                    border: Border.all(
-                      color: loanProvider.applicantType == 'self'
-                          ? AppColors.primary
-                          : AppColors.border,
-                      width: loanProvider.applicantType == 'self' ? 2 : 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.person,
-                        color: loanProvider.applicantType == 'self'
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
-                        size: 32,
-                      ),
-                      const SizedBox(width: AppSizes.paddingL),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Apply for myself',
-                              style: AppTextStyles.heading3.copyWith(
-                                color: loanProvider.applicantType == 'self'
-                                    ? AppColors.primary
-                                    : AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: AppSizes.paddingS),
-                            Text(
-                              'Apply for a loan on your own name',
-                              style: AppTextStyles.body2,
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (loanProvider.applicantType == 'self')
-                        Icon(
-                          Icons.check_circle,
-                          color: AppColors.primary,
-                          size: 24,
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: AppSizes.paddingL),
-
-              // Relative application card
-              GestureDetector(
-                onTap: () => loanProvider.setApplicantType('relative'),
-                child: Container(
-                  padding: const EdgeInsets.all(AppSizes.paddingL),
-                  decoration: BoxDecoration(
-                    color: loanProvider.applicantType == 'relative'
-                        ? AppColors.primary.withOpacity(0.1)
-                        : AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-                    border: Border.all(
-                      color: loanProvider.applicantType == 'relative'
-                          ? AppColors.primary
-                          : AppColors.border,
-                      width: loanProvider.applicantType == 'relative' ? 2 : 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.family_restroom,
-                        color: loanProvider.applicantType == 'relative'
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
-                        size: 32,
-                      ),
-                      const SizedBox(width: AppSizes.paddingL),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Apply for a relative',
-                              style: AppTextStyles.heading3.copyWith(
-                                color: loanProvider.applicantType == 'relative'
-                                    ? AppColors.primary
-                                    : AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: AppSizes.paddingS),
-                            Text(
-                              'Apply for a loan on behalf of an immediate family member',
-                              style: AppTextStyles.body2,
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (loanProvider.applicantType == 'relative')
-                        Icon(
-                          Icons.check_circle,
-                          color: AppColors.primary,
-                          size: 24,
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: AppSizes.paddingL),
-
-              // Info card
-              Container(
-                padding: const EdgeInsets.all(AppSizes.paddingL),
-                decoration: BoxDecoration(
-                  color: AppColors.info.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-                  border: Border.all(color: AppColors.info.withOpacity(0.3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: AppColors.info,
-                          size: 24,
-                        ),
-                        const SizedBox(width: AppSizes.paddingS),
-                        Text(
-                          'Important Information',
-                          style: AppTextStyles.heading3.copyWith(
-                            color: AppColors.info,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSizes.paddingM),
-                    Text(
-                      'This loan uses profit sharing according to ethical banking principles. No interest is charged, only profit distribution.',
-                      style: AppTextStyles.body2,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
