@@ -19,6 +19,7 @@ import 'fixed_deposit_screen.dart';
 import 'transactions_screen.dart';
 import 'applications_screen.dart';
 
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 

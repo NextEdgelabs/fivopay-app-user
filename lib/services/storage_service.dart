@@ -8,6 +8,10 @@ class SfService {
   static String bankKey = "bankDetails";
   static String profileKey = "profileDetails";
   static String userKey = "userDetails";
+  static String apikey= "apiKey";
+  static String accessToken = "accessToken";
+  static String apiversion = "apiVersion";
+
 
 
 

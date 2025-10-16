@@ -1,3 +1,7 @@
+import 'package:janseva/main.dart';
+import 'package:janseva/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
+
 /// API Configuration for Sandbox KYC Integration
 class ApiConfig {
   // Base URL
@@ -20,7 +24,7 @@ class ApiConfig {
   
   // Headers
   static Map<String, String> get headers => {
-    'Authorization': apiToken,
+    'Authorization': bContext.read<AuthProvider>().accessToken ?? apiToken,
     'x-api-key': apiKey,
     'x-api-version': '2.0',
     'Content-Type': 'application/json',

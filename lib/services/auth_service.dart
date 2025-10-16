@@ -9,6 +9,10 @@ class AuthService {
   static const String tokenKey = 'auth_token';
   static const String userKey = 'user_data';
 
+
+
+
+
   // Send OTP to phone number
   static Future<bool> sendOtp(String phoneNumber) async {
     try {

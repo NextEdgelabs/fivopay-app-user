@@ -12,7 +12,8 @@ import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+BuildContext get bContext => navigatorKey.currentContext!;
 void main() {
   runApp(const JanSevaApp());
 }
@@ -31,6 +32,7 @@ class JanSevaApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LoanProvider()),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         title: AppStrings.appName,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,

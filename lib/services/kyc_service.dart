@@ -1,10 +1,14 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:janseva/main.dart';
+import 'package:janseva/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 import '../config/api_config.dart';
 
 /// Service for KYC verification using Sandbox API
 class KycService {
+  int retryycount = 0;
   /// Verify PAN card with name and date of birth
   /// 
   /// API Response Format:
@@ -98,7 +102,9 @@ class KycService {
 
       final response = await http.post(
         url,
-        headers: ApiConfig.headers,
+        headers: {
+          
+        },
         body: jsonEncode(body),
       );
 
@@ -127,25 +133,25 @@ class KycService {
   /// 
   /// Step 0: Get Access Token
   /// 
-Future<String> getAccessToken() async {
+Future<void> getAccessToken() async {
     try {
+      final provider = bContext.read<AuthProvider>();
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.authenticate}');
-      
-      // final body = {
-      //   'grant_type': 'client_credentials',
-      //   'client_id': ApiConfig.clientId,
-      //   'client_secret': ApiConfig.clientSecret,
-      // };
-
+    final header = {
+      'x-api-key': "key_live_c018d67e91bc4761b35d212fce69e17d" ,
+      'x-api-secret': 'secret_live_82d7c6010efe4764b12fd616211a9d7a',
+      'x-api-version': provider.apiversion ?? "2.0",
+  // 'Content-Type': 'application/json',
+    };
       final response = await http.post(
         url,
-        headers: ApiConfig.headers,
-        // body: jsonEncode(body),
+        headers: header,
       );
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        return jsonResponse['access_token'];
+        var token =jsonResponse['access_token'];
+        bContext.read<AuthProvider>().updateAccessToken(token);
       } else {
         final errorBody = jsonDecode(response.body);
         throw KycApiException(
@@ -172,9 +178,6 @@ Future<String> getAccessToken() async {
     String reason = 'For KYC verification purpose',
   }) async {
     try {
-//  var accesstoken = await getAccessToken();
-
-      
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.aadhaarOtpPath}');
       
       final body = {
@@ -202,7 +205,25 @@ Future<String> getAccessToken() async {
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         return AadhaarOtpResponse.fromJson(jsonResponse);
-      } else {
+      } 
+      else if (response.statusCode == 403) {
+        if (retryycount < 5){
+          retryycount++;
+          await getAccessToken();
+          return requestAadhaarOtp(aadhaarNumber: aadhaarNumber);
+        }else {
+          final errorBody = jsonDecode(response.body);
+        throw KycApiException(
+          message: errorBody['message'] ?? 'Aadhaar OTP request failed',
+          statusCode: response.statusCode,
+          errorDetails: errorBody,
+        );
+        }
+
+
+      }
+      
+      else {
         final errorBody = jsonDecode(response.body);
         throw KycApiException(
           message: errorBody['message'] ?? 'Aadhaar OTP request failed',
@@ -223,6 +244,8 @@ Future<String> getAccessToken() async {
   /// Verify Aadhaar with OTP
   /// 
   /// Step 2: Verify OTP and get Aadhaar details
+  
+  
   Future<AadhaarVerificationResponse> verifyAadhaarOtp({
     required String referenceId,
     required String otp,

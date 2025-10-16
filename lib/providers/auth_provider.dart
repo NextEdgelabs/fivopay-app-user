@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/config/api_config.dart';
 import 'package:janseva/services/storage_service.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
@@ -13,10 +14,25 @@ class AuthProvider extends ChangeNotifier {
   String? get error => _error;
   bool get isLoggedIn => _currentUser != null;
 
+ String? apiKey ;
+ String? accessToken ;
+ String? apiversion;
+AuthProvider() {
+  initKyc();
+}
+
+ Future<void> initKyc() async {
+ //use api here 
+  apiKey = await SfService.getString(SfService.apikey);
+  accessToken = await SfService.getString(SfService.accessToken);
+  apiversion = await SfService.getString(SfService.apiversion);
+ }
+
   // Initialize auth state
   Future<void> initialize() async {
     _setLoading(true);
     try {
+      
       final user = await AuthService.getCurrentUser();
       if (user != null) {
         _currentUser = user;
@@ -26,6 +42,12 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  void updateAccessToken(String token) async{
+    accessToken = token;
+    await SfService.saveString(SfService.accessToken, token);
+    notifyListeners();
   }
 
   // Send OTP
@@ -50,6 +72,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+
   // Verify OTP
   Future<bool> verifyOtp(String phoneNumber, String otp) async {
     _setLoading(true);
@@ -61,7 +84,17 @@ class AuthProvider extends ChangeNotifier {
 
       if (result['success']) {
         _currentUser = result['user'];
-        // SfService.saveJson(SfService.userKey, result['user']);
+        //TEMP INIT
+        SfService.saveString(SfService.apikey, ApiConfig.apiKey);
+        SfService.saveString(SfService.accessToken, ApiConfig.apiToken);
+        SfService.saveString(SfService.apiversion, "2.0");
+
+        await initKyc();
+        // SfService.saveJson(SfService.apiInfo, {
+        //   'apiKey': apiKey,
+        //   // 'accessToken': accessToken,
+        //   'apiversion': apiversion,
+        // });
         notifyListeners();
         return true;
       } else {
