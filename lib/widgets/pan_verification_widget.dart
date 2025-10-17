@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/loan_provider.dart';
+import '../modules/loan/providers/loan_provider.dart';
+
 import '../providers/user_provider.dart';
 import '../services/kyc_service.dart';
 import '../screens/pan_confirmation_screen.dart';
@@ -21,15 +22,18 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
   final _dobController = TextEditingController();
   final _kycService = KycService();
   bool _isVerifying = false;
+
   String? _errorMessage;
   PanVerificationResponse? _verificationResponse;
 
   @override
   void initState() {
     super.initState();
-    final loanProvider = context.read<LoanProvider>();
-    if (loanProvider.relativePAN != null) {
-      _panController.text = loanProvider.relativePAN!;
+    // final loanProvider = context.read<LoanProvider>();
+    final user = context.read<UserProvider>().currentUser;
+    if (user != null) {
+      _panController.text = user.panNumber ?? '';
+      _nameController.text = user.name ?? '';
     }
   }
 
@@ -50,7 +54,7 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
     final pan = _panController.text.trim().toUpperCase();
     final name = _nameController.text.trim();
     final dob = _dobController.text.trim();
-    
+
     if (!_isValidPAN(pan)) {
       setState(() {
         _errorMessage = 'Please enter a valid PAN number';
@@ -112,14 +116,14 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
           // Update loan provider with verified PAN
           final loanProvider = context.read<LoanProvider>();
           await loanProvider.setPANVerified(pan, response);
-          
+
           // Update user profile with PAN details
           final userProvider = context.read<UserProvider>();
           userProvider.updateFromPanVerification(
             panNumber: pan,
             name: _nameController.text.trim(),
           );
-          
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -136,7 +140,7 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
           _isVerifying = false;
           _errorMessage = e.toString().replaceAll('KycApiException: ', '');
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Verification failed: ${_errorMessage}'),
@@ -152,14 +156,16 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
   Widget build(BuildContext context) {
     return Consumer<LoanProvider>(
       builder: (context, loanProvider, child) {
-        final isVerified = loanProvider.isPANVerified;
-        final isVerifying = loanProvider.isVerifyingPAN;
+        final isVerified = loanProvider.isPanVerified;
+        // final isVerifying = loanProvider.isVerifyingPAN;
 
         return Container(
           padding: const EdgeInsets.all(AppSizes.paddingL),
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
+            borderRadius: BorderRadius.circular(
+              AppSizes.radiusL,
+            ), // Reduced for minimalism
             border: Border.all(
               color: isVerified ? AppColors.success : AppColors.border,
               width: isVerified ? 2 : 1,
@@ -176,10 +182,7 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
                     size: 24,
                   ),
                   const SizedBox(width: AppSizes.paddingS),
-                  Text(
-                    'PAN Verification',
-                    style: AppTextStyles.heading3,
-                  ),
+                  Text('PAN Verification', style: AppTextStyles.heading3),
                   const Spacer(),
                   if (isVerified)
                     Container(
@@ -212,7 +215,7 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
                 ],
               ),
               const SizedBox(height: AppSizes.paddingL),
-              
+
               if (!isVerified) ...[
                 CustomTextField(
                   controller: _panController,
@@ -233,7 +236,7 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
                   },
                 ),
                 const SizedBox(height: AppSizes.paddingM),
-                
+
                 CustomTextField(
                   controller: _nameController,
                   labelText: 'Name as per PAN',
@@ -249,7 +252,7 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
                   },
                 ),
                 const SizedBox(height: AppSizes.paddingM),
-                
+
                 CustomTextField(
                   controller: _dobController,
                   labelText: 'Date of Birth',
@@ -272,12 +275,12 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
                       lastDate: DateTime.now(),
                     );
                     if (picked != null) {
-                      _dobController.text = 
+                      _dobController.text =
                           '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
                     }
                   },
                 ),
-                
+
                 if (_errorMessage != null) ...[
                   const SizedBox(height: AppSizes.paddingS),
                   Container(
@@ -309,12 +312,14 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
                     ),
                   ),
                 ],
-                
+
                 const SizedBox(height: AppSizes.paddingL),
-                
+
                 CustomButton(
                   onPressed: _isVerifying ? null : _verifyPAN,
-                  text: _isVerifying ? 'Verifying with Sandbox API...' : 'Verify PAN',
+                  text: _isVerifying
+                      ? 'Verifying with Sandbox API...'
+                      : 'Verify PAN',
                   isLoading: _isVerifying,
                 ),
               ] else ...[

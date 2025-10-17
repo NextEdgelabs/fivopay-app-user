@@ -91,14 +91,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final transactionProvider = Provider.of<WalletProvider>(context);
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => LoanCategoriesScreen()),
-          );
-        },
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(builder: (context) => LoanCategoriesScreen()),
+      //     );
+      //   },
+      // ),
       appBar: AppBar(
         title: Text(
           AppStrings.dashboard,

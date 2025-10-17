@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/models.dart';
+import '../providers/loan_provider.dart';
 import 'loan_application_input_fields.dart';
 import 'loan_application_section_header.dart';
 import 'loan_category_display_card.dart';
@@ -27,103 +29,146 @@ class LoanApplicationLoanDetailsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final primaryColor = _getLoanTypeColor(loanCategory.loanType);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            LoanApplicationSectionHeader(
-              title: 'Loan Information',
-              color: primaryColor,
-            ),
-            const SizedBox(height: 16),
+    return Consumer<LoanProvider>(
+      builder: (context, loanProvider, child) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                LoanApplicationSectionHeader(
+                  title: 'Loan Information',
+                  color: primaryColor,
+                ),
+                const SizedBox(height: 16),
 
-            // Loan category card
-            LoanCategoryDisplayCard(loanCategory: loanCategory),
-            const SizedBox(height: 24),
+                // Loan category card
+                LoanCategoryDisplayCard(loanCategory: loanCategory),
+                const SizedBox(height: 24),
 
-            // Loan amount
-            LoanApplicationInputField(
-              controller: loanAmountController,
-              label: 'Loan Amount',
-              hint: 'Enter desired loan amount',
-              prefix: '₹',
-              keyboardType: TextInputType.number,
-              focusColor: primaryColor,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter loan amount';
-                }
-                final amount = double.tryParse(value.replaceAll(',', ''));
-                if (amount == null) {
-                  return 'Please enter a valid amount';
-                }
-                if (amount < loanCategory.minLoanAmount) {
-                  return 'Minimum amount is ${loanCategory.formattedMinAmount}';
-                }
-                if (amount > loanCategory.maxLoanAmount) {
-                  return 'Maximum amount is ${loanCategory.formattedMaxAmount}';
-                }
-                return null;
-              },
-              onChanged: onLoanAmountChanged,
-            ),
-            const SizedBox(height: 16),
+                // Show any validation errors from provider
+                if (loanProvider.errorMessage != null)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            loanProvider.errorMessage!,
+                            style: TextStyle(
+                              color: Colors.red.shade700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-            // Tenure
-            LoanApplicationInputField(
-              controller: tenureController,
-              label: 'Loan Tenure (Months)',
-              hint: 'Enter loan tenure',
-              suffix: 'months',
-              keyboardType: TextInputType.number,
-              focusColor: primaryColor,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter loan tenure';
-                }
-                final tenure = int.tryParse(value);
-                if (tenure == null) {
-                  return 'Please enter a valid tenure';
-                }
-                if (tenure < loanCategory.minTenureMonths) {
-                  return 'Minimum tenure is ${loanCategory.minTenureMonths} months';
-                }
-                if (tenure > loanCategory.maxTenureMonths) {
-                  return 'Maximum tenure is ${loanCategory.maxTenureMonths} months';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
+                // Loan amount
+                LoanApplicationInputField(
+                  controller: loanAmountController,
+                  label: 'Loan Amount',
+                  hint: 'Enter desired loan amount',
+                  prefix: '₹',
+                  keyboardType: TextInputType.number,
+                  focusColor: primaryColor,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter loan amount';
+                    }
+                    final amount = double.tryParse(value.replaceAll(',', ''));
+                    if (amount == null) {
+                      return 'Please enter a valid amount';
+                    }
+                    if (amount < loanCategory.minLoanAmount) {
+                      return 'Minimum amount is ${loanCategory.formattedMinAmount}';
+                    }
+                    if (amount > loanCategory.maxLoanAmount) {
+                      return 'Maximum amount is ${loanCategory.formattedMaxAmount}';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    onLoanAmountChanged(value);
+                    loanProvider.updateApplicationData('loanAmount', value);
+                  },
+                ),
+                const SizedBox(height: 16),
 
-            // Purpose
-            LoanApplicationInputField(
-              controller: purposeController,
-              label: 'Purpose of Loan',
-              hint: 'Describe the purpose of this loan',
-              maxLines: 3,
-              focusColor: primaryColor,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter the purpose of loan';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 24),
+                // Tenure
+                LoanApplicationInputField(
+                  controller: tenureController,
+                  label: 'Loan Tenure (Months)',
+                  hint: 'Enter loan tenure',
+                  suffix: 'months',
+                  keyboardType: TextInputType.number,
+                  focusColor: primaryColor,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter loan tenure';
+                    }
+                    final tenure = int.tryParse(value);
+                    if (tenure == null) {
+                      return 'Please enter a valid tenure';
+                    }
+                    if (tenure < loanCategory.minTenureMonths) {
+                      return 'Minimum tenure is ${loanCategory.minTenureMonths} months';
+                    }
+                    if (tenure > loanCategory.maxTenureMonths) {
+                      return 'Maximum tenure is ${loanCategory.maxTenureMonths} months';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    loanProvider.updateApplicationData('tenure', value);
+                  },
+                ),
+                const SizedBox(height: 16),
 
-            // EMI Calculator card
-            LoanApplicationEMICalculatorCard(
-              loanCategory: loanCategory,
-              loanAmountController: loanAmountController,
-              tenureController: tenureController,
+                // Purpose
+                LoanApplicationInputField(
+                  controller: purposeController,
+                  label: 'Purpose of Loan',
+                  hint: 'Describe the purpose of this loan',
+                  maxLines: 3,
+                  focusColor: primaryColor,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the purpose of loan';
+                    }
+                    if (value.trim().length < 10) {
+                      return 'Please provide more details about loan purpose';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    loanProvider.updateApplicationData('purpose', value);
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // EMI Calculator card
+                LoanApplicationEMICalculatorCard(
+                  loanCategory: loanCategory,
+                  loanAmountController: loanAmountController,
+                  tenureController: tenureController,
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

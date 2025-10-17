@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/models.dart';
+import '../providers/loan_provider.dart';
 import 'loan_application_input_fields.dart';
 import 'loan_application_section_header.dart';
 
@@ -33,142 +35,296 @@ class LoanApplicationEmploymentDetailsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final primaryColor = _getLoanTypeColor(loanCategory.loanType);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LoanApplicationSectionHeader(
-            title: 'Employment Information',
-            color: primaryColor,
-          ),
-          const SizedBox(height: 16),
+    return Consumer<LoanProvider>(
+      builder: (context, loanProvider, child) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LoanApplicationSectionHeader(
+                title: 'Employment Information',
+                color: primaryColor,
+              ),
+              const SizedBox(height: 16),
 
-          // Employment type
-          LoanApplicationDropdownField(
-            label: 'Employment Type',
-            value: selectedEmploymentType,
-            items: [
-              'Salaried',
-              'Self-Employed',
-              'Business Owner',
-              'Professional',
-            ],
-            onChanged: onEmploymentTypeChanged,
-            focusColor: primaryColor,
-          ),
-          const SizedBox(height: 16),
-
-          LoanApplicationInputField(
-            controller: monthlyIncomeController,
-            label: 'Monthly Income',
-            hint: 'Enter your monthly income',
-            prefix: '₹',
-            keyboardType: TextInputType.number,
-            focusColor: primaryColor,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your monthly income';
-              }
-              final income = double.tryParse(value.replaceAll(',', ''));
-              if (income == null) {
-                return 'Please enter a valid income';
-              }
-              if (income < loanCategory.eligibilityCriteria.minIncome) {
-                return 'Minimum income required is ${loanCategory.eligibilityCriteria.formattedMinIncome}';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          LoanApplicationInputField(
-            controller: employerNameController,
-            label: 'Employer/Company Name',
-            hint: 'Enter your employer or company name',
-            focusColor: primaryColor,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter employer/company name';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          LoanApplicationInputField(
-            controller: workExperienceController,
-            label: 'Work Experience (Years)',
-            hint: 'Enter your work experience',
-            suffix: 'years',
-            keyboardType: TextInputType.number,
-            focusColor: primaryColor,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your work experience';
-              }
-              final experience = double.tryParse(value);
-              if (experience == null || experience < 0) {
-                return 'Please enter valid work experience';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Education
-          LoanApplicationDropdownField(
-            label: 'Education',
-            value: selectedEducation,
-            items: ['Graduate', 'Post Graduate', 'Diploma', 'HSC', 'Others'],
-            onChanged: onEducationChanged,
-            focusColor: primaryColor,
-          ),
-          const SizedBox(height: 24),
-
-          LoanApplicationSectionHeader(
-            title: 'Additional Information',
-            color: primaryColor,
-          ),
-          const SizedBox(height: 16),
-
-          // Existing loans
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Do you have any existing loans?',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+              // Show any validation errors from provider
+              if (loanProvider.errorMessage != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.withOpacity(0.3)),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
+                  child: Row(
                     children: [
+                      Icon(Icons.error_outline, color: Colors.red, size: 20),
+                      const SizedBox(width: 8),
                       Expanded(
-                        child: RadioListTile<bool>(
-                          title: const Text('Yes'),
-                          value: true,
-                          groupValue: hasExistingLoans,
-                          onChanged: onExistingLoansChanged,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
-                      Expanded(
-                        child: RadioListTile<bool>(
-                          title: const Text('No'),
-                          value: false,
-                          groupValue: hasExistingLoans,
-                          onChanged: onExistingLoansChanged,
-                          contentPadding: EdgeInsets.zero,
+                        child: Text(
+                          loanProvider.errorMessage!,
+                          style: TextStyle(
+                            color: Colors.red.shade700,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],
                   ),
+                ),
+
+              // Employment type
+              LoanApplicationDropdownField(
+                label: 'Employment Type',
+                value: selectedEmploymentType,
+                items: [
+                  'Salaried',
+                  'Self-Employed',
+                  'Business Owner',
+                  'Professional',
                 ],
+                onChanged: (value) {
+                  onEmploymentTypeChanged(value);
+                  loanProvider.updateApplicationData('employmentType', value);
+                },
+                focusColor: primaryColor,
+              ),
+              const SizedBox(height: 16),
+
+              LoanApplicationInputField(
+                controller: monthlyIncomeController,
+                label: 'Monthly Income',
+                hint: 'Enter your monthly income',
+                prefix: '₹',
+                keyboardType: TextInputType.number,
+                focusColor: primaryColor,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your monthly income';
+                  }
+                  final income = double.tryParse(value.replaceAll(',', ''));
+                  if (income == null) {
+                    return 'Please enter a valid income';
+                  }
+                  if (income < loanCategory.eligibilityCriteria.minIncome) {
+                    return 'Minimum income required is ${loanCategory.eligibilityCriteria.formattedMinIncome}';
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  loanProvider.updateApplicationData('monthlyIncome', value);
+                },
+              ),
+              const SizedBox(height: 16),
+
+              LoanApplicationInputField(
+                controller: employerNameController,
+                label: 'Employer/Company Name',
+                hint: 'Enter your employer or company name',
+                focusColor: primaryColor,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter employer/company name';
+                  }
+                  if (value.trim().length < 2) {
+                    return 'Please enter a valid employer name';
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  loanProvider.updateApplicationData('employerName', value);
+                },
+              ),
+              const SizedBox(height: 16),
+
+              LoanApplicationInputField(
+                controller: workExperienceController,
+                label: 'Work Experience (Years)',
+                hint: 'Enter your work experience',
+                suffix: 'years',
+                keyboardType: TextInputType.number,
+                focusColor: primaryColor,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your work experience';
+                  }
+                  final experience = double.tryParse(value);
+                  if (experience == null || experience < 0) {
+                    return 'Please enter valid work experience';
+                  }
+                  if (experience > 50) {
+                    return 'Please enter a realistic work experience';
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  loanProvider.updateApplicationData('workExperience', value);
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Education
+              LoanApplicationDropdownField(
+                label: 'Education',
+                value: selectedEducation,
+                items: [
+                  'Graduate',
+                  'Post Graduate',
+                  'Diploma',
+                  'HSC',
+                  'Others',
+                ],
+                onChanged: (value) {
+                  onEducationChanged(value);
+                  loanProvider.updateApplicationData('education', value);
+                },
+                focusColor: primaryColor,
+              ),
+              const SizedBox(height: 24),
+
+              LoanApplicationSectionHeader(
+                title: 'Additional Information',
+                color: primaryColor,
+              ),
+              const SizedBox(height: 16),
+
+              // Existing loans
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Do you have any existing loans?',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: RadioListTile<bool>(
+                              title: const Text('Yes'),
+                              value: true,
+                              groupValue: hasExistingLoans,
+                              onChanged: (value) {
+                                onExistingLoansChanged(value);
+                                loanProvider.updateApplicationData(
+                                  'hasExistingLoans',
+                                  value,
+                                );
+                              },
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
+                          Expanded(
+                            child: RadioListTile<bool>(
+                              title: const Text('No'),
+                              value: false,
+                              groupValue: hasExistingLoans,
+                              onChanged: (value) {
+                                onExistingLoansChanged(value);
+                                loanProvider.updateApplicationData(
+                                  'hasExistingLoans',
+                                  value,
+                                );
+                              },
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Additional eligibility check display
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: primaryColor.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.info_outline, color: primaryColor, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Eligibility Status',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildEligibilityItem(
+                      'Minimum Income',
+                      '₹${loanCategory.eligibilityCriteria.formattedMinIncome}',
+                      _checkIncomeEligibility(loanProvider),
+                    ),
+                    _buildEligibilityItem(
+                      'Age Range',
+                      '${loanCategory.eligibilityCriteria.minAge}-${loanCategory.eligibilityCriteria.maxAge} years',
+                      true, // We're not collecting age in this form
+                    ),
+                    _buildEligibilityItem(
+                      'Minimum Credit Score',
+                      '${loanCategory.eligibilityCriteria.creditScoreMin}',
+                      true, // We're not checking credit score in this form
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  bool _checkIncomeEligibility(LoanProvider loanProvider) {
+    final incomeStr = loanProvider.applicationData['monthlyIncome'];
+    if (incomeStr == null || incomeStr.isEmpty) return false;
+
+    final income = double.tryParse(incomeStr.toString().replaceAll(',', ''));
+    if (income == null) return false;
+
+    return income >= loanCategory.eligibilityCriteria.minIncome;
+  }
+
+  Widget _buildEligibilityItem(String label, String requirement, bool isMet) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle : Icons.radio_button_unchecked,
+            color: isMet ? Colors.green : Colors.grey,
+            size: 16,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '$label: $requirement',
+              style: TextStyle(
+                fontSize: 14,
+                color: isMet ? Colors.green.shade700 : Colors.grey.shade600,
               ),
             ),
           ),

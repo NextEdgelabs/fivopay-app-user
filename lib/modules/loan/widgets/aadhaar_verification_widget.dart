@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/loan_provider.dart';
-import '../providers/user_provider.dart';
-import '../services/kyc_service.dart';
-import '../utils/constants.dart';
-import 'custom_text_field.dart';
-import 'custom_button.dart';
+import '../../../providers/loan_provider.dart';
+import '../../../providers/user_provider.dart';
+import '../../../services/kyc_service.dart';
+import '../../../utils/constants.dart';
+import '../../../widgets/custom_text_field.dart';
+import '../../../widgets/custom_button.dart';
 
 class AadhaarVerificationWidget extends StatefulWidget {
   const AadhaarVerificationWidget({super.key});

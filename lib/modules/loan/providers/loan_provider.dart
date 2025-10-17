@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
+import 'package:janseva/services/kyc_service.dart';
 import '../models/models.dart';
 import '../services/loan_service.dart';
 
@@ -14,6 +15,20 @@ class LoanProvider extends ChangeNotifier {
   // Application state
   Map<String, dynamic> _applicationData = {};
   LoanCategory? _selectedLoanCategory;
+  Map<String, dynamic>? _aadhaarDetails;
+  String? _relativeName;
+  String? _relativePhone;
+  String? _relativePAN;
+  String? _relativeAadhaar;
+  bool _isAadhaarVerified = false;
+  bool _isPanVerified = false;
+  String? _panVerificationDate;
+  String? _aadhaarVerificationDate;
+  bool _isVerifyingPAN = false;
+
+  String? _currentAddress;
+  String? _aadhaarAddress;
+  bool _isCurrentAddressSameAsAadhaar = true;
 
   // Pagination
   int _currentPage = 1;
@@ -34,7 +49,16 @@ class LoanProvider extends ChangeNotifier {
   LoanCategory? get selectedLoanCategory => _selectedLoanCategory;
   bool get hasMoreData => _hasMoreData;
   int get currentPage => _currentPage;
-
+  bool get isAadhaarVerified => _isAadhaarVerified;
+  bool get isPanVerified => _isPanVerified;
+  Map<String, dynamic>? get aadhaarDetails => _aadhaarDetails;
+  String? get relativeName => _relativeName;
+  String? get relativePhone => _relativePhone;
+  String? get relativePAN => _relativePAN;
+  String? get relativeAadhaar => _relativeAadhaar;
+  String? get panVerificationDate => _panVerificationDate;
+  String? get aadhaarVerificationDate => _aadhaarVerificationDate;
+  bool get isVerifyingPAN => _isVerifyingPAN;
   // Clear error message
   void clearError() {
     _errorMessage = null;
@@ -163,6 +187,19 @@ class LoanProvider extends ChangeNotifier {
   void clearApplicationData() {
     _applicationData.clear();
     _selectedLoanCategory = null;
+    // Clear verification status when clearing application data
+    _isAadhaarVerified = false;
+    _isPanVerified = false;
+    _panVerificationDate = null;
+    _aadhaarVerificationDate = null;
+    _aadhaarDetails = null;
+    _relativeName = null;
+    _relativePhone = null;
+    _relativePAN = null;
+    _relativeAadhaar = null;
+    _isVerifyingPAN = false;
+    // Clear any error messages
+    _errorMessage = null;
     notifyListeners();
   }
 
@@ -277,6 +314,54 @@ class LoanProvider extends ChangeNotifier {
     }).toList();
   }
 
+  // Set Aadhaar as verified with API response
+  Future<void> setAadhaarVerified(
+    String aadhaar,
+    AadhaarVerificationResponse verificationResponse,
+  ) async {
+    _relativeAadhaar = aadhaar;
+    _isAadhaarVerified = true;
+    _aadhaarVerificationDate = DateTime.now().toIso8601String();
+
+    // Store Aadhaar details from API response
+    if (verificationResponse.data != null) {
+      _aadhaarDetails = {
+        'name': verificationResponse.data?.name,
+        'dob': verificationResponse.data?.dateOfBirth,
+        'gender': verificationResponse.data?.gender,
+        'address': verificationResponse.data?.address,
+      };
+
+      // Store verification transaction ID if available
+      // final prefs = await SharedPreferences.getInstance();
+      // await prefs.setString(
+      //   'aadhaar_verification_txn',
+      //   verificationResponse.transactionId,
+      // );
+    }
+
+    notifyListeners();
+  }
+
+  //   // Set PAN as verified with API response
+  Future<void> setPANVerified(
+    String pan,
+    PanVerificationResponse verificationResponse,
+  ) async {
+    _relativePAN = pan;
+    _isPanVerified = true;
+    _panVerificationDate = DateTime.now().toIso8601String();
+
+    // Store verification transaction ID if available
+    // final prefs = await SharedPreferences.getInstance();
+    // await prefs.setString(
+    //   'pan_verification_txn',
+    //   verificationResponse.transactionId,
+    // );
+
+    notifyListeners();
+  }
+
   // Private helper methods
   void _setLoading(bool loading) {
     _isLoading = loading;
@@ -309,5 +394,199 @@ class LoanProvider extends ChangeNotifier {
     _currentPage = 1;
     _hasMoreData = true;
     notifyListeners();
+  }
+
+  // Validation methods
+  List<String> validateLoanDetails() {
+    List<String> errors = [];
+
+    if (_selectedLoanCategory == null) {
+      errors.add('No loan category selected');
+      return errors;
+    }
+
+    final loanAmount = _applicationData['loanAmount'];
+    if (loanAmount == null || loanAmount.toString().isEmpty) {
+      errors.add('Please enter loan amount');
+    } else {
+      final amount = double.tryParse(loanAmount.toString().replaceAll(',', ''));
+      if (amount == null) {
+        errors.add('Please enter a valid loan amount');
+      } else {
+        if (amount < _selectedLoanCategory!.minLoanAmount) {
+          errors.add(
+            'Minimum loan amount is ${_selectedLoanCategory!.formattedMinAmount}',
+          );
+        }
+        if (amount > _selectedLoanCategory!.maxLoanAmount) {
+          errors.add(
+            'Maximum loan amount is ${_selectedLoanCategory!.formattedMaxAmount}',
+          );
+        }
+      }
+    }
+
+    final tenure = _applicationData['tenure'];
+    if (tenure == null || tenure.toString().isEmpty) {
+      errors.add('Please enter loan tenure');
+    } else {
+      final tenureMonths = int.tryParse(tenure.toString());
+      if (tenureMonths == null) {
+        errors.add('Please enter a valid tenure');
+      } else {
+        if (tenureMonths < _selectedLoanCategory!.minTenureMonths) {
+          errors.add(
+            'Minimum tenure is ${_selectedLoanCategory!.minTenureMonths} months',
+          );
+        }
+        if (tenureMonths > _selectedLoanCategory!.maxTenureMonths) {
+          errors.add(
+            'Maximum tenure is ${_selectedLoanCategory!.maxTenureMonths} months',
+          );
+        }
+      }
+    }
+
+    final purpose = _applicationData['purpose'];
+    if (purpose == null || purpose.toString().trim().isEmpty) {
+      errors.add('Please enter the purpose of loan');
+    } else if (purpose.toString().trim().length < 10) {
+      errors.add('Please provide more details about loan purpose');
+    }
+
+    return errors;
+  }
+
+  List<String> validatePersonalDetails() {
+    List<String> errors = [];
+
+    final fullName = _applicationData['fullName'];
+    if (fullName == null || fullName.toString().trim().isEmpty) {
+      errors.add('Please enter your full name');
+    } else if (fullName.toString().trim().length < 2) {
+      errors.add('Please enter a valid full name');
+    }
+
+    final email = _applicationData['email'];
+    if (email == null || email.toString().isEmpty) {
+      errors.add('Please enter your email address');
+    } else if (!RegExp(
+      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+    ).hasMatch(email.toString())) {
+      errors.add('Please enter a valid email address');
+    }
+
+    final phone = _applicationData['phone'];
+    if (phone == null || phone.toString().isEmpty) {
+      errors.add('Please enter your phone number');
+    } else if (phone.toString().length != 10 ||
+        !RegExp(r'^[0-9]+$').hasMatch(phone.toString())) {
+      errors.add('Please enter a valid 10-digit phone number');
+    }
+
+    if (!_isPanVerified) {
+      errors.add('Please verify your PAN number');
+    }
+
+    if (!_isAadhaarVerified) {
+      errors.add('Please verify your Aadhaar number');
+    }
+
+    final address = _applicationData['address'];
+    if (address == null || address.toString().trim().isEmpty) {
+      errors.add('Please enter your address');
+    } else if (address.toString().trim().length < 10) {
+      errors.add('Please enter a complete address');
+    }
+
+    final city = _applicationData['city'];
+    if (city == null || city.toString().trim().isEmpty) {
+      errors.add('Please enter your city');
+    } else if (city.toString().trim().length < 2) {
+      errors.add('Please enter a valid city name');
+    }
+
+    final pincode = _applicationData['pincode'];
+    if (pincode == null || pincode.toString().isEmpty) {
+      errors.add('Please enter your pincode');
+    } else if (pincode.toString().length != 6 ||
+        !RegExp(r'^[0-9]+$').hasMatch(pincode.toString())) {
+      errors.add('Please enter a valid 6-digit pincode');
+    }
+
+    return errors;
+  }
+
+  List<String> validateEmploymentDetails() {
+    List<String> errors = [];
+
+    if (_selectedLoanCategory == null) {
+      errors.add('No loan category selected');
+      return errors;
+    }
+
+    final monthlyIncome = _applicationData['monthlyIncome'];
+    if (monthlyIncome == null || monthlyIncome.toString().isEmpty) {
+      errors.add('Please enter your monthly income');
+    } else {
+      final income = double.tryParse(
+        monthlyIncome.toString().replaceAll(',', ''),
+      );
+      if (income == null) {
+        errors.add('Please enter a valid monthly income');
+      } else if (income <
+          _selectedLoanCategory!.eligibilityCriteria.minIncome) {
+        errors.add(
+          'Minimum income required is ${_selectedLoanCategory!.eligibilityCriteria.formattedMinIncome}',
+        );
+      }
+    }
+
+    final employerName = _applicationData['employerName'];
+    if (employerName == null || employerName.toString().trim().isEmpty) {
+      errors.add('Please enter your employer/company name');
+    } else if (employerName.toString().trim().length < 2) {
+      errors.add('Please enter a valid employer name');
+    }
+
+    final workExperience = _applicationData['workExperience'];
+    if (workExperience == null || workExperience.toString().isEmpty) {
+      errors.add('Please enter your work experience');
+    } else {
+      final experience = double.tryParse(workExperience.toString());
+      if (experience == null || experience < 0) {
+        errors.add('Please enter valid work experience');
+      } else if (experience > 50) {
+        errors.add('Please enter a realistic work experience');
+      }
+    }
+
+    return errors;
+  }
+
+  bool isStepValid(int step) {
+    switch (step) {
+      case 0:
+        return validateLoanDetails().isEmpty;
+      case 1:
+        return validatePersonalDetails().isEmpty;
+      case 2:
+        return validateEmploymentDetails().isEmpty;
+      default:
+        return true;
+    }
+  }
+
+  List<String> getStepValidationErrors(int step) {
+    switch (step) {
+      case 0:
+        return validateLoanDetails();
+      case 1:
+        return validatePersonalDetails();
+      case 2:
+        return validateEmploymentDetails();
+      default:
+        return [];
+    }
   }
 }

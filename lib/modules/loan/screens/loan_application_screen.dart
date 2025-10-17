@@ -50,19 +50,32 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
     // Set the selected loan category in provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       var user = context.read<UserProvider>().currentUser;
-      context.read<LoanProvider>().setSelectedLoanCategory(widget.args.loan);
+      final loanProvider = context.read<LoanProvider>();
+
+      loanProvider.setSelectedLoanCategory(widget.args.loan);
+
       if (user != null) {
         _fullNameController.text = user.name ?? '';
         _emailController.text = user.email ?? '';
         _phoneController.text = user.phoneNumber;
         _panController.text = user.panNumber ?? '';
         _aadharController.text = user.aadharNumber ?? '';
+
+        // Update provider with user data
+        loanProvider.updateApplicationData('fullName', user.name ?? '');
+        loanProvider.updateApplicationData('email', user.email ?? '');
+        loanProvider.updateApplicationData('phone', user.phoneNumber);
+        loanProvider.updateApplicationData('pan', user.panNumber ?? '');
+        loanProvider.updateApplicationData('aadhar', user.aadharNumber ?? '');
       }
     });
   }
 
   @override
   void dispose() {
+    // Clear loan provider data when exiting the application screen
+    context.read<LoanProvider>().clearApplicationData();
+
     _loanAmountController.dispose();
     _tenureController.dispose();
     _purposeController.dispose();
@@ -83,117 +96,193 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Loan Application'),
-        backgroundColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          LoanApplicationProgressIndicator(
-            currentStep: _currentStep,
-            totalSteps: _totalSteps,
-            primaryColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
+    return PopScope(
+      onPopInvoked: (didPop) {
+        if (didPop) {
+          // Clear loan provider data when back button is pressed
+          context.read<LoanProvider>().clearApplicationData();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Loan Application'),
+          backgroundColor: LoanUtils.getLoanTypeColor(
+            widget.args.loan.loanType,
           ),
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentStep = index;
-                });
-              },
-              children: [
-                LoanApplicationLoanDetailsWidget(
-                  loanCategory: widget.args.loan,
-                  formKey: _formKey,
-                  loanAmountController: _loanAmountController,
-                  tenureController: _tenureController,
-                  purposeController: _purposeController,
-                  onLoanAmountChanged: _updateLoanAmount,
-                ),
-                LoanApplicationPersonalDetailsWidget(
-                  loanCategory: widget.args.loan,
-                  fullNameController: _fullNameController,
-                  emailController: _emailController,
-                  phoneController: _phoneController,
-                  panController: _panController,
-                  aadharController: _aadharController,
-                  addressController: _addressController,
-                  cityController: _cityController,
-                  pincodeController: _pincodeController,
-                ),
-                LoanApplicationEmploymentDetailsWidget(
-                  loanCategory: widget.args.loan,
-                  selectedEmploymentType: _selectedEmploymentType,
-                  onEmploymentTypeChanged: (value) {
-                    setState(() {
-                      _selectedEmploymentType = value!;
-                    });
-                  },
-                  monthlyIncomeController: _monthlyIncomeController,
-                  employerNameController: _employerNameController,
-                  workExperienceController: _workExperienceController,
-                  selectedEducation: _selectedEducation,
-                  onEducationChanged: (value) {
-                    setState(() {
-                      _selectedEducation = value!;
-                    });
-                  },
-                  hasExistingLoans: _hasExistingLoans,
-                  onExistingLoansChanged: (value) {
-                    setState(() {
-                      _hasExistingLoans = value!;
-                    });
-                  },
-                ),
-                LoanApplicationReviewWidget(
-                  loanCategory: widget.args.loan,
-                  loanAmountController: _loanAmountController,
-                  tenureController: _tenureController,
-                  purposeController: _purposeController,
-                  fullNameController: _fullNameController,
-                  emailController: _emailController,
-                  phoneController: _phoneController,
-                  panController: _panController,
-                  addressController: _addressController,
-                  cityController: _cityController,
-                  selectedEmploymentType: _selectedEmploymentType,
-                  monthlyIncomeController: _monthlyIncomeController,
-                  employerNameController: _employerNameController,
-                  workExperienceController: _workExperienceController,
-                  selectedEducation: _selectedEducation,
-                  agreeToTerms: _agreeToTerms,
-                  onTermsChanged: (value) {
-                    setState(() {
-                      _agreeToTerms = value!;
-                    });
-                  },
-                  onSubmit: _submitApplication,
-                ),
-              ],
+          foregroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              // Clear loan provider data when back button in app bar is pressed
+              context.read<LoanProvider>().clearApplicationData();
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
+        body: Column(
+          children: [
+            LoanApplicationProgressIndicator(
+              currentStep: _currentStep,
+              totalSteps: _totalSteps,
+              primaryColor: LoanUtils.getLoanTypeColor(
+                widget.args.loan.loanType,
+              ),
             ),
-          ),
-          LoanApplicationNavigationButtons(
-            currentStep: _currentStep,
-            totalSteps: _totalSteps,
-            onPrevious: _currentStep > 0 ? _previousStep : null,
-            onNext: _currentStep < _totalSteps - 1 ? _nextStep : null,
-            primaryColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
-          ),
-        ],
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentStep = index;
+                  });
+                },
+                children: [
+                  LoanApplicationLoanDetailsWidget(
+                    loanCategory: widget.args.loan,
+                    formKey: _formKey,
+                    loanAmountController: _loanAmountController,
+                    tenureController: _tenureController,
+                    purposeController: _purposeController,
+                    onLoanAmountChanged: _updateLoanAmount,
+                  ),
+                  LoanApplicationPersonalDetailsWidget(
+                    loanCategory: widget.args.loan,
+                    fullNameController: _fullNameController,
+                    emailController: _emailController,
+                    phoneController: _phoneController,
+                    panController: _panController,
+                    aadharController: _aadharController,
+                    addressController: _addressController,
+                    cityController: _cityController,
+                    pincodeController: _pincodeController,
+                  ),
+                  LoanApplicationEmploymentDetailsWidget(
+                    loanCategory: widget.args.loan,
+                    selectedEmploymentType: _selectedEmploymentType,
+                    onEmploymentTypeChanged: (value) {
+                      setState(() {
+                        _selectedEmploymentType = value!;
+                      });
+                    },
+                    monthlyIncomeController: _monthlyIncomeController,
+                    employerNameController: _employerNameController,
+                    workExperienceController: _workExperienceController,
+                    selectedEducation: _selectedEducation,
+                    onEducationChanged: (value) {
+                      setState(() {
+                        _selectedEducation = value!;
+                      });
+                    },
+                    hasExistingLoans: _hasExistingLoans,
+                    onExistingLoansChanged: (value) {
+                      setState(() {
+                        _hasExistingLoans = value!;
+                      });
+                    },
+                  ),
+                  LoanApplicationReviewWidget(
+                    loanCategory: widget.args.loan,
+                    loanAmountController: _loanAmountController,
+                    tenureController: _tenureController,
+                    purposeController: _purposeController,
+                    fullNameController: _fullNameController,
+                    emailController: _emailController,
+                    phoneController: _phoneController,
+                    panController: _panController,
+                    addressController: _addressController,
+                    cityController: _cityController,
+                    selectedEmploymentType: _selectedEmploymentType,
+                    monthlyIncomeController: _monthlyIncomeController,
+                    employerNameController: _employerNameController,
+                    workExperienceController: _workExperienceController,
+                    selectedEducation: _selectedEducation,
+                    agreeToTerms: _agreeToTerms,
+                    onTermsChanged: (value) {
+                      setState(() {
+                        _agreeToTerms = value!;
+                      });
+                    },
+                    onSubmit: _submitApplication,
+                  ),
+                ],
+              ),
+            ),
+            LoanApplicationNavigationButtons(
+              currentStep: _currentStep,
+              totalSteps: _totalSteps,
+              onPrevious: _currentStep > 0 ? _previousStep : null,
+              onNext: _currentStep < _totalSteps - 1 ? _nextStep : null,
+              primaryColor: LoanUtils.getLoanTypeColor(
+                widget.args.loan.loanType,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _nextStep() {
     if (_validateCurrentStep()) {
+      // Update provider with current step data before moving to next step
+      _updateProviderData();
+
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    }
+  }
+
+  void _updateProviderData() {
+    final loanProvider = context.read<LoanProvider>();
+
+    switch (_currentStep) {
+      case 0: // Loan Details
+        loanProvider.updateApplicationData(
+          'loanAmount',
+          _loanAmountController.text,
+        );
+        loanProvider.updateApplicationData('tenure', _tenureController.text);
+        loanProvider.updateApplicationData('purpose', _purposeController.text);
+        break;
+      case 1: // Personal Details
+        loanProvider.updateApplicationData(
+          'fullName',
+          _fullNameController.text,
+        );
+        loanProvider.updateApplicationData('email', _emailController.text);
+        loanProvider.updateApplicationData('phone', _phoneController.text);
+        loanProvider.updateApplicationData('pan', _panController.text);
+        loanProvider.updateApplicationData('aadhar', _aadharController.text);
+        loanProvider.updateApplicationData('address', _addressController.text);
+        loanProvider.updateApplicationData('city', _cityController.text);
+        loanProvider.updateApplicationData('pincode', _pincodeController.text);
+        break;
+      case 2: // Employment Details
+        loanProvider.updateApplicationData(
+          'employmentType',
+          _selectedEmploymentType,
+        );
+        loanProvider.updateApplicationData(
+          'monthlyIncome',
+          _monthlyIncomeController.text,
+        );
+        loanProvider.updateApplicationData(
+          'employerName',
+          _employerNameController.text,
+        );
+        loanProvider.updateApplicationData(
+          'workExperience',
+          _workExperienceController.text,
+        );
+        loanProvider.updateApplicationData('education', _selectedEducation);
+        loanProvider.updateApplicationData(
+          'hasExistingLoans',
+          _hasExistingLoans,
+        );
+        break;
     }
   }
 
@@ -205,32 +294,105 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
   }
 
   bool _validateCurrentStep() {
-    switch (_currentStep) {
-      case 0:
-        return _loanAmountController.text.isNotEmpty &&
-            _tenureController.text.isNotEmpty &&
-            _purposeController.text.isNotEmpty;
-      case 1:
-        return _fullNameController.text.isNotEmpty &&
-            _emailController.text.isNotEmpty &&
-            _phoneController.text.isNotEmpty &&
-            _panController.text.isNotEmpty &&
-            _aadharController.text.isNotEmpty &&
-            _addressController.text.isNotEmpty &&
-            _cityController.text.isNotEmpty &&
-            _pincodeController.text.isNotEmpty;
-      case 2:
-        return _monthlyIncomeController.text.isNotEmpty &&
-            _employerNameController.text.isNotEmpty &&
-            _workExperienceController.text.isNotEmpty;
-      default:
-        return true;
+    final loanProvider = context.read<LoanProvider>();
+    final validationErrors = loanProvider.getStepValidationErrors(_currentStep);
+
+    if (validationErrors.isNotEmpty) {
+      _showValidationErrors(validationErrors);
+      return false;
     }
+
+    return true;
+  }
+
+  void _showValidationErrors(List<String> errors) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.red, size: 24),
+              const SizedBox(width: 8),
+              const Text(
+                'Validation Error',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Please fix the following issues to continue:',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 12),
+              ...errors
+                  .map(
+                    (error) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '• ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              error,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _updateLoanAmount(String value) {
     // Update loan amount and recalculate EMI
-    context.read<LoanProvider>().updateApplicationData('loanAmount', value);
+    final loanProvider = context.read<LoanProvider>();
+    loanProvider.updateApplicationData('loanAmount', value);
+
+    // Trigger EMI recalculation if tenure is also available
+    if (_tenureController.text.isNotEmpty) {
+      final amount = double.tryParse(value.replaceAll(',', ''));
+      final tenure = int.tryParse(_tenureController.text);
+
+      if (amount != null && tenure != null) {
+        final emiData = loanProvider.calculateEMI(
+          principal: amount,
+          annualRate: widget.args.loan.interestRate,
+          tenureMonths: tenure,
+        );
+        loanProvider.updateApplicationData('emiDetails', emiData);
+      }
+    }
   }
 
   void _submitApplication() async {
@@ -288,6 +450,8 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
 
   void _showSuccessDialog() {
     LoanApplicationSuccessDialog.show(context, widget.args.loan.loanType, () {
+      // Clear loan provider data after successful submission
+      context.read<LoanProvider>().clearApplicationData();
       Navigator.of(context).pop(); // Close dialog
       Navigator.of(context).pop(); // Go back to previous screen
     });
