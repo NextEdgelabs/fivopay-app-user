@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
-import '../providers/auth_provider.dart';
+import '../modules/auth/provider/auth_provider.dart';
 import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
-import 'login_screen.dart';
+import '../modules/auth/screens/login_screen.dart';
 import '../widgets/section_header.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -50,35 +50,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _updateProfile() async {
-    setState(() => _isLoading = true);
+    // setState(() => _isLoading = true);
 
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final userData = {
-      'name': _nameController.text.trim(),
-      'email': _emailController.text.trim(),
-      'address': _addressController.text.trim(),
-    };
+    // final userProvider = Provider.of<UserProvider>(context, listen: false);
+    // final userData = {
+    //   'name': _nameController.text.trim(),
+    //   'email': _emailController.text.trim(),
+    //   'address': _addressController.text.trim(),
+    // };
 
-    final success = await userProvider.updateProfile(userData);
+    // // final success = await userProvider.updateProfile(userData);
 
-    setState(() => _isLoading = false);
+    // setState(() => _isLoading = false);
 
-    if (success && mounted) {
-      setState(() => _isEditing = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully'),
-          backgroundColor: AppColors.success,
-        ),
-      );
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(userProvider.error ?? 'Failed to update profile'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-    }
+    // if (success && mounted) {
+    //   setState(() => _isEditing = false);
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text('Profile updated successfully'),
+    //       backgroundColor: AppColors.success,
+    //     ),
+    //   );
+    // } else if (mounted) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text(userProvider.error ?? 'Failed to update profile'),
+    //       backgroundColor: AppColors.error,
+    //     ),
+    //   );
+    // }
   }
 
   Future<void> _logout() async {
@@ -121,7 +121,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.all(AppSizes.paddingL),
                 decoration: BoxDecoration(
                   color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
+                  borderRadius: BorderRadius.circular(
+                    AppSizes.radiusL,
+                  ), // Reduced for minimalism
                   border: Border.all(color: AppColors.border),
                   // Minimal shadow
                   boxShadow: [
@@ -140,7 +142,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration: BoxDecoration(
                         // Sky blue gradient
                         gradient: LinearGradient(
-                          colors: [AppColors.primaryDark, AppColors.primaryLight],
+                          colors: [
+                            AppColors.primaryDark,
+                            AppColors.primaryLight,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),

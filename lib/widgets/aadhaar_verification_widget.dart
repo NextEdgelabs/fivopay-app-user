@@ -11,14 +11,15 @@ class AadhaarVerificationWidget extends StatefulWidget {
   const AadhaarVerificationWidget({super.key});
 
   @override
-  State<AadhaarVerificationWidget> createState() => _AadhaarVerificationWidgetState();
+  State<AadhaarVerificationWidget> createState() =>
+      _AadhaarVerificationWidgetState();
 }
 
 class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
   final _aadhaarController = TextEditingController();
   final _otpController = TextEditingController();
   final _kycService = KycService();
-  
+
   bool _showOTPField = false;
   bool _isRequestingOtp = false;
   bool _isVerifying = false;
@@ -48,13 +49,16 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
 
   Future<void> _requestOtp() async {
     final aadhaar = _aadhaarController.text.trim();
-    
+
     if (!_isValidAadhaar(aadhaar)) {
       setState(() {
         _errorMessage = 'Please enter a valid 12-digit Aadhaar number';
       });
       return;
     }
+
+    // Get ScaffoldMessenger reference before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     setState(() {
       _errorMessage = null;
@@ -66,14 +70,14 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
         aadhaarNumber: aadhaar,
       );
 
-      setState(() {
-        _referenceId = response.referenceId;
-        _showOTPField = true;
-        _isRequestingOtp = false;
-      });
-
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        setState(() {
+          _referenceId = response.referenceId;
+          _showOTPField = true;
+          _isRequestingOtp = false;
+        });
+
+        scaffoldMessenger.showSnackBar(
           const SnackBar(
             content: Text('OTP sent to registered mobile number ✓'),
             backgroundColor: AppColors.success,
@@ -81,13 +85,13 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
         );
       }
     } catch (e) {
-      setState(() {
-        _isRequestingOtp = false;
-        _errorMessage = e.toString().replaceAll('KycApiException: ', '');
-      });
-      
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        setState(() {
+          _isRequestingOtp = false;
+          _errorMessage = e.toString().replaceAll('KycApiException: ', '');
+        });
+
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text('Failed to send OTP: $_errorMessage'),
             backgroundColor: AppColors.error,
@@ -100,7 +104,7 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
 
   Future<void> _verifyOTP() async {
     final otp = _otpController.text.trim();
-    
+
     if (otp.length != 6) {
       setState(() {
         _errorMessage = 'Please enter a valid 6-digit OTP';
@@ -115,6 +119,9 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
       return;
     }
 
+    // Get ScaffoldMessenger reference before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     setState(() {
       _errorMessage = null;
       _isVerifying = true;
@@ -126,56 +133,57 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
         otp: otp,
       );
 
-      setState(() {
-        _isVerifying = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isVerifying = false;
+        });
 
-      if (response.isSuccess && response.isValid) {
-        // Update loan provider with verified Aadhaar
-        final loanProvider = context.read<LoanProvider>();
-        await loanProvider.setAadhaarVerified(
-          _aadhaarController.text.trim(),
-          response,
-        );
-        
-        // Update user profile with Aadhaar details
-        if (response.data != null) {
-          final userProvider = context.read<UserProvider>();
-          userProvider.updateFromAadhaarVerification(
-            name: response.data!.name ?? '',
-            aadhaarNumber: _aadhaarController.text.trim(),
-            dateOfBirth: response.data!.dateOfBirth,
-            gender: response.data!.gender,
-            address: response.data!.address,
+        if (response.isSuccess && response.isValid) {
+          // Update loan provider with verified Aadhaar - check if mounted first
+          final loanProvider = context.read<LoanProvider>();
+          await loanProvider.setAadhaarVerified(
+            _aadhaarController.text.trim(),
+            response,
           );
-        }
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+
+          // Update user profile with Aadhaar details
+          if (response.data != null && mounted) {
+            final userProvider = context.read<UserProvider>();
+            userProvider.updateFromAadhaarVerification(
+              // aadhaarData: response.data!,
+              name: response.data!.name ?? '',
+              aadhaarNumber: _aadhaarController.text.trim(),
+              dateOfBirth: response.data!.dateOfBirth,
+              gender: response.data!.gender,
+              address: response.data!.address,
+            );
+          }
+
+          scaffoldMessenger.showSnackBar(
             const SnackBar(
               content: Text('Aadhaar verified successfully! ✓'),
               backgroundColor: AppColors.success,
             ),
           );
-          
+
           setState(() {
             _showOTPField = false;
             _otpController.clear();
           });
+        } else {
+          setState(() {
+            _errorMessage = 'Aadhaar verification failed. Please try again.';
+          });
         }
-      } else {
-        setState(() {
-          _errorMessage = 'Aadhaar verification failed. Please try again.';
-        });
       }
     } catch (e) {
-      setState(() {
-        _isVerifying = false;
-        _errorMessage = e.toString().replaceAll('KycApiException: ', '');
-      });
-      
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        setState(() {
+          _isVerifying = false;
+          _errorMessage = e.toString().replaceAll('KycApiException: ', '');
+        });
+
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text('Verification failed: $_errorMessage'),
             backgroundColor: AppColors.error,
@@ -197,7 +205,9 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
           padding: const EdgeInsets.all(AppSizes.paddingL),
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
+            borderRadius: BorderRadius.circular(
+              AppSizes.radiusL,
+            ), // Reduced for minimalism
             border: Border.all(
               color: isVerified ? AppColors.success : AppColors.border,
               width: isVerified ? 2 : 1,
@@ -206,20 +216,27 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Column(
                 children: [
-                  Icon(
-                    Icons.fingerprint,
-                    color: isVerified ? AppColors.success : AppColors.primary,
-                    size: 24,
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.fingerprint,
+                        color: isVerified
+                            ? AppColors.success
+                            : AppColors.primary,
+                        size: 24,
+                      ),
+                      const SizedBox(width: AppSizes.paddingS),
+                      Text(
+                        'Aadhaar Verification',
+                        style: AppTextStyles.heading3,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: AppSizes.paddingS),
-                  Text(
-                    'Aadhaar Verification',
-                    style: AppTextStyles.heading3,
-                  ),
-                  const Spacer(),
-                  if (isVerified)
+                  // const Spacer(),
+                  if (isVerified) ...[
+                    const SizedBox(height: AppSizes.paddingS),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSizes.paddingM,
@@ -247,10 +264,11 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
                         ],
                       ),
                     ),
+                  ],
                 ],
               ),
               const SizedBox(height: AppSizes.paddingL),
-              
+
               if (!isVerified || _showOTPField) ...[
                 CustomTextField(
                   controller: _aadhaarController,
@@ -270,7 +288,7 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
                     return null;
                   },
                 ),
-                
+
                 if (_showOTPField) ...[
                   const SizedBox(height: AppSizes.paddingM),
                   CustomTextField(
@@ -292,7 +310,7 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
                     },
                   ),
                 ],
-                
+
                 if (_errorMessage != null) ...[
                   const SizedBox(height: AppSizes.paddingS),
                   Container(
@@ -324,9 +342,9 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
                     ),
                   ),
                 ],
-                
+
                 const SizedBox(height: AppSizes.paddingL),
-                
+
                 if (!_showOTPField)
                   CustomButton(
                     onPressed: _isRequestingOtp ? null : _requestOtp,
@@ -405,7 +423,10 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
                         const SizedBox(height: AppSizes.paddingS),
                         _buildDetailRow('DOB', aadhaarDetails['dob'] ?? ''),
                         const SizedBox(height: AppSizes.paddingS),
-                        _buildDetailRow('Address', aadhaarDetails['address'] ?? ''),
+                        _buildDetailRow(
+                          'Address',
+                          aadhaarDetails['address'] ?? '',
+                        ),
                       ],
                     ],
                   ),
@@ -431,12 +452,7 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
             ),
           ),
         ),
-        Expanded(
-          child: Text(
-            value,
-            style: AppTextStyles.body2,
-          ),
-        ),
+        Expanded(child: Text(value, style: AppTextStyles.body2)),
       ],
     );
   }

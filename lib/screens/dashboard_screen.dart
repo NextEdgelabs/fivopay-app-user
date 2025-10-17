@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/modules/loan/screens/loan_categories_screen.dart';
 import 'package:janseva/providers/wallet_provider.dart';
+import 'package:janseva/routes/navigator.dart';
+import 'package:janseva/routes/routes.dart';
 import 'package:janseva/screens/withdraw_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
@@ -18,7 +21,6 @@ import 'loan_application_screen.dart';
 import 'fixed_deposit_screen.dart';
 import 'transactions_screen.dart';
 import 'applications_screen.dart';
-
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -89,12 +91,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final transactionProvider = Provider.of<WalletProvider>(context);
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LoanCategoriesScreen()),
+          );
+        },
+      ),
       appBar: AppBar(
         title: Text(
           AppStrings.dashboard,
-          style: AppTextStyles.heading2.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTextStyles.heading2.copyWith(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
         backgroundColor: AppColors.background,
@@ -124,7 +132,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: const EdgeInsets.all(AppSizes.paddingXL),
                 decoration: BoxDecoration(
                   color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced for minimalism
+                  borderRadius: BorderRadius.circular(
+                    AppSizes.radiusL,
+                  ), // Reduced for minimalism
                   border: Border.all(color: AppColors.border),
                   // Minimal shadow
                   boxShadow: [
@@ -146,7 +156,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           decoration: BoxDecoration(
                             // Sky blue gradient
                             gradient: LinearGradient(
-                              colors: [AppColors.primaryDark, AppColors.primaryLight],
+                              colors: [
+                                AppColors.primaryDark,
+                                AppColors.primaryLight,
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
@@ -187,7 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Expanded(
                           child: _buildInfoCard(
                             'Account Number',
-                            user?.accountNumber ?? 'JS001234567',
+                            user?.memberId ?? 'JS001234567',
                             Icons.account_balance,
                           ),
                         ),
@@ -210,17 +223,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               // Balance Card (Priority - Show first)
               BalanceCard(
                 title: AppStrings.balance,
-                amountText:
-                    transactionProvider.balanceDisplay,
+                amountText: transactionProvider.balanceDisplay,
                 onPrimary: () =>
                     _showDepositDialog(context, transactionProvider),
                 onSecondary: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WithdrawScreen(),
-                    ),
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WithdrawScreen(),
                   ),
-                    // _showWithdrawDialog(context, transactionProvider),
+                ),
+                // _showWithdrawDialog(context, transactionProvider),
               ),
 
               const SizedBox(height: AppSizes.sectionSpacing),
@@ -237,10 +249,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: StatCard(
                       icon: Icons.verified_user,
                       label: 'KYC Status',
-                      value: user?.kycStatus == 'completed'
+                      value:
+                          user?.kycStatus?.toLowerCase() == 'completed' ||
+                              user?.kycStatus?.toLowerCase() == 'verified'
                           ? 'Completed'
                           : 'Pending',
-                      color: user?.kycStatus == 'completed'
+                      color:
+                          user?.kycStatus?.toLowerCase() == 'completed' ||
+                              user?.kycStatus?.toLowerCase() == 'verified'
                           ? AppColors.success
                           : AppColors.warning,
                     ),
@@ -302,12 +318,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     icon: Icons.credit_card,
                     color: AppColors.info,
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoanApplicationScreen(),
-                        ),
-                      );
+                      push(NamedRoutes.loanCategoryScreen);
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const LoanApplicationScreen(),
+                      //   ),
+                      // );
                     },
                   ),
                   ActionTile(
@@ -402,7 +419,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final amount = double.tryParse(amountController.text);
               if (amount != null && amount > 0) {
                 Navigator.pop(context);
-                final success = await transactionProvider.addMoney(amount: amount);
+                final success = await transactionProvider.addMoney(
+                  amount: amount,
+                );
                 if (success && mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -464,7 +483,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final amount = double.tryParse(amountController.text);
               if (amount != null && amount > 0) {
                 Navigator.pop(context);
-                final success = await transactionProvider.withdrawMoney(amount: amount);
+                final success = await transactionProvider.withdrawMoney(
+                  amount: amount,
+                );
                 if (success && mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

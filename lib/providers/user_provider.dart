@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/services/kyc_service.dart';
 import 'package:janseva/services/storage_service.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
@@ -30,35 +31,35 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  // Update user profile
-  Future<bool> updateProfile(Map<String, dynamic> userData) async {
-    _setLoading(true);
-    _clearError();
+  // // Update user profile
+  // Future<bool> updateProfile(Map<String, dynamic> userData) async {
+  //   _setLoading(true);
+  //   _clearError();
 
-    try {
-      final result = await AuthService.updateProfile(userData);
+  //   try {
+  //     final result = await AuthService.updateProfile(userData);
 
-      if (result['success']) {
-        _currentUser = result['user'];
-        notifyListeners();
-        return true;
-      } else {
-        _setError(result['message'] ?? 'Update failed');
-        return false;
-      }
-    } catch (e) {
-      _setError('Network error');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
+  //     if (result['success']) {
+  //       _currentUser = result['user'];
+  //       notifyListeners();
+  //       return true;
+  //     } else {
+  //       _setError(result['message'] ?? 'Update failed');
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     _setError('Network error');
+  //     return false;
+  //   } finally {
+  //     _setLoading(false);
+  //   }
+  // }
 
-  // Update user data from auth
-  void updateUserFromAuth(User user) {
-    _currentUser = user;
-    notifyListeners();
-  }
+  // // Update user data from auth
+  // void updateUserFromAuth(User user) {
+  //   _currentUser = user;
+  //   notifyListeners();
+  // }
 
   // Update user data
   Future<bool> updateUser(User user) async {
@@ -69,7 +70,7 @@ class UserProvider extends ChangeNotifier {
       // For now, just update locally
       // In production, this would make an API call
       _currentUser = user;
-      await SfService.saveJson(SfService.userKey,user.toJson());
+      await SfService.saveJson(SfService.userKey, user.toJson());
       notifyListeners();
       return true;
     } catch (e) {
@@ -108,6 +109,7 @@ class UserProvider extends ChangeNotifier {
   void updateFromAadhaarVerification({
     required String name,
     required String aadhaarNumber,
+    AadhaarData? aadhaarData,
     String? dateOfBirth,
     String? gender,
     String? address,
@@ -120,15 +122,19 @@ class UserProvider extends ChangeNotifier {
         gender: gender ?? _currentUser!.gender,
         address: address ?? _currentUser!.address,
       );
+      if (aadhaarData != null) {
+        var res = AuthService.saveAadharDetails(
+          aadhaarNumber,
+          aadhaarData,
+          _currentUser!.id,
+        );
+      }
       notifyListeners();
     }
   }
 
   // Update user profile from PAN verification
-  void updateFromPanVerification({
-    required String panNumber,
-    String? name,
-  }) {
+  void updateFromPanVerification({required String panNumber, String? name}) {
     if (_currentUser != null) {
       _currentUser = _currentUser!.copyWith(
         panNumber: panNumber,

@@ -1,0 +1,17 @@
+class NamedRoutes {
+  static const String login = '/login';
+  static const String register = '/register';
+  static const String kycScreen = '/kyc-screen';
+  static const String loanCategoryScreen = '/loan-category-screen';
+  static const String loanDetailScreen = '/loan-detail-screen';
+  static const String loanApplicationForm = '/loan-application-form';
+  static const String forgotPassword = '/forgot-password';
+  static const String verifyOtp = '/verify-otp';
+  static const String resetPassword = '/reset-password';
+  static const String dashboard = '/dashboard';
+  static const String profile = '/profile';
+  static const String addMoney = '/add-money';
+  static const String withdrawMoney = '/withdraw-money';
+  static const String transactionHistory = '/transaction-history';
+  static const String settings = '/settings';
+}

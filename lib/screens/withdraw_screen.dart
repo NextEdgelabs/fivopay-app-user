@@ -9,6 +9,19 @@ import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
 class WithdrawScreen extends StatefulWidget {
   const WithdrawScreen({super.key});
 
@@ -20,13 +33,13 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
-  
+
   // Bank form controllers
   final _bankNameController = TextEditingController();
   final _accountNumberController = TextEditingController();
   final _accountHolderController = TextEditingController();
   final _ifscController = TextEditingController();
-  
+
   List<BankAccount> _bankAccounts = [];
   BankAccount? _selectedBank;
   bool _isLoading = false;
@@ -65,9 +78,10 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             _bankAccounts = bankList
                 .map((json) => BankAccount.fromJson(json))
                 .toList();
-            
+
             // Select default bank if available
-            _selectedBank = _bankAccounts.where((bank) => bank.isDefault).isNotEmpty
+            _selectedBank =
+                _bankAccounts.where((bank) => bank.isDefault).isNotEmpty
                 ? _bankAccounts.firstWhere((bank) => bank.isDefault)
                 : (_bankAccounts.isNotEmpty ? _bankAccounts.first : null);
           });
@@ -105,7 +119,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
       if (_withdrawalFee < 5.0) _withdrawalFee = 5.0;
       if (_withdrawalFee > 50.0) _withdrawalFee = 50.0;
       if (amount == 0) _withdrawalFee = 0.0;
-      
+
       // _totalDeduction = amount + _withdrawalFee;
       setState(() {
         _totalDeduction = amount + _withdrawalFee;
@@ -163,7 +177,9 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     if (!walletProvider.canWithdraw(_totalDeduction)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Insufficient balance. Required: ${walletProvider.formatCurrency(_totalDeduction)}'),
+          content: Text(
+            'Insufficient balance. Required: ${walletProvider.formatCurrency(_totalDeduction)}',
+          ),
           backgroundColor: AppColors.error,
         ),
       );
@@ -175,7 +191,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     try {
       final success = await walletProvider.withdrawMoney(
         amount: _totalDeduction,
-        description: 'Withdrawal to ${_selectedBank!.bankName} (${_selectedBank!.maskedAccountNumber})',
+        description:
+            'Withdrawal to ${_selectedBank!.bankName} (${_selectedBank!.maskedAccountNumber})',
         toAccount: _selectedBank!.accountNumber,
         referenceNumber: 'WTH${DateTime.now().millisecondsSinceEpoch}',
       );
@@ -204,10 +221,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Withdraw Money'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Withdraw Money'), elevation: 0),
       body: Consumer<WalletProvider>(
         builder: (context, walletProvider, child) {
           return SingleChildScrollView(
@@ -253,19 +267,18 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                   const SizedBox(height: AppSizes.paddingXL),
 
                   // Amount Section
-                  Text(
-                    'Withdrawal Amount',
-                    style: AppTextStyles.heading3,
-                  ),
+                  Text('Withdrawal Amount', style: AppTextStyles.heading3),
                   const SizedBox(height: AppSizes.paddingM),
-                  
+
                   CustomTextField(
                     controller: _amountController,
                     labelText: 'Enter Amount',
                     hintText: '₹0.00',
                     keyboardType: TextInputType.number,
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d+\.?\d{0,2}'),
+                      ),
                     ],
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -292,33 +305,54 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.info.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                        border: Border.all(color: AppColors.info.withOpacity(0.3)),
+                        border: Border.all(
+                          color: AppColors.info.withOpacity(0.3),
+                        ),
                       ),
                       child: Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Withdrawal Amount:', style: AppTextStyles.body2),
-                              Text(walletProvider.formatCurrency(double.parse(_amountController.text))),
+                              Text(
+                                'Withdrawal Amount:',
+                                style: AppTextStyles.body2,
+                              ),
+                              Text(
+                                walletProvider.formatCurrency(
+                                  double.parse(_amountController.text),
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: AppSizes.paddingS),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Processing Fee:', style: AppTextStyles.body2),
-                              Text(walletProvider.formatCurrency(_withdrawalFee)),
+                              Text(
+                                'Processing Fee:',
+                                style: AppTextStyles.body2,
+                              ),
+                              Text(
+                                walletProvider.formatCurrency(_withdrawalFee),
+                              ),
                             ],
                           ),
                           const Divider(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Total Deduction:', style: AppTextStyles.body1.copyWith(fontWeight: FontWeight.bold)),
+                              Text(
+                                'Total Deduction:',
+                                style: AppTextStyles.body1.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               Text(
                                 walletProvider.formatCurrency(_totalDeduction),
-                                style: AppTextStyles.body1.copyWith(fontWeight: FontWeight.bold),
+                                style: AppTextStyles.body1.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           ),
@@ -419,8 +453,11 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                             labelText: 'IFSC Code',
                             hintText: 'e.g., SBIN0001234',
                             inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[A-Za-z0-9]'),
+                              ),
                               LengthLimitingTextInputFormatter(11),
+                              UpperCaseTextFormatter(),
                             ],
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
@@ -437,7 +474,9 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                           // Account Type Selection
                           Text(
                             'Account Type',
-                            style: AppTextStyles.body1.copyWith(fontWeight: FontWeight.w500),
+                            style: AppTextStyles.body1.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           const SizedBox(height: AppSizes.paddingS),
                           Row(
@@ -482,46 +521,58 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
                   // Bank Accounts List
                   if (_bankAccounts.isNotEmpty) ...[
-                    ...(_bankAccounts.map((bank) => Container(
-                      margin: const EdgeInsets.only(bottom: AppSizes.paddingM),
-                      child: RadioListTile<BankAccount>(
-                        value: bank,
-                        groupValue: _selectedBank,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedBank = value;
-                          });
-                        },
-                        title: Text(
-                          bank.bankName,
-                          style: AppTextStyles.body1.copyWith(fontWeight: FontWeight.w500),
+                    ...(_bankAccounts.map(
+                      (bank) => Container(
+                        margin: const EdgeInsets.only(
+                          bottom: AppSizes.paddingM,
                         ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('${bank.accountHolderName}'),
-                            Text('${bank.maskedAccountNumber} • ${bank.accountType.toUpperCase()}'),
-                            Text('IFSC: ${bank.ifscCode}'),
-                          ],
-                        ),
-                        secondary: bank.isDefault
-                            ? const Icon(Icons.star, color: AppColors.warning)
-                            : null,
-                        controlAffinity: ListTileControlAffinity.trailing,
-                        contentPadding: const EdgeInsets.all(AppSizes.paddingM),
-                        tileColor: _selectedBank == bank
-                            ? AppColors.primary.withOpacity(0.1)
-                            : AppColors.cardBackground,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                          side: BorderSide(
-                            color: _selectedBank == bank
-                                ? AppColors.primary
-                                : AppColors.border,
+                        child: RadioListTile<BankAccount>(
+                          value: bank,
+                          groupValue: _selectedBank,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedBank = value;
+                            });
+                          },
+                          title: Text(
+                            bank.bankName,
+                            style: AppTextStyles.body1.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${bank.accountHolderName}'),
+                              Text(
+                                '${bank.maskedAccountNumber} • ${bank.accountType.toUpperCase()}',
+                              ),
+                              Text('IFSC: ${bank.ifscCode}'),
+                            ],
+                          ),
+                          secondary: bank.isDefault
+                              ? const Icon(Icons.star, color: AppColors.warning)
+                              : null,
+                          controlAffinity: ListTileControlAffinity.trailing,
+                          contentPadding: const EdgeInsets.all(
+                            AppSizes.paddingM,
+                          ),
+                          tileColor: _selectedBank == bank
+                              ? AppColors.primary.withOpacity(0.1)
+                              : AppColors.cardBackground,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusL,
+                            ),
+                            side: BorderSide(
+                              color: _selectedBank == bank
+                                  ? AppColors.primary
+                                  : AppColors.border,
+                            ),
                           ),
                         ),
                       ),
-                    ))),
+                    )),
                   ] else if (!_showAddBankForm) ...[
                     Container(
                       padding: const EdgeInsets.all(AppSizes.paddingXL),
@@ -577,7 +628,10 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
                   // Withdraw Button
                   CustomButton(
-                    onPressed: _isLoading || _selectedBank == null || _amountController.text.isEmpty
+                    onPressed:
+                        _isLoading ||
+                            _selectedBank == null ||
+                            _amountController.text.isEmpty
                         ? null
                         : _withdrawMoney,
                     text: _isLoading ? 'Processing...' : 'Withdraw Money',
@@ -592,7 +646,9 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.info.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                      border: Border.all(color: AppColors.info.withOpacity(0.3)),
+                      border: Border.all(
+                        color: AppColors.info.withOpacity(0.3),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -621,7 +677,9 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                           '• Maximum withdrawal: ₹50,000 per day\n'
                           '• Processing fee applies for all withdrawals\n'
                           '• Ensure bank details are correct before submitting',
-                          style: AppTextStyles.body2.copyWith(color: AppColors.info),
+                          style: AppTextStyles.body2.copyWith(
+                            color: AppColors.info,
+                          ),
                         ),
                       ],
                     ),

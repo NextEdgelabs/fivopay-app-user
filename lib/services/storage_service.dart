@@ -8,12 +8,11 @@ class SfService {
   static String bankKey = "bankDetails";
   static String profileKey = "profileDetails";
   static String userKey = "userDetails";
-  static String apikey= "apiKey";
-  static String accessToken = "accessToken";
+  static String apikey = "apiKey";
+  static String accesstoken = "accessToken";
+  static String refreshToken = "refreshToken";
   static String apiversion = "apiVersion";
-
-
-
+  static String kycAccessToken = "kycAccessToken";
 
   static Future<bool> saveString(String key, String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -24,10 +23,12 @@ class SfService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);
   }
+
   static Future<bool> remove(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.remove(key);
   }
+
   static Future<bool> clear() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.clear();
@@ -38,8 +39,11 @@ class SfService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setString(key, jsonEncode(value));
   }
+
   static Future<Map<String, dynamic>?> getJson(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key) != null ? jsonDecode(prefs.getString(key)!) : null;
+    return prefs.getString(key) != null
+        ? jsonDecode(prefs.getString(key)!)
+        : null;
   }
 }

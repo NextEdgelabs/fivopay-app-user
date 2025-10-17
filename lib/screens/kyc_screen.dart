@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:janseva/providers/wallet_provider.dart';
 import 'package:janseva/services/storage_service.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
+import '../modules/auth/provider/auth_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/referral_provider.dart';
-import '../providers/transaction_provider.dart';
 import '../services/kyc_service.dart';
-import '../screens/pan_confirmation_screen.dart';
 import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
@@ -52,6 +50,29 @@ class _KycScreenState extends State<KycScreen> {
     if (userProvider.currentUser?.name != null) {
       _nameController.text = userProvider.currentUser!.name!;
     }
+
+    // Listen to Aadhaar controller changes
+    _aadharController.addListener(_onAadhaarChanged);
+  }
+
+  void _onAadhaarChanged() {
+    final aadhaar = _aadharController.text.trim();
+    setState(() {
+      // Show send OTP button when 12 digits are entered and not already verified
+      if (aadhaar.length == 12 && !_isAadhaarVerified) {
+        // Valid 12-digit Aadhaar entered
+      } else {
+        // Invalid or incomplete Aadhaar
+        _showAadhaarOtpField = false;
+        _otpController.clear();
+        _aadhaarReferenceId = null;
+      }
+    });
+  }
+
+  bool _isValidAadhaar(String aadhaar) {
+    final aadhaarRegex = RegExp(r'^[0-9]{12}$');
+    return aadhaarRegex.hasMatch(aadhaar);
   }
 
   @override
@@ -69,7 +90,7 @@ class _KycScreenState extends State<KycScreen> {
     final pan = _panController.text.trim().toUpperCase();
     final name = _nameController.text.trim();
     final dob = _dobController.text.trim();
-    
+
     if (pan.length != 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -114,48 +135,160 @@ class _KycScreenState extends State<KycScreen> {
         _isPanVerifying = false;
       });
 
-      if (mounted) {
-        final result = await Navigator.push<bool>(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PanConfirmationScreen(
-              verificationResponse: response,
-              enteredName: name,
-              onConfirm: () {
-                Navigator.pop(context, true);
-              },
-              onRetry: () {
-                Navigator.pop(context, false);
-              },
-            ),
-          ),
-        );
+      if (response.isSuccess && response.data.status == 'valid') {
+        // Save PAN data locally and to server
+        await SfService.saveJson(SfService.panKey, response.data.toJson());
 
-        if (result == true && response.isSuccess) {
-          await SfService.saveJson(SfService.panKey, response.data.toJson());
+        // Call save PAN API
+        try {
+          await context.read<AuthProvider>().savePand(response.data);
+
           setState(() {
             _isPanVerified = true;
           });
-          
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('PAN verified successfully! ✓'),
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'PAN Verified Successfully!',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            'Name Match: ${response.data.nameMatch ? "✓" : "✗"} | DOB Match: ${response.data.dobMatch ? "✓" : "✗"}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
                 backgroundColor: AppColors.success,
+                duration: const Duration(seconds: 3),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
+          }
+        } catch (saveError) {
+          // Even if save API fails, we still consider PAN verified locally
+          setState(() {
+            _isPanVerified = true;
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.warning, color: Colors.white, size: 20),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'PAN verified but failed to save to server. You can continue with KYC.',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.orange,
+                duration: const Duration(seconds: 4),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             );
           }
         }
+      } else {
+        // PAN verification failed
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'PAN Verification Failed',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          response.data.statusMessage,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 4),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        }
       }
     } catch (e) {
       setState(() => _isPanVerifying = false);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Verification failed: ${e.toString().replaceAll('KycApiException: ', '')}'),
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Verification failed: ${e.toString().replaceAll('KycApiException: ', '')}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
             duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -164,7 +297,7 @@ class _KycScreenState extends State<KycScreen> {
 
   Future<void> _requestAadhaarOtp() async {
     final aadhaar = _aadharController.text.trim();
-    
+
     if (aadhaar.length != 12) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -198,11 +331,13 @@ class _KycScreenState extends State<KycScreen> {
       }
     } catch (e) {
       setState(() => _isAadhaarRequestingOtp = false);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to send OTP: ${e.toString().replaceAll('KycApiException: ', '')}'),
+            content: Text(
+              'Failed to send OTP: ${e.toString().replaceAll('KycApiException: ', '')}',
+            ),
             backgroundColor: AppColors.error,
             duration: const Duration(seconds: 4),
           ),
@@ -213,7 +348,7 @@ class _KycScreenState extends State<KycScreen> {
 
   Future<void> _verifyAadhaarOtp() async {
     final otp = _otpController.text.trim();
-    
+
     if (otp.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -253,6 +388,7 @@ class _KycScreenState extends State<KycScreen> {
         if (response.data != null) {
           final userProvider = context.read<UserProvider>();
           userProvider.updateFromAadhaarVerification(
+            aadhaarData: response.data!,
             name: response.data!.name ?? _nameController.text.trim(),
             aadhaarNumber: _aadharController.text.trim(),
             dateOfBirth: response.data!.dateOfBirth,
@@ -267,7 +403,8 @@ class _KycScreenState extends State<KycScreen> {
             });
           }
 
-          if (response.data!.dateOfBirth != null && _dobController.text.isEmpty) {
+          if (response.data!.dateOfBirth != null &&
+              _dobController.text.isEmpty) {
             setState(() {
               _dobController.text = response.data!.dateOfBirth!;
             });
@@ -284,7 +421,7 @@ class _KycScreenState extends State<KycScreen> {
         }
       } else {
         setState(() => _isAadhaarVerifying = false);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -296,11 +433,13 @@ class _KycScreenState extends State<KycScreen> {
       }
     } catch (e) {
       setState(() => _isAadhaarVerifying = false);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Verification failed: ${e.toString().replaceAll('KycApiException: ', '')}'),
+            content: Text(
+              'Verification failed: ${e.toString().replaceAll('KycApiException: ', '')}',
+            ),
             backgroundColor: AppColors.error,
             duration: const Duration(seconds: 4),
           ),
@@ -311,6 +450,27 @@ class _KycScreenState extends State<KycScreen> {
 
   Future<void> _submitKyc() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Check if both PAN and Aadhaar are verified
+    if (!_isPanVerified) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please verify your PAN first'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    if (!_isAadhaarVerified) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please verify your Aadhaar first'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -462,7 +622,10 @@ class _KycScreenState extends State<KycScreen> {
                     children: [
                       Row(
                         children: [
-                          Text('Document Details', style: AppTextStyles.heading3),
+                          Text(
+                            'Document Details',
+                            style: AppTextStyles.heading3,
+                          ),
                           const Spacer(),
                           if (_isPanVerified)
                             Container(
@@ -472,7 +635,9 @@ class _KycScreenState extends State<KycScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.success.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radiusL,
+                                ),
                               ),
                               child: Row(
                                 children: [
@@ -559,7 +724,7 @@ class _KycScreenState extends State<KycScreen> {
                             lastDate: DateTime.now(),
                           );
                           if (picked != null) {
-                            _dobController.text = 
+                            _dobController.text =
                                 '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
                           }
                         },
@@ -570,7 +735,9 @@ class _KycScreenState extends State<KycScreen> {
                       if (!_isPanVerified)
                         CustomButton(
                           onPressed: _isPanVerifying ? null : _verifyPAN,
-                          text: _isPanVerifying ? 'Verifying with API...' : 'Verify PAN',
+                          text: _isPanVerifying
+                              ? 'Verifying with API...'
+                              : 'Verify PAN',
                           isLoading: _isPanVerifying,
                         )
                       else
@@ -578,7 +745,9 @@ class _KycScreenState extends State<KycScreen> {
                           padding: const EdgeInsets.all(AppSizes.paddingM),
                           decoration: BoxDecoration(
                             color: AppColors.success.withOpacity(0.05),
-                            borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusM,
+                            ),
                             border: Border.all(
                               color: AppColors.success.withOpacity(0.3),
                             ),
@@ -593,7 +762,7 @@ class _KycScreenState extends State<KycScreen> {
                               const SizedBox(width: AppSizes.paddingS),
                               Expanded(
                                 child: Text(
-                                  'PAN verified successfully with Sandbox API',
+                                  'PAN verified successfully',
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppColors.success,
                                   ),
@@ -608,19 +777,126 @@ class _KycScreenState extends State<KycScreen> {
                       CustomTextField(
                         controller: _aadharController,
                         labelText: 'Aadhar Number',
-                        hintText: 'Enter Aadhar number',
+                        hintText: 'Enter 12-digit Aadhar number',
                         prefixIcon: Icons.verified_user,
                         keyboardType: TextInputType.number,
+                        maxLength: 12,
+                        enabled: !_isAadhaarVerified,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Aadhar number';
                           }
-                          if (value.length != 12) {
-                            return 'Aadhar number must be 12 digits';
+                          if (!_isValidAadhaar(value)) {
+                            return 'Invalid Aadhar format';
+                          }
+                          if (!_isAadhaarVerified) {
+                            return 'Please verify Aadhar before submitting';
                           }
                           return null;
                         },
                       ),
+
+                      const SizedBox(height: AppSizes.paddingM),
+
+                      // Show Send OTP button when valid Aadhaar is entered and not verified
+                      if (_aadharController.text.trim().length == 12 &&
+                          !_isAadhaarVerified &&
+                          !_showAadhaarOtpField)
+                        CustomButton(
+                          onPressed: _isAadhaarRequestingOtp
+                              ? null
+                              : _requestAadhaarOtp,
+                          text: _isAadhaarRequestingOtp
+                              ? 'Sending OTP...'
+                              : 'Send OTP',
+                          isLoading: _isAadhaarRequestingOtp,
+                        ),
+
+                      // Show OTP field when OTP has been requested
+                      if (_showAadhaarOtpField) ...[
+                        CustomTextField(
+                          controller: _otpController,
+                          labelText: 'Enter OTP',
+                          hintText: '6-digit OTP',
+                          prefixIcon: Icons.lock,
+                          keyboardType: TextInputType.number,
+                          maxLength: 6,
+                          enabled: !_isAadhaarVerifying,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter OTP';
+                            }
+                            if (value.length != 6) {
+                              return 'OTP must be 6 digits';
+                            }
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: AppSizes.paddingM),
+
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomButton(
+                                onPressed: _isAadhaarVerifying
+                                    ? null
+                                    : _verifyAadhaarOtp,
+                                text: _isAadhaarVerifying
+                                    ? 'Verifying...'
+                                    : 'Verify OTP',
+                                isLoading: _isAadhaarVerifying,
+                              ),
+                            ),
+                            const SizedBox(width: AppSizes.paddingM),
+                            TextButton(
+                              onPressed: _isAadhaarVerifying
+                                  ? null
+                                  : () {
+                                      setState(() {
+                                        _showAadhaarOtpField = false;
+                                        _otpController.clear();
+                                        _aadhaarReferenceId = null;
+                                      });
+                                    },
+                              child: const Text('Cancel'),
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      // Show verification success message when verified
+                      if (_isAadhaarVerified)
+                        Container(
+                          padding: const EdgeInsets.all(AppSizes.paddingM),
+                          decoration: BoxDecoration(
+                            color: AppColors.success.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusM,
+                            ),
+                            border: Border.all(
+                              color: AppColors.success.withOpacity(0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.verified,
+                                color: AppColors.success,
+                                size: 20,
+                              ),
+                              const SizedBox(width: AppSizes.paddingS),
+                              Expanded(
+                                child: Text(
+                                  'Aadhaar verified successfully',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.success,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
                       const SizedBox(height: AppSizes.paddingM),
 

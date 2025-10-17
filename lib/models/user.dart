@@ -2,6 +2,7 @@ import 'fixed_deposit.dart';
 import 'loan_application.dart';
 
 class User {
+  final String? memberId;
   final String id;
   final String phoneNumber;
   final String? name;
@@ -20,9 +21,11 @@ class User {
   final String? memberSince;
   final String? referralCode;
   final String? referredBy;
+  final String? country;
   final List<String>? referredUsers;
   final bool isMember;
   final bool isActive;
+  final bool isNew;
 
   // KYC Fields
   final String? kycStatus; // pending, in_progress, completed, rejected
@@ -39,8 +42,10 @@ class User {
   final double? totalLoans;
 
   User({
+    this.memberId,
     required this.id,
     required this.phoneNumber,
+    this.country,
     this.name,
     this.email,
     this.dateOfBirth,
@@ -70,17 +75,20 @@ class User {
     this.loanApplications,
     this.totalDeposits,
     this.totalLoans,
+    this.isNew = false,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] ?? '',
-      phoneNumber: json['phoneNumber'] ?? '',
-      name: json['name'],
+      country: json['country'] ?? 'India',
+      memberId: json['memberId'] ?? '',
+      id: json['id'] ?? json["_id"] ?? '',
+      phoneNumber: json['phoneNumber'] ?? json["phone"] ?? '',
+      name: json['name'] ?? json["fullName"],
       email: json['email'],
       dateOfBirth: json['dateOfBirth'],
       gender: json['gender'],
-      address: json['address'],
+      address: json['address'] ?? json["addressLine1"],
       city: json['city'],
       state: json['state'],
       pincode: json['pincode'],
@@ -100,7 +108,7 @@ class User {
       kycStatus: json['kycStatus'],
       kycType: json['kycType'],
       panNumber: json['panNumber'],
-      aadharNumber: json['aadharNumber'],
+      aadharNumber: json['aadhaarNumber'],
       kycDocuments: json['kycDocuments'],
       kycCompletedAt: json['kycCompletedAt'] != null
           ? DateTime.parse(json['kycCompletedAt'])
@@ -117,11 +125,14 @@ class User {
           : null,
       totalDeposits: json['totalDeposits']?.toDouble(),
       totalLoans: json['totalLoans']?.toDouble(),
+      isNew: json['memberId'] == null ? true : false,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'memberId': memberId,
+      'country': country,
       'id': id,
       'phoneNumber': phoneNumber,
       'name': name,
@@ -146,7 +157,7 @@ class User {
       'kycStatus': kycStatus,
       'kycType': kycType,
       'panNumber': panNumber,
-      'aadharNumber': aadharNumber,
+      'aadhaarNumber': aadharNumber,
       'kycDocuments': kycDocuments,
       'kycCompletedAt': kycCompletedAt?.toIso8601String(),
       'fixedDeposits': fixedDeposits?.map((fd) => fd.toJson()).toList(),
@@ -188,8 +199,10 @@ class User {
     List<LoanApplication>? loanApplications,
     double? totalDeposits,
     double? totalLoans,
+    bool? isNew,
   }) {
     return User(
+      memberId: memberId,
       id: id ?? this.id,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       name: name ?? this.name,
@@ -221,6 +234,7 @@ class User {
       loanApplications: loanApplications ?? this.loanApplications,
       totalDeposits: totalDeposits ?? this.totalDeposits,
       totalLoans: totalLoans ?? this.totalLoans,
+      isNew: isNew ?? this.isNew,
     );
   }
 }

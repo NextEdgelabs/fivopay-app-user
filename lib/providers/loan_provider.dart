@@ -18,19 +18,19 @@ class LoanProvider extends ChangeNotifier {
   String? _relativePhone;
   String? _relativePAN;
   String? _relativeAadhaar;
-  
+
   // Verification state
   bool _isPANVerified = false;
   bool _isAadhaarVerified = false;
   String? _panVerificationDate;
   String? _aadhaarVerificationDate;
   Map<String, dynamic>? _aadhaarDetails;
-  
+
   // Address state
   String? _currentAddress;
   String? _aadhaarAddress;
   bool _isCurrentAddressSameAsAadhaar = true;
-  
+
   // Loan details
   String _loanType = 'personal';
   double _requestedAmount = 0;
@@ -38,12 +38,12 @@ class LoanProvider extends ChangeNotifier {
   int _tenureMonths = 12;
   double _profitRate = 12.0;
   double _monthlyInstallment = 0;
-  
+
   // Loading states
   bool _isVerifyingPAN = false;
   bool _isVerifyingAadhaar = false;
   bool _isSubmitting = false;
-  
+
   // Current user reference
   User? _currentUser;
 
@@ -148,11 +148,7 @@ class LoanProvider extends ChangeNotifier {
   }
 
   // Set relative details
-  void setRelativeDetails({
-    String? relation,
-    String? name,
-    String? phone,
-  }) {
+  void setRelativeDetails({String? relation, String? name, String? phone}) {
     _selectedRelation = relation;
     _relativeName = name;
     _relativePhone = phone;
@@ -194,8 +190,8 @@ class LoanProvider extends ChangeNotifier {
       final token = await _secureStorage.getToken();
       if (token == null) throw Exception('Not authenticated');
 
-      final name = _applicantType == 'self' 
-          ? _currentUser?.name ?? '' 
+      final name = _applicantType == 'self'
+          ? _currentUser?.name ?? ''
           : _relativeName ?? '';
 
       final result = await _loanService.verifyPAN(
@@ -248,22 +244,29 @@ class LoanProvider extends ChangeNotifier {
     _relativePAN = pan;
     _isPANVerified = true;
     _panVerificationDate = DateTime.now().toIso8601String();
-    
+
     // Store verification transaction ID if available
-    if (verificationResponse != null && verificationResponse.transactionId != null) {
+    if (verificationResponse != null &&
+        verificationResponse.transactionId != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('pan_verification_txn', verificationResponse.transactionId);
+      await prefs.setString(
+        'pan_verification_txn',
+        verificationResponse.transactionId,
+      );
     }
-    
+
     notifyListeners();
   }
 
   // Set Aadhaar as verified with API response
-  Future<void> setAadhaarVerified(String aadhaar, dynamic verificationResponse) async {
+  Future<void> setAadhaarVerified(
+    String aadhaar,
+    dynamic verificationResponse,
+  ) async {
     _relativeAadhaar = aadhaar;
     _isAadhaarVerified = true;
     _aadhaarVerificationDate = DateTime.now().toIso8601String();
-    
+
     // Store Aadhaar details from API response
     if (verificationResponse != null && verificationResponse.data != null) {
       _aadhaarDetails = {
@@ -272,14 +275,17 @@ class LoanProvider extends ChangeNotifier {
         'gender': verificationResponse.data.gender,
         'address': verificationResponse.data.address,
       };
-      
+
       // Store verification transaction ID if available
       if (verificationResponse.transactionId != null) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('aadhaar_verification_txn', verificationResponse.transactionId);
+        await prefs.setString(
+          'aadhaar_verification_txn',
+          verificationResponse.transactionId,
+        );
       }
     }
-    
+
     notifyListeners();
   }
 
@@ -330,7 +336,7 @@ class LoanProvider extends ChangeNotifier {
         _aadhaarVerificationDate = DateTime.now().toIso8601String();
         _aadhaarDetails = result['details'];
         _aadhaarAddress = result['details']?['address'];
-        
+
         // If current address is same as aadhaar, update it
         if (_isCurrentAddressSameAsAadhaar) {
           _currentAddress = _aadhaarAddress;
@@ -345,10 +351,7 @@ class LoanProvider extends ChangeNotifier {
   }
 
   // Set address details
-  void setAddressDetails({
-    String? currentAddress,
-    bool? isSameAsAadhaar,
-  }) {
+  void setAddressDetails({String? currentAddress, bool? isSameAsAadhaar}) {
     if (currentAddress != null) _currentAddress = currentAddress;
     if (isSameAsAadhaar != null) {
       _isCurrentAddressSameAsAadhaar = isSameAsAadhaar;
@@ -391,7 +394,9 @@ class LoanProvider extends ChangeNotifier {
         monthlyInstallment: _monthlyInstallment,
         applicantType: _applicantType,
         relativeName: _applicantType == 'relative' ? _relativeName : null,
-        relativeRelation: _applicantType == 'relative' ? _selectedRelation : null,
+        relativeRelation: _applicantType == 'relative'
+            ? _selectedRelation
+            : null,
         relativePAN: _relativePAN,
         relativeAadhaar: _relativeAadhaar,
         relativePhone: _applicantType == 'relative' ? _relativePhone : null,
