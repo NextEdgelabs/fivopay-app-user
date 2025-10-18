@@ -53,9 +53,14 @@ class LoanApplicationEMICalculatorCard extends StatelessWidget {
                   final tenure = int.tryParse(tenureController.text) ?? 0;
 
                   if (amount > 0 && tenure > 0) {
+                    // Use selected product's interest rate if available, else fallback to category rate
+                    final interestRate =
+                        loanProvider.selectedProduct?.interestRate ??
+                        loanCategory.interestRate;
+
                     final emiData = loanProvider.calculateEMI(
                       principal: amount,
-                      annualRate: loanCategory.interestRate,
+                      annualRate: interestRate,
                       tenureMonths: tenure,
                     );
 

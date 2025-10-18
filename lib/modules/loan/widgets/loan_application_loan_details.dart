@@ -45,7 +45,8 @@ class LoanApplicationLoanDetailsWidget extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // Loan category card
-                LoanCategoryDisplayCard(loanCategory: loanCategory),
+                // LoanCategoryDisplayCard(loanCategory: loanCategory),
+                LoanProductDisplayCard(),
                 const SizedBox(height: 24),
 
                 // Show any validation errors from provider
@@ -91,11 +92,24 @@ class LoanApplicationLoanDetailsWidget extends StatelessWidget {
                     if (amount == null) {
                       return 'Please enter a valid amount';
                     }
-                    if (amount < loanCategory.minLoanAmount) {
-                      return 'Minimum amount is ${loanCategory.formattedMinAmount}';
-                    }
-                    if (amount > loanCategory.maxLoanAmount) {
-                      return 'Maximum amount is ${loanCategory.formattedMaxAmount}';
+
+                    // Use selected product constraints if available
+                    final selectedProduct = loanProvider.selectedProduct;
+                    if (selectedProduct != null) {
+                      if (amount < selectedProduct.minAmount) {
+                        return 'Minimum amount is ${selectedProduct.minAmount}';
+                      }
+                      if (amount > selectedProduct.maxAmount) {
+                        return 'Maximum amount is ${selectedProduct.maxAmount}';
+                      }
+                    } else {
+                      // Fallback to loan category constraints
+                      if (amount < loanCategory.minLoanAmount) {
+                        return 'Minimum amount is ${loanCategory.formattedMinAmount}';
+                      }
+                      if (amount > loanCategory.maxLoanAmount) {
+                        return 'Maximum amount is ${loanCategory.formattedMaxAmount}';
+                      }
                     }
                     return null;
                   },
@@ -122,11 +136,24 @@ class LoanApplicationLoanDetailsWidget extends StatelessWidget {
                     if (tenure == null) {
                       return 'Please enter a valid tenure';
                     }
-                    if (tenure < loanCategory.minTenureMonths) {
-                      return 'Minimum tenure is ${loanCategory.minTenureMonths} months';
-                    }
-                    if (tenure > loanCategory.maxTenureMonths) {
-                      return 'Maximum tenure is ${loanCategory.maxTenureMonths} months';
+
+                    // Use selected product constraints if available
+                    final selectedProduct = loanProvider.selectedProduct;
+                    if (selectedProduct != null) {
+                      if (tenure < selectedProduct.minTenureMonths) {
+                        return 'Minimum tenure is ${selectedProduct.minTenureMonths} months';
+                      }
+                      if (tenure > selectedProduct.maxTenureMonths) {
+                        return 'Maximum tenure is ${selectedProduct.maxTenureMonths} months';
+                      }
+                    } else {
+                      // Fallback to loan category constraints
+                      if (tenure < loanCategory.minTenureMonths) {
+                        return 'Minimum tenure is ${loanCategory.minTenureMonths} months';
+                      }
+                      if (tenure > loanCategory.maxTenureMonths) {
+                        return 'Maximum tenure is ${loanCategory.maxTenureMonths} months';
+                      }
                     }
                     return null;
                   },

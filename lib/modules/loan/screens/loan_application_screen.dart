@@ -20,7 +20,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _pageController = PageController();
   int _currentStep = 0;
-  final int _totalSteps = 4;
+  final int _totalSteps = 5;
 
   // Form controllers
   final _loanAmountController = TextEditingController();
@@ -138,6 +138,9 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
                   });
                 },
                 children: [
+                  LoanApplicationProductSelectionWidget(
+                    loanCategory: widget.args.loan,
+                  ),
                   LoanApplicationLoanDetailsWidget(
                     loanCategory: widget.args.loan,
                     formKey: _formKey,
@@ -239,7 +242,9 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
     final loanProvider = context.read<LoanProvider>();
 
     switch (_currentStep) {
-      case 0: // Loan Details
+      case 0: // Product Selection - No additional data needed, already handled in widget
+        break;
+      case 1: // Loan Details
         loanProvider.updateApplicationData(
           'loanAmount',
           _loanAmountController.text,
@@ -247,7 +252,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
         loanProvider.updateApplicationData('tenure', _tenureController.text);
         loanProvider.updateApplicationData('purpose', _purposeController.text);
         break;
-      case 1: // Personal Details
+      case 2: // Personal Details
         loanProvider.updateApplicationData(
           'fullName',
           _fullNameController.text,
@@ -260,7 +265,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
         loanProvider.updateApplicationData('city', _cityController.text);
         loanProvider.updateApplicationData('pincode', _pincodeController.text);
         break;
-      case 2: // Employment Details
+      case 3: // Employment Details
         loanProvider.updateApplicationData(
           'employmentType',
           _selectedEmploymentType,
@@ -294,7 +299,35 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
   }
 
   bool _validateCurrentStep() {
+    // Update provider data before validation
+    _updateProviderData();
+
     final loanProvider = context.read<LoanProvider>();
+
+    // Trigger form validation for widgets that have forms
+    if (_currentStep == 2 || _currentStep == 3) {
+      loanProvider.triggerFormValidation();
+      // Give a brief moment for widgets to process the validation trigger
+      Future.delayed(const Duration(milliseconds: 50), () {
+        loanProvider.clearFormValidation();
+      });
+    }
+
+    // Validate form fields based on current step
+    switch (_currentStep) {
+      case 1: // Loan Details step
+        if (!_formKey.currentState!.validate()) {
+          return false;
+        }
+        break;
+      case 2: // Personal Details step - handled by widget's internal form validation
+      case 3: // Employment Details step - handled by widget's internal form validation
+        // These steps have their own Form widgets with validators
+        // The provider validation below will catch any validation errors
+        break;
+    }
+
+    // Validate using provider logic (this covers all steps including product selection)
     final validationErrors = loanProvider.getStepValidationErrors(_currentStep);
 
     if (validationErrors.isNotEmpty) {

@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:janseva/modules/loan/models/loan_product_response.dart';
 import 'package:janseva/services/api_service.dart';
 import '../../../config/api_config.dart';
 import '../models/loan_categories_response.dart';
@@ -35,12 +37,9 @@ class LoanServices {
 
       // Make HTTP GET request
       var res = await ApiService.get(uri.toString());
-      final response = await http.get(uri, headers: ApiConfig.headers);
       if (res['success']) {
         return LoanCategoriesResponse.fromJson(res);
       } else {
-        print('Error fetching loan categories: ${response.statusCode}');
-        print('Error response: ${response.body}');
         return null;
       }
     } catch (e) {
@@ -49,48 +48,66 @@ class LoanServices {
     }
   }
 
-  /// Get loan categories by specific type
-  static Future<List<LoanCategory>?> getLoanCategoriesByType(
-    String loanType,
+  static Future<LoanProductResponse?> getLoanProductByCategory({
+    int page = 1,
+    int limit = 10,
+    String? categoryId,
+    // String? status = 'active',
+  }) async {
+    try {
+      // Build URL with query parameters
+      final uri = '${ApiConfig.domain}${ApiConfig.getLoanProducts}/$categoryId';
+
+      // Make HTTP GET request
+      var res = await ApiService.get(uri.toString());
+      if (res['success']) {
+        return LoanProductResponse.fromJson(res);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Exception in getLoanCategories: $e');
+      return null;
+    }
+  }
+
+  static Future<dynamic> submmitLoanApplicattion(
+    CreateLoanparams params,
   ) async {
     try {
-      final response = await getLoanCategories(loanType: loanType);
-      return response?.result.loanCategories;
+      String url = '${ApiConfig.domain}${ApiConfig.submitLoanApplication}';
+      var res = await ApiService.post(url, body: params.toJson());
+      log('Loan Application Response: $res');
+      return res;
     } catch (e) {
-      print('Exception in getLoanCategoriesByType: $e');
-      return null;
-    }
-  }
-
-  /// Get all available loan types
-  static Future<List<String>?> getAvailableLoanTypes() async {
-    try {
-      final response = await getLoanCategories();
-      return response?.result.availableLoanTypes;
-    } catch (e) {
-      print('Exception in getAvailableLoanTypes: $e');
-      return null;
-    }
-  }
-
-  /// Get loan category by ID
-  static Future<LoanCategory?> getLoanCategoryById(String categoryId) async {
-    try {
-      final response = await getLoanCategories();
-      if (response?.result.loanCategories != null) {
-        return response!.result.loanCategories.firstWhere(
-          (category) => category.id == categoryId,
-        );
-      }
-      return null;
-    } catch (e) {
-      print('Exception in getLoanCategoryById: $e');
-      return null;
+      print('Exception in submmitLoanApplicattion: $e');
     }
   }
 
   // Legacy method for backward compatibility
   static Future<dynamic> getLoanTypes() async {
     return await getLoanCategories();
+  }
+}
+
+class CreateLoanparams {
+  final String categoryId;
+  final String userId;
+  final String productId;
+  final String amount;
+
+  CreateLoanparams({
+    required this.categoryId,
+    required this.userId,
+    required this.productId,
+    required this.amount,
+  });
+  Map<String, dynamic> toJson() {
+    return {
+      'category': categoryId,
+      'userId': userId,
+      'product': productId,
+      'amount': amount,
+    };
   }
 }

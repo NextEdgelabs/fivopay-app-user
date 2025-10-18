@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
+import 'package:janseva/main.dart';
+import 'package:janseva/providers/user_provider.dart';
 import 'package:janseva/services/kyc_service.dart';
+import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../services/loan_service.dart';
 
@@ -15,6 +18,10 @@ class LoanProvider extends ChangeNotifier {
   // Application state
   Map<String, dynamic> _applicationData = {};
   LoanCategory? _selectedLoanCategory;
+
+  // Loan product management
+  List<LoanProduct> _availableProducts = [];
+  LoanProduct? _selectedProduct;
   Map<String, dynamic>? _aadhaarDetails;
   String? _relativeName;
   String? _relativePhone;
@@ -25,7 +32,8 @@ class LoanProvider extends ChangeNotifier {
   String? _panVerificationDate;
   String? _aadhaarVerificationDate;
   bool _isVerifyingPAN = false;
-
+  bool _shouldValidateForms = false;
+  bool loadingproducts = false;
   String? _currentAddress;
   String? _aadhaarAddress;
   bool _isCurrentAddressSameAsAadhaar = true;
@@ -47,6 +55,9 @@ class LoanProvider extends ChangeNotifier {
       _loanCategoriesResponse?.result.availableLoanTypes ?? [];
   Map<String, dynamic> get applicationData => _applicationData;
   LoanCategory? get selectedLoanCategory => _selectedLoanCategory;
+  List<LoanProduct> get availableProducts => _availableProducts;
+  LoanProduct? get selectedProduct => _selectedProduct;
+  bool get shouldValidateForms => _shouldValidateForms;
   bool get hasMoreData => _hasMoreData;
   int get currentPage => _currentPage;
   bool get isAadhaarVerified => _isAadhaarVerified;
@@ -68,7 +79,77 @@ class LoanProvider extends ChangeNotifier {
   // Set selected loan category for application
   void setSelectedLoanCategory(LoanCategory category) {
     _selectedLoanCategory = category;
+    getLoanProducts(category.id);
     notifyListeners();
+  }
+
+  void getLoanProducts(String categoryId) async {
+    try {
+      loadingproducts = true;
+      _availableProducts = [];
+      final response = await LoanServices.getLoanProductByCategory(
+        categoryId: categoryId,
+      );
+      if (response != null) {
+        _availableProducts = response.loanproducts;
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error fetching loan products: $e');
+    } finally {
+      loadingproducts = false;
+      notifyListeners();
+    }
+  }
+
+  // Select a loan product
+  void selectLoanProduct(LoanProduct product) {
+    _selectedProduct = product;
+
+    // Update application data with selected product details
+    updateApplicationData('selectedProduct', product.id);
+    updateApplicationData('selectedProductName', product.name);
+    updateApplicationData('selectedProductRate', product.interestRate);
+    updateApplicationData('selectedProductMinAmount', product.minAmount);
+    updateApplicationData('selectedProductMaxAmount', product.maxAmount);
+    updateApplicationData('selectedProductMinTenure', product.minTenureMonths);
+    updateApplicationData('selectedProductMaxTenure', product.maxTenureMonths);
+
+    notifyListeners();
+  }
+
+  // Get loan product by ID
+  LoanProduct? getLoanProductById(String productId) {
+    try {
+      return _availableProducts.firstWhere(
+        (product) => product.id == productId,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Get current product constraints
+  Map<String, dynamic> getCurrentProductConstraints() {
+    if (_selectedProduct != null) {
+      return {
+        'minAmount': _selectedProduct!.minAmount,
+        'maxAmount': _selectedProduct!.maxAmount,
+        'minTenure': _selectedProduct!.minTenureMonths,
+        'maxTenure': _selectedProduct!.maxTenureMonths,
+        'interestRate': _selectedProduct!.interestRate,
+      };
+    } else if (_selectedLoanCategory != null) {
+      // Fallback to category constraints
+      return {
+        'minAmount': _selectedLoanCategory!.minLoanAmount,
+        'maxAmount': _selectedLoanCategory!.maxLoanAmount,
+        'minTenure': _selectedLoanCategory!.minTenureMonths,
+        'maxTenure': _selectedLoanCategory!.maxTenureMonths,
+        'interestRate': _selectedLoanCategory!.interestRate,
+      };
+    }
+    return {};
   }
 
   // Fetch loan categories
@@ -129,26 +210,6 @@ class LoanProvider extends ChangeNotifier {
     }
   }
 
-  // Get loan categories by type
-  Future<List<LoanCategory>?> getLoanCategoriesByType(String loanType) async {
-    try {
-      return await LoanServices.getLoanCategoriesByType(loanType);
-    } catch (e) {
-      _setError('Error fetching loan categories by type: ${e.toString()}');
-      return null;
-    }
-  }
-
-  // Get available loan types
-  Future<List<String>?> getAvailableLoanTypes() async {
-    try {
-      return await LoanServices.getAvailableLoanTypes();
-    } catch (e) {
-      _setError('Error fetching loan types: ${e.toString()}');
-      return null;
-    }
-  }
-
   // Get loan category by ID
   LoanCategory? getLoanCategoryById(String categoryId) {
     try {
@@ -187,6 +248,8 @@ class LoanProvider extends ChangeNotifier {
   void clearApplicationData() {
     _applicationData.clear();
     _selectedLoanCategory = null;
+    _selectedProduct = null;
+    _availableProducts.clear();
     // Clear verification status when clearing application data
     _isAadhaarVerified = false;
     _isPanVerified = false;
@@ -215,7 +278,13 @@ class LoanProvider extends ChangeNotifier {
 
     try {
       // Simulate API call for loan application
-      await Future.delayed(const Duration(seconds: 2));
+      var params = CreateLoanparams(
+        categoryId: selectedLoanCategory!.id,
+        userId: bContext.read<UserProvider>().currentUser!.id,
+        productId: selectedProduct!.id,
+        amount: _applicationData['loanAmount'],
+      );
+      var res = await LoanServices.submmitLoanApplicattion(params);
 
       // Here you would typically call your API service
       // final result = await LoanServices.submitApplication(_applicationData);
@@ -391,6 +460,8 @@ class LoanProvider extends ChangeNotifier {
     _errorMessage = null;
     _applicationData.clear();
     _selectedLoanCategory = null;
+    _selectedProduct = null;
+    _availableProducts.clear();
     _currentPage = 1;
     _hasMoreData = true;
     notifyListeners();
@@ -400,8 +471,28 @@ class LoanProvider extends ChangeNotifier {
   List<String> validateLoanDetails() {
     List<String> errors = [];
 
-    if (_selectedLoanCategory == null) {
-      errors.add('No loan category selected');
+    // Check if a product is selected first
+    final selectedProduct = _applicationData['selectedProduct'];
+    if (selectedProduct == null || selectedProduct.toString().trim().isEmpty) {
+      errors.add('Please select a loan product first');
+      return errors;
+    }
+
+    // Get selected product constraints
+    final productMinAmount =
+        _applicationData['selectedProductMinAmount'] as int?;
+    final productMaxAmount =
+        _applicationData['selectedProductMaxAmount'] as int?;
+    final productMinTenure =
+        _applicationData['selectedProductMinTenure'] as int?;
+    final productMaxTenure =
+        _applicationData['selectedProductMaxTenure'] as int?;
+
+    if (productMinAmount == null ||
+        productMaxAmount == null ||
+        productMinTenure == null ||
+        productMaxTenure == null) {
+      errors.add('Product constraints not found. Please reselect the product.');
       return errors;
     }
 
@@ -413,14 +504,14 @@ class LoanProvider extends ChangeNotifier {
       if (amount == null) {
         errors.add('Please enter a valid loan amount');
       } else {
-        if (amount < _selectedLoanCategory!.minLoanAmount) {
+        if (amount < productMinAmount) {
           errors.add(
-            'Minimum loan amount is ${_selectedLoanCategory!.formattedMinAmount}',
+            'Minimum loan amount is ₹${productMinAmount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
           );
         }
-        if (amount > _selectedLoanCategory!.maxLoanAmount) {
+        if (amount > productMaxAmount) {
           errors.add(
-            'Maximum loan amount is ${_selectedLoanCategory!.formattedMaxAmount}',
+            'Maximum loan amount is ₹${productMaxAmount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
           );
         }
       }
@@ -434,15 +525,11 @@ class LoanProvider extends ChangeNotifier {
       if (tenureMonths == null) {
         errors.add('Please enter a valid tenure');
       } else {
-        if (tenureMonths < _selectedLoanCategory!.minTenureMonths) {
-          errors.add(
-            'Minimum tenure is ${_selectedLoanCategory!.minTenureMonths} months',
-          );
+        if (tenureMonths < productMinTenure) {
+          errors.add('Minimum tenure is $productMinTenure months');
         }
-        if (tenureMonths > _selectedLoanCategory!.maxTenureMonths) {
-          errors.add(
-            'Maximum tenure is ${_selectedLoanCategory!.maxTenureMonths} months',
-          );
+        if (tenureMonths > productMaxTenure) {
+          errors.add('Maximum tenure is $productMaxTenure months');
         }
       }
     }
@@ -567,26 +654,51 @@ class LoanProvider extends ChangeNotifier {
   bool isStepValid(int step) {
     switch (step) {
       case 0:
-        return validateLoanDetails().isEmpty;
+        return selectedProduct != null;
       case 1:
-        return validatePersonalDetails().isEmpty;
+        return validateLoanDetails().isEmpty;
       case 2:
+        return validatePersonalDetails().isEmpty;
+      case 3:
         return validateEmploymentDetails().isEmpty;
       default:
         return true;
     }
   }
 
+  List<String> validateProductSelection() {
+    List<String> errors = [];
+
+    final selectedProduct = _applicationData['selectedProduct'];
+    if (selectedProduct == null || selectedProduct.toString().trim().isEmpty) {
+      errors.add('Please select a loan product');
+    }
+
+    return errors;
+  }
+
   List<String> getStepValidationErrors(int step) {
     switch (step) {
       case 0:
-        return validateLoanDetails();
+        return validateProductSelection();
       case 1:
-        return validatePersonalDetails();
+        return validateLoanDetails();
       case 2:
+        return validatePersonalDetails();
+      case 3:
         return validateEmploymentDetails();
       default:
         return [];
     }
+  }
+
+  void triggerFormValidation() {
+    _shouldValidateForms = true;
+    notifyListeners();
+  }
+
+  void clearFormValidation() {
+    _shouldValidateForms = false;
+    notifyListeners();
   }
 }

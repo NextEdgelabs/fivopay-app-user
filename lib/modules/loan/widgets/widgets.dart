@@ -12,4 +12,5 @@ export 'loan_application_success_dialog.dart';
 export 'loan_application_employment_details.dart';
 export 'loan_application_personal_details.dart';
 export 'loan_application_loan_details.dart';
+export 'loan_application_product_selection.dart';
 export 'loan_application_review_step.dart';
