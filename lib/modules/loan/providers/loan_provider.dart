@@ -683,8 +683,8 @@ class LoanProvider extends ChangeNotifier {
     return errors;
   }
 
-  void getmmyLoanApplications() async {
-    var user = await bContext.read<UserProvider>().currentUser;
+  Future<void> getmmyLoanApplications() async {
+    var user = bContext.read<UserProvider>().currentUser;
     try {
       _isLoading = true;
       notifyListeners();

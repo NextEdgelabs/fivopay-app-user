@@ -60,6 +60,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
           return RefreshIndicator(
             onRefresh: () async {
               await userProvider.initializeUser();
+              await loanProvider.getmmyLoanApplications();
             },
             child: filteredApplications.isEmpty
                 ? const EmptyState(
