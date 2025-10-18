@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:janseva/main.dart';
+import 'package:janseva/models/loan_application.dart';
 import 'package:janseva/providers/user_provider.dart';
 import 'package:janseva/services/kyc_service.dart';
 import 'package:provider/provider.dart';
+import '../models/loan_application_response.dart';
 import '../models/models.dart';
 import '../services/loan_service.dart';
 
@@ -14,6 +16,7 @@ class LoanProvider extends ChangeNotifier {
   bool _isApplying = false;
   String? _errorMessage;
   List<LoanCategory> _favoriteLoans = [];
+  List<LoanApplicationData> _myLoanApplications = [];
 
   // Application state
   Map<String, dynamic> _applicationData = {};
@@ -70,6 +73,9 @@ class LoanProvider extends ChangeNotifier {
   String? get panVerificationDate => _panVerificationDate;
   String? get aadhaarVerificationDate => _aadhaarVerificationDate;
   bool get isVerifyingPAN => _isVerifyingPAN;
+  String? get currentAddress => _currentAddress;
+  String? get aadhaarAddress => _aadhaarAddress;
+  List<LoanApplicationData> get myLoanApplications => _myLoanApplications;
   // Clear error message
   void clearError() {
     _errorMessage = null;
@@ -675,6 +681,24 @@ class LoanProvider extends ChangeNotifier {
     }
 
     return errors;
+  }
+
+  void getmmyLoanApplications() async {
+    var user = await bContext.read<UserProvider>().currentUser;
+    try {
+      _isLoading = true;
+      notifyListeners();
+      final response = await LoanServices.getMyLoans(user!.id);
+      if (response != null) {
+        _myLoanApplications = response.loanApplications;
+        notifyListeners();
+      }
+    } catch (e) {
+      print(e);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   List<String> getStepValidationErrors(int step) {

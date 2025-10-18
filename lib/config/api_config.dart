@@ -24,12 +24,14 @@ class ApiConfig {
   static const String aadhaarVerifyPath = '/kyc/aadhaar/okyc/otp/verify';
   static const String authenticate = '/authenticate';
   static const String submitLoanApplication = '/loan/create-loan';
+  static const String getAllLoanApplication = '/loan/get-all-loans';
 
   //loan
   static const String getLoancategories =
       '/loan-category/get-all-loan-categories';
   static const String getLoanProducts =
       '/loan-product/get-loan-products-by-category';
+  static const String getLoanApplication = '/loan/get-all-loans';
 
   // Headers
 

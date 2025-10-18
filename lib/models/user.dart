@@ -37,7 +37,7 @@ class User {
 
   // Ethical Banking Fields
   final List<FixedDeposit>? fixedDeposits;
-  final List<LoanApplication>? loanApplications;
+  // final List<LoanApplication>? loanApplications;
   final double? totalDeposits;
   final double? totalLoans;
 
@@ -72,7 +72,7 @@ class User {
     this.kycDocuments,
     this.kycCompletedAt,
     this.fixedDeposits,
-    this.loanApplications,
+    // this.loanApplications,
     this.totalDeposits,
     this.totalLoans,
     this.isNew = false,
@@ -118,11 +118,11 @@ class User {
                 .map((fd) => FixedDeposit.fromJson(fd))
                 .toList()
           : null,
-      loanApplications: json['loanApplications'] != null
-          ? (json['loanApplications'] as List)
-                .map((la) => LoanApplication.fromJson(la))
-                .toList()
-          : null,
+      // loanApplications: json['loanApplications'] != null
+      //     ? (json['loanApplications'] as List)
+      //           .map((la) => LoanApplication.fromJson(la))
+      //           .toList()
+      //     : null,
       totalDeposits: json['totalDeposits']?.toDouble(),
       totalLoans: json['totalLoans']?.toDouble(),
       isNew: json['memberId'] == null ? true : false,
@@ -161,7 +161,7 @@ class User {
       'kycDocuments': kycDocuments,
       'kycCompletedAt': kycCompletedAt?.toIso8601String(),
       'fixedDeposits': fixedDeposits?.map((fd) => fd.toJson()).toList(),
-      'loanApplications': loanApplications?.map((la) => la.toJson()).toList(),
+      // 'loanApplications': loanApplications?.map((la) => la.toJson()).toList(),
       'totalDeposits': totalDeposits,
       'totalLoans': totalLoans,
     };
@@ -196,7 +196,7 @@ class User {
     String? kycDocuments,
     DateTime? kycCompletedAt,
     List<FixedDeposit>? fixedDeposits,
-    List<LoanApplication>? loanApplications,
+    // List<LoanApplication>? loanApplications,
     double? totalDeposits,
     double? totalLoans,
     bool? isNew,
@@ -231,7 +231,7 @@ class User {
       kycDocuments: kycDocuments ?? this.kycDocuments,
       kycCompletedAt: kycCompletedAt ?? this.kycCompletedAt,
       fixedDeposits: fixedDeposits ?? this.fixedDeposits,
-      loanApplications: loanApplications ?? this.loanApplications,
+      // loanApplications: loanApplications ?? this.loanApplications,
       totalDeposits: totalDeposits ?? this.totalDeposits,
       totalLoans: totalLoans ?? this.totalLoans,
       isNew: isNew ?? this.isNew,

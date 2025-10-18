@@ -242,7 +242,7 @@ class _LoanApplicationProductSelectionWidgetState
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children: product.features.take(3).map((feature) {
+              children: product.features!.take(3).map((feature) {
                 return Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,

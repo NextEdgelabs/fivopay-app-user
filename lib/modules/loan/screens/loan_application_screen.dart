@@ -73,9 +73,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
 
   @override
   void dispose() {
-    // Clear loan provider data when exiting the application screen
-    context.read<LoanProvider>().clearApplicationData();
-
+    // Dispose controllers
     _loanAmountController.dispose();
     _tenureController.dispose();
     _purposeController.dispose();

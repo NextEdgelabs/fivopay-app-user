@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/modules/loan/models/loan_application_response.dart';
+import 'package:janseva/modules/loan/providers/loan_provider.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../models/fixed_deposit.dart';
@@ -14,6 +16,14 @@ class ApplicationsScreen extends StatefulWidget {
 }
 
 class _ApplicationsScreenState extends State<ApplicationsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LoanProvider>().getmmyLoanApplications();
+    });
+  }
+
   String _selectedFilter = 'all'; // all, fd, loan
   String _selectedStatus = 'all'; // all, active, pending, approved, rejected
 
@@ -30,8 +40,8 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
           ),
         ],
       ),
-      body: Consumer<UserProvider>(
-        builder: (context, userProvider, child) {
+      body: Consumer2<UserProvider, LoanProvider>(
+        builder: (context, userProvider, loanProvider, child) {
           final user = userProvider.currentUser;
           if (user == null) {
             return const Center(
@@ -40,7 +50,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
           }
 
           final fixedDeposits = user.fixedDeposits ?? [];
-          final loanApplications = user.loanApplications ?? [];
+          final loanApplications = loanProvider.myLoanApplications ?? [];
 
           final filteredApplications = _getFilteredApplications(
             fixedDeposits,
@@ -64,7 +74,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                       final application = filteredApplications[index];
                       if (application is FixedDeposit) {
                         return _buildFDCard(application);
-                      } else if (application is LoanApplication) {
+                      } else if (application is LoanApplicationData) {
                         return _buildLoanCard(application);
                       }
                       return const SizedBox.shrink();
@@ -78,7 +88,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
 
   List<dynamic> _getFilteredApplications(
     List<FixedDeposit> fixedDeposits,
-    List<LoanApplication> loanApplications,
+    List<LoanApplicationData> loanApplications,
   ) {
     List<dynamic> allApplications = [];
 
@@ -97,8 +107,8 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
       allApplications = allApplications.where((app) {
         if (app is FixedDeposit) {
           return app.status == _selectedStatus;
-        } else if (app is LoanApplication) {
-          return app.status == _selectedStatus;
+        } else if (app is LoanApplicationData) {
+          return app.approvalStatus == _selectedStatus;
         }
         return false;
       }).toList();
@@ -197,7 +207,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     );
   }
 
-  Widget _buildLoanCard(LoanApplication loan) {
+  Widget _buildLoanCard(LoanApplicationData loan) {
     return FormSectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,7 +227,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
             ),
             title: 'Loan Application',
             subtitle: 'Loan ID: ${loan.id}',
-            trailing: _buildStatusChip(loan.status),
+            trailing: _buildStatusChip(loan.approvalStatus),
           ),
           const SizedBox(height: AppSizes.paddingS),
           Row(
@@ -225,50 +235,51 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
               Expanded(
                 child: _buildInfoItem(
                   'Amount',
-                  '₹${loan.requestedAmount.toStringAsFixed(2)}',
+                  '₹${loan.amount.toStringAsFixed(2)}',
                 ),
               ),
-              Expanded(
-                child: _buildInfoItem('Tenure', '${loan.tenureMonths} months'),
-              ),
+              // Expanded(
+              //   child: _buildInfoItem('Tenure', '${loan,} months'),
+              // ),
             ],
           ),
           const SizedBox(height: AppSizes.paddingS),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Monthly EMI',
-                  loan.monthlyInstallment != null
-                      ? '₹${loan.monthlyInstallment!.toStringAsFixed(2)}'
-                      : 'TBD',
-                ),
-              ),
-              Expanded(child: _buildInfoItem('Purpose', loan.purpose)),
-            ],
-          ),
-          const SizedBox(height: AppSizes.paddingS),
+
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: _buildInfoItem(
+          //         'Monthly EMI',
+          //         loan.monthlyInstallment != null
+          //             ? '₹${loan.monthlyInstallment!.toStringAsFixed(2)}'
+          //             : 'TBD',
+          //       ),
+          //     ),
+          //     Expanded(child: _buildInfoItem('Purpose', loan.purpose)),
+          //   ],
+          // ),
+          // const SizedBox(height: AppSizes.paddingS),
           Row(
             children: [
               Expanded(
                 child: _buildInfoItem(
                   'Applied Date',
-                  _formatDate(loan.applicationDate),
+                  _formatDate(loan.createdAt),
                 ),
               ),
-              if (loan.approvalDate != null)
-                Expanded(
-                  child: _buildInfoItem(
-                    'Approved Date',
-                    _formatDate(loan.approvalDate!),
-                  ),
-                ),
+              // if (loan.approvalDate != null)
+              //   Expanded(
+              //     child: _buildInfoItem(
+              //       'Approved Date',
+              //       _formatDate(loan.approvalDate!),
+              //     ),
+              //   ),
             ],
           ),
-          if (loan.notes != null && loan.notes!.isNotEmpty) ...[
-            const SizedBox(height: AppSizes.paddingS),
-            _buildInfoItem('Notes', loan.notes!),
-          ],
+          // if (loan.notes != null && loan.notes!.isNotEmpty) ...[
+          //   const SizedBox(height: AppSizes.paddingS),
+          //   _buildInfoItem('Notes', loan.notes!),
+          // ],
         ],
       ),
     );

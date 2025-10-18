@@ -15,18 +15,18 @@ class LoanProduct {
   int maxTenureMonths;
   String repaymentFrequency;
   String status;
-  EligibilityCriteria eligibilityCriteria;
-  LatePaymentCharges processingFee;
-  LatePaymentCharges prepaymentCharges;
-  LatePaymentCharges latePaymentCharges;
-  List<String> features;
-  List<String> benefits;
-  String termsAndConditions;
-  List<String> documentsRequired;
-  ApplicationProcess applicationProcess;
-  List<PromotionalOffer> promotionalOffers;
-  DateTime createdAt;
-  DateTime updatedAt;
+  EligibilityCriteria? eligibilityCriteria;
+  LatePaymentCharges? processingFee;
+  LatePaymentCharges? prepaymentCharges;
+  LatePaymentCharges? latePaymentCharges;
+  List<String>? features;
+  List<String>? benefits;
+  String? termsAndConditions;
+  List<String>? documentsRequired;
+  ApplicationProcess? applicationProcess;
+  List<PromotionalOffer>? promotionalOffers;
+  DateTime? createdAt;
+  DateTime? updatedAt;
   int v;
 
   LoanProduct({
@@ -176,69 +176,54 @@ class LoanProduct {
   factory LoanProduct.fromRawJson(String str) =>
       LoanProduct.fromJson(json.decode(str));
 
-  String toRawJson() => json.encode(toJson());
-
   factory LoanProduct.fromJson(Map<String, dynamic> json) => LoanProduct(
-    id: json["_id"],
-    name: json["productName"],
-    description: json["description"],
-    productType: json["productType"],
-    minAmount: json["minLoanAmount"],
-    maxAmount: json["maxLoanAmount"],
-    interestRate: json["interestRate"]?.toDouble(),
-    minTenureMonths: json["minTenureMonths"],
-    maxTenureMonths: json["maxTenureMonths"],
-    repaymentFrequency: json["repaymentFrequency"],
-    status: json["status"],
-    eligibilityCriteria: EligibilityCriteria.fromJson(
-      json["eligibilityCriteria"],
+    id: json["_id"] ?? '',
+    name: json["productName"] ?? '',
+    description: json["description"] ?? '',
+    productType: json["productType"] ?? '',
+    minAmount: json["minLoanAmount"] ?? 0,
+    maxAmount: json["maxLoanAmount"] ?? 0,
+    interestRate: json["interestRate"]?.toDouble() ?? 0.0,
+    minTenureMonths: json["minTenureMonths"] ?? 0,
+    maxTenureMonths: json["maxTenureMonths"] ?? 0,
+    repaymentFrequency: json["repaymentFrequency"] ?? '',
+    status: json["status"] ?? '',
+    eligibilityCriteria: json["eligibilityCriteria"] != null
+        ? EligibilityCriteria.fromJson(json["eligibilityCriteria"])
+        : EligibilityCriteria.fromJson({}),
+    processingFee: LatePaymentCharges.fromJson(json["processingFee"] ?? {}),
+    prepaymentCharges: LatePaymentCharges.fromJson(
+      json["prepaymentCharges"] ?? {},
     ),
-    processingFee: LatePaymentCharges.fromJson(json["processingFee"]),
-    prepaymentCharges: LatePaymentCharges.fromJson(json["prepaymentCharges"]),
-    latePaymentCharges: LatePaymentCharges.fromJson(json["latePaymentCharges"]),
-    features: List<String>.from(json["features"].map((x) => x)),
-    benefits: List<String>.from(json["benefits"].map((x) => x)),
-    termsAndConditions: json["termsAndConditions"],
-    documentsRequired: List<String>.from(
-      json["documentsRequired"].map((x) => x),
+    latePaymentCharges: LatePaymentCharges.fromJson(
+      json["latePaymentCharges"] ?? {},
     ),
-    applicationProcess: ApplicationProcess.fromJson(json["applicationProcess"]),
-    promotionalOffers: List<PromotionalOffer>.from(
-      json["promotionalOffers"].map((x) => PromotionalOffer.fromJson(x)),
+    features: json["features"] != null
+        ? List<String>.from(json["features"].map((x) => x))
+        : [],
+    benefits: json["benefits"] != null
+        ? List<String>.from(json["benefits"].map((x) => x))
+        : [],
+    termsAndConditions: json["termsAndConditions"] ?? '',
+    documentsRequired: json["documentsRequired"] != null
+        ? List<String>.from(json["documentsRequired"].map((x) => x))
+        : [],
+    applicationProcess: ApplicationProcess.fromJson(
+      json["applicationProcess"] ?? {},
     ),
-    createdAt: DateTime.parse(json["createdAt"]),
-    updatedAt: DateTime.parse(json["updatedAt"]),
-    v: json["__v"],
+    promotionalOffers: json["promotionalOffers"] != null
+        ? List<PromotionalOffer>.from(
+            json["promotionalOffers"].map((x) => PromotionalOffer.fromJson(x)),
+          )
+        : [],
+    createdAt: json["createdAt"] == null
+        ? DateTime.now()
+        : DateTime.parse(json["createdAt"]),
+    updatedAt: json["updatedAt"] == null
+        ? DateTime.now()
+        : DateTime.parse(json["updatedAt"]),
+    v: json["__v"] ?? 0,
   );
-
-  Map<String, dynamic> toJson() => {
-    "_id": id,
-    "productName": name,
-    "description": description,
-    "productType": productType,
-    "minLoanAmount": minAmount,
-    "maxLoanAmount": maxAmount,
-    "interestRate": interestRate,
-    "minTenureMonths": minTenureMonths,
-    "maxTenureMonths": maxTenureMonths,
-    "repaymentFrequency": repaymentFrequency,
-    "status": status,
-    "eligibilityCriteria": eligibilityCriteria.toJson(),
-    "processingFee": processingFee.toJson(),
-    "prepaymentCharges": prepaymentCharges.toJson(),
-    "latePaymentCharges": latePaymentCharges.toJson(),
-    "features": List<dynamic>.from(features.map((x) => x)),
-    "benefits": List<dynamic>.from(benefits.map((x) => x)),
-    "termsAndConditions": termsAndConditions,
-    "documentsRequired": List<dynamic>.from(documentsRequired.map((x) => x)),
-    "applicationProcess": applicationProcess.toJson(),
-    "promotionalOffers": List<dynamic>.from(
-      promotionalOffers.map((x) => x.toJson()),
-    ),
-    "createdAt": createdAt.toIso8601String(),
-    "updatedAt": updatedAt.toIso8601String(),
-    "__v": v,
-  };
 }
 
 class ApplicationProcess {
@@ -269,11 +254,13 @@ class ApplicationProcess {
 
   factory ApplicationProcess.fromJson(Map<String, dynamic> json) =>
       ApplicationProcess(
-        steps: List<String>.from(json["steps"].map((x) => x)),
-        estimatedTime: json["estimatedTime"],
-        requiredDocuments: List<String>.from(
-          json["requiredDocuments"].map((x) => x),
-        ),
+        steps: json["steps"] == null
+            ? []
+            : List<String>.from(json["steps"].map((x) => x)),
+        estimatedTime: json["estimatedTime"] ?? '',
+        requiredDocuments: json["requiredDocuments"] == null
+            ? []
+            : List<String>.from(json["requiredDocuments"].map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
@@ -319,11 +306,15 @@ class PromotionalOffer {
 
   factory PromotionalOffer.fromJson(Map<String, dynamic> json) =>
       PromotionalOffer(
-        title: json["title"],
-        description: json["description"],
-        validFrom: DateTime.parse(json["validFrom"]),
-        validTo: DateTime.parse(json["validTo"]),
-        discountPercentage: json["discountPercentage"],
+        title: json["title"] ?? '',
+        description: json["description"] ?? '',
+        validFrom: json["validFrom"] == null
+            ? DateTime.now()
+            : DateTime.parse(json["validFrom"]),
+        validTo: json["validTo"] == null
+            ? DateTime.now()
+            : DateTime.parse(json["validTo"]),
+        discountPercentage: json["discountPercentage"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {

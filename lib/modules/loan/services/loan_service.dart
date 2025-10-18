@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:janseva/modules/loan/models/loan_product_response.dart';
 import 'package:janseva/services/api_service.dart';
 import '../../../config/api_config.dart';
+import '../models/loan_application_response.dart';
 import '../models/loan_categories_response.dart';
 import '../models/loan_category.dart';
 
@@ -81,6 +82,42 @@ class LoanServices {
       return res;
     } catch (e) {
       print('Exception in submmitLoanApplicattion: $e');
+    }
+  }
+
+  static Future<LoanApplicationResponse?> getMyLoans(
+    String userId, {
+    int page = 1,
+    int limit = 20,
+  }) async {
+    try {
+      // Build URL with query parameters
+      final Map<String, String> queryParams = {
+        'page': page.toString(),
+        'limit': limit.toString(),
+        'userId': userId,
+      };
+      // if (loanType != null && loanType.isNotEmpty) {
+      //   queryParams['loanType'] = loanType;
+      // }
+
+      // if (status != null && status.isNotEmpty) {
+      //   queryParams['status'] = status;
+      // }
+      final uri = Uri.parse(
+        '${ApiConfig.domain}${ApiConfig.getAllLoanApplication}',
+      ).replace(queryParameters: queryParams);
+
+      // Make HTTP GET request
+      var res = await ApiService.get(uri.toString());
+      if (res['success']) {
+        return LoanApplicationResponse.fromJson(res);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Exception in getingMyLoans: $e');
+      return null;
     }
   }
 
