@@ -7,6 +7,7 @@ class ApiConfig {
   // KYC Base URL
   static const String baseUrl = 'https://api.sandbox.co.in';
   static const String domain = 'http://192.168.1.89:5000/api/v1';
+  static const String razorpayKeyId = 'rzp_test_jbbgzqb7j4eUF2';
   // API Endpoints
 
   //Login
@@ -25,6 +26,9 @@ class ApiConfig {
   static const String authenticate = '/authenticate';
   static const String submitLoanApplication = '/loan/create-loan';
   static const String getAllLoanApplication = '/loan/get-all-loans';
+
+  //Wallet
+  static const String createDeposit = '/deposit/create-deposit';
 
   //loan
   static const String getLoancategories =

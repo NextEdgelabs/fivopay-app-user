@@ -38,6 +38,9 @@ class AuthService {
         body: {'mobileNo': phoneNumber, 'otp': otp},
       );
       if (res['success'] == true) {
+        print("_______________________________________");
+        log(res.toString());
+        log(res['result']['accessToken']);
         await _saveToken(res['result']['accessToken']);
       }
       return res;

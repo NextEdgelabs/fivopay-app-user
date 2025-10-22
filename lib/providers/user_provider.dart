@@ -9,12 +9,13 @@ class UserProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   bool _isEditing = false;
-
+  String? _accessToken;
   User? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isEditing => _isEditing;
   bool get isMember => _currentUser?.isMember ?? false;
+  String? get accessToken => _accessToken;
 
   // Initialize user data
   Future<void> initializeUser() async {
@@ -24,6 +25,9 @@ class UserProvider extends ChangeNotifier {
       if (user != null) {
         _currentUser = user;
       }
+      final accessToken = await SfService.getString(SfService.accesstoken);
+      _accessToken = accessToken;
+      notifyListeners();
     } catch (e) {
       _setError('Failed to load user data');
     } finally {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:janseva/providers/wallet_provider.dart';
+import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/constants.dart';

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/modules/loan/screens/loan_categories_screen.dart';
-import 'package:janseva/providers/wallet_provider.dart';
+import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
-import 'package:janseva/screens/withdraw_screen.dart';
+import 'package:janseva/modules/wallet_module/screens/withdraw_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/transaction_provider.dart';
@@ -224,8 +224,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               BalanceCard(
                 title: AppStrings.balance,
                 amountText: transactionProvider.balanceDisplay,
-                onPrimary: () =>
-                    _showDepositDialog(context, transactionProvider),
+                onPrimary: () => push(NamedRoutes.depositScreen),
+
+                // _showDepositDialog(context, transactionProvider),
                 onSecondary: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -419,28 +420,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final amount = double.tryParse(amountController.text);
               if (amount != null && amount > 0) {
                 Navigator.pop(context);
-                final success = await transactionProvider.addMoney(
-                  amount: amount,
-                );
-                if (success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Successfully deposited ₹${amount.toStringAsFixed(2)}',
-                      ),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                } else if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        transactionProvider.error ?? 'Deposit failed',
-                      ),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
+                await transactionProvider.addMoney(amount: amount);
+                // if (success && mounted) {
+                //   ScaffoldMessenger.of(context).showSnackBar(
+                //     SnackBar(
+                //       content: Text(
+                //         'Successfully deposited ₹${amount.toStringAsFixed(2)}',
+                //       ),
+                //       backgroundColor: AppColors.success,
+                //     ),
+                //   );
+                // } else if (mounted) {
+                //   ScaffoldMessenger.of(context).showSnackBar(
+                //     SnackBar(
+                //       content: Text(
+                //         transactionProvider.error ?? 'Deposit failed',
+                //       ),
+                //       backgroundColor: AppColors.error,
+                //     ),
+                //   );
+                // }
               }
             },
             text: 'Deposit',

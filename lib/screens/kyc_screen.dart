@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:janseva/providers/wallet_provider.dart';
+import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
 import 'package:janseva/services/storage_service.dart';
 import 'package:provider/provider.dart';
 import '../modules/auth/provider/auth_provider.dart';
@@ -507,7 +507,7 @@ class _KycScreenState extends State<KycScreen> {
           listen: false,
         );
         referralProvider.initializeReferral(updatedUser);
-        transactionProvider.initializeWallet(updatedUser);
+        // transactionProvider.initializeWallet(updatedUser);
 
         if (referralCodeInput.isNotEmpty) {
           await referralProvider.redeemReferral(

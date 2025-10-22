@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../models/bank_account.dart';
-import '../providers/wallet_provider.dart';
-import '../providers/user_provider.dart';
-import '../services/storage_service.dart';
-import '../utils/constants.dart';
-import '../widgets/custom_button.dart';
-import '../widgets/custom_text_field.dart';
+import '../../../models/bank_account.dart';
+import '../provider/wallet_provider.dart';
+import '../../../providers/user_provider.dart';
+import '../../../services/storage_service.dart';
+import '../../../utils/constants.dart';
+import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_text_field.dart';
 
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override

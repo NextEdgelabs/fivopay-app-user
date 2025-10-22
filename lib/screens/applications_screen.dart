@@ -117,8 +117,8 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
 
     // Sort by date (newest first)
     allApplications.sort((a, b) {
-      DateTime dateA = a is FixedDeposit ? a.startDate : a.applicationDate;
-      DateTime dateB = b is FixedDeposit ? b.startDate : b.applicationDate;
+      DateTime dateA = a is FixedDeposit ? a.startDate : a.createdAt;
+      DateTime dateB = b is FixedDeposit ? b.startDate : b.createdAt;
       return dateB.compareTo(dateA);
     });
 

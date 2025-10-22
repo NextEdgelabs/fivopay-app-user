@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../modules/auth/provider/auth_provider.dart';
 import '../providers/referral_provider.dart';
 import '../providers/user_provider.dart';
-import '../providers/wallet_provider.dart';
+import '../modules/wallet_module/provider/wallet_provider.dart';
 import 'dashboard_screen.dart';
 import 'onboarding_screen.dart';
 
@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
         if (user != null) {
           userProvider.updateUser(user);
           referralProvider.initializeReferral(user);
-          transactionProvider.initializeWallet(user);
+          // transactionProvider.initializeWallet(user);
         }
 
         Navigator.pushReplacement(

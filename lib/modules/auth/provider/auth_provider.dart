@@ -45,6 +45,10 @@ class AuthProvider extends ChangeNotifier {
       if (user != null) {
         _currentUser = user;
       }
+      final accessToken = await SfService.getString(SfService.accesstoken);
+      if (accessToken != null) {
+        updateAccessToken(accessToken);
+      }
     } catch (e) {
       _setError('Failed to initialize auth state');
     } finally {

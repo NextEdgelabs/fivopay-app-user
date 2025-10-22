@@ -5,6 +5,7 @@ class NamedRoutes {
   static const String loanCategoryScreen = '/loan-category-screen';
   static const String loanDetailScreen = '/loan-detail-screen';
   static const String loanApplicationForm = '/loan-application-form';
+  static const String depositScreen = '/deposit';
   static const String forgotPassword = '/forgot-password';
   static const String verifyOtp = '/verify-otp';
   static const String resetPassword = '/reset-password';

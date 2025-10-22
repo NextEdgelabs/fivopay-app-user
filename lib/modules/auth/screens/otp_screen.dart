@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:janseva/providers/wallet_provider.dart';
+import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
 import 'package:janseva/screens/registration_screen.dart';
