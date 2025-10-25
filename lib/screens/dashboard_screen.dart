@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/main.dart';
+import 'package:janseva/modules/buyShares/screens/buysharesScreen.dart';
 import 'package:janseva/modules/loan/screens/loan_categories_screen.dart';
 import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
 import 'package:janseva/routes/navigator.dart';
@@ -15,6 +17,7 @@ import '../widgets/stat_card.dart';
 import '../widgets/action_tile.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/sparkline_chart.dart';
+import '../widgets/membership_banner.dart';
 import 'referral_screen.dart';
 import 'profile_screen.dart';
 import 'loan_application_screen.dart';
@@ -87,7 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHomeTab() {
-    final user = Provider.of<UserProvider>(context).currentUser;
+    // final user = Provider.of<UserProvider>(context).currentUser;
     final transactionProvider = Provider.of<WalletProvider>(context);
 
     return Scaffold(
@@ -124,9 +127,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
             horizontal: AppSizes.paddingL,
             vertical: AppSizes.paddingM,
           ),
-          child: Column(
+          child:Consumer<UserProvider>(builder: (context, provider , child) {
+            var user = provider.currentUser;
+            return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Membership Banner (for non-members only)
+              if (user?.isMember != true)
+                MembershipBanner(
+                  onBecomeMember: () {
+                    // Navigate to membership registration screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BuySharesScreen(),
+                      ),
+                    );
+                  },
+                  showCloseButton: true,
+                  onClose: () {
+                    // User can dismiss the banner temporarily
+                    setState(() {
+                      // You could store a preference here to not show again for a while
+                    });
+                  },
+                ),
+                        
               // Welcome Card
               Container(
                 padding: const EdgeInsets.all(AppSizes.paddingXL),
@@ -148,6 +174,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                   
                     Row(
                       children: [
                         Container(
@@ -315,6 +342,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                   ),
                   ActionTile(
+                    title: 'Shares',
+                    icon: Icons.auto_graph_sharp,
+                    color: AppColors.success,
+                    onTap: () {
+                       Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BuySharesScreen(),
+                      ),
+                    );
+                      // TODO: Implement support
+                    },
+                  ),
+                  ActionTile(
                     title: 'Loan',
                     icon: Icons.credit_card,
                     color: AppColors.info,
@@ -353,8 +394,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             ],
-          ),
-        ),
+          );
+          }) ),
       ),
     );
   }

@@ -155,7 +155,7 @@ class AuthProvider extends ChangeNotifier {
 
   savePand(PanData pan) async {
     try {
-      var res = await AuthService.savePanDetails(pan, currentUser!.id);
+      var res = await AuthService.savePanDetails(pan, _currentUser!.id);
 
       if (res != null) {
         // _currentUser = res;

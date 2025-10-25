@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/modules/loan/providers/loan_provider_v2.dart';
 import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
+import 'package:janseva/providers/share_provider.dart';
 import 'package:janseva/routes/route_service.dart';
 import 'package:provider/provider.dart';
 import 'modules/auth/provider/auth_provider.dart';
@@ -30,6 +31,7 @@ class JanSevaApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => WalletProvider()),
         ChangeNotifierProvider(create: (_) => LoanProvider()),
         ChangeNotifierProvider(create: (_) => LoanProviderV2()),
+        ChangeNotifierProvider(create: (_) => ShareProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
