@@ -83,7 +83,7 @@ class RazorpayService {
           ApiConfig.razorpayKeyId, // Replace with your Razorpay key
       // 'amount': razorpayOrder.amount, // Amount already in paise from API
       'order_id': razorpayOrder.id, // Use Razorpay order ID
-      'name': 'SW Resident App',
+      'name': 'JAN SEVA APP',
       'description': 'Order #${razorpayOrder.notes.orderId}',
       'timeout': 300, // 5 minutes timeout
       'prefill': {
@@ -99,7 +99,7 @@ class RazorpayService {
     };
 
     try {
-      _razorpay.open(options);
+     _razorpay.open(options);
     } catch (e) {
       log('Error opening Razorpay: $e');
       _onPaymentError?.call(
