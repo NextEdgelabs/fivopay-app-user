@@ -4,9 +4,7 @@ import 'package:janseva/config/exceptions.dart';
 
 Future<String> pdfToBase64(String url) async {
   try {
-    final uri = Uri.parse(
-      "https://getsamplefiles.com/download/pdf/sample-1.pdf",
-    );
+    final uri = Uri.parse(url);
 
     // Ensure it’s a valid URL
     if (!uri.isAbsolute) {

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/modules/auth/screens/login_screen.dart';
+import 'package:janseva/screens/biometric_gate_screen.dart';
+import 'package:janseva/screens/biometric_setup_screen.dart';
+import 'package:janseva/services/biometric_service.dart';
 import 'package:janseva/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../modules/auth/provider/auth_provider.dart';
 import '../providers/referral_provider.dart';
 import '../providers/user_provider.dart';
-import '../modules/wallet_module/provider/wallet_provider.dart';
 import 'dashboard_screen.dart';
 import 'onboarding_screen.dart';
 
@@ -19,6 +21,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final BiometricService _biometricService = BiometricService();
+
   @override
   void initState() {
     super.initState();
@@ -31,10 +35,6 @@ class _SplashScreenState extends State<SplashScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final referralProvider = Provider.of<ReferralProvider>(
-      context,
-      listen: false,
-    );
-    final transactionProvider = Provider.of<WalletProvider>(
       context,
       listen: false,
     );
@@ -64,10 +64,59 @@ class _SplashScreenState extends State<SplashScreen> {
           // transactionProvider.initializeWallet(user);
         }
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const DashboardScreen()),
-        );
+        // Check if biometric is enabled
+        final biometricEnabled = await _biometricService.isBiometricEnabled();
+        final hasCompletedSetup = await _biometricService.hasCompletedSetup();
+
+        if (biometricEnabled) {
+          // Show biometric gate screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BiometricGateScreen(
+                onAuthenticated: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const DashboardScreen(),
+                    ),
+                  );
+                },
+                onSkip: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const DashboardScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        } else if (!hasCompletedSetup) {
+          // First time user - show biometric setup
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BiometricSetupScreen(
+                onSetupComplete: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const DashboardScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        } else {
+          // Biometric disabled or skipped, go directly to dashboard
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+          );
+        }
       } else {
         Navigator.pushReplacement(
           context,
