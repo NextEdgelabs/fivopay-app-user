@@ -72,7 +72,7 @@ class KycService {
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         return PanVerificationResponse.fromJson(jsonResponse);
-      } else if (response.statusCode == 403) {
+      } else if (response.statusCode == 403 || response.statusCode == 401) {
         if (retryycount < 5) {
           retryycount++;
           await getAccessToken();
@@ -221,7 +221,7 @@ class KycService {
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         return AadhaarOtpResponse.fromJson(jsonResponse);
-      } else if (response.statusCode == 403) {
+      } else if (response.statusCode == 403 || response.statusCode == 401) {
         if (retryycount < 5) {
           retryycount++;
           await getAccessToken();
