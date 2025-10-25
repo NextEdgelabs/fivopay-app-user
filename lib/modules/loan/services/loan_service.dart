@@ -49,6 +49,35 @@ class LoanServices {
     }
   }
 
+  static Future<LoanProductResponse?> getAllLoanProducts({
+    int page = 1,
+    int limit = 20,
+    // String? status = 'active',
+  }) async {
+    try {
+      final Map<String, String> queryParams = {
+        'page': page.toString(),
+        'limit': limit.toString(),
+      };
+
+      // Build URL with query parameters
+      final uri = Uri.parse(
+        '${ApiConfig.domain}${ApiConfig.getAllLoanProducts}',
+      ).replace(queryParameters: queryParams);
+
+      // Make HTTP GET request
+      var res = await ApiService.get(uri.toString());
+      if (res['success']) {
+        return LoanProductResponse.fromJson(res);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Exception in getLoanCategories: $e');
+      return null;
+    }
+  }
+
   static Future<LoanProductResponse?> getLoanProductByCategory({
     int page = 1,
     int limit = 10,
@@ -111,6 +140,7 @@ class LoanServices {
       // Make HTTP GET request
       var res = await ApiService.get(uri.toString());
       if (res['success']) {
+        log(res.toString());
         return LoanApplicationResponse.fromJson(res);
       } else {
         return null;

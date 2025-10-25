@@ -11,7 +11,7 @@ import '../../../services/storage_service.dart';
 import '../models/transaction_model.dart';
 
 class WalletProvider with ChangeNotifier {
-  double _balance = 5000.0;
+  double _balance = 0.0;
   List<Transaction> _transactions = [];
   bool _isLoading = false;
   String? _error;

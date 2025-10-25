@@ -7,7 +7,20 @@ class ApiConfig {
   // KYC Base URL
   static const String baseUrl = 'https://api.sandbox.co.in';
   static const String domain = 'http://192.168.1.89:5000/api/v1';
+
   static const String razorpayKeyId = 'rzp_test_jbbgzqb7j4eUF2';
+
+  //Estamp+Esign
+  static const String eStampBaseUrl = 'https://test.zoop.one/contract/estamp';
+  static const String eSignBaseUrl = 'https://test.zoop.plus/contract/esign';
+
+  //estam+sign Endpoints
+
+  static const String eSignDocumnent = '/v5/init';
+  static const String allocateEstamps = '/v2/estamps/allocate';
+  static const String consumeEstamp = '/v2/estamps/consume';
+  static const String getEstamps = '/v2/init';
+  static const String getorderDEtails = '/v2/fetch/request';
   // API Endpoints
 
   //Login
@@ -35,6 +48,8 @@ class ApiConfig {
       '/loan-category/get-all-loan-categories';
   static const String getLoanProducts =
       '/loan-product/get-loan-products-by-category';
+  static const String getAllLoanProducts =
+      '/loan-product/get-all-loan-products';
   static const String getLoanApplication = '/loan/get-all-loans';
 
   // Headers

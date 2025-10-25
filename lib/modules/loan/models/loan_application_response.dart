@@ -1,3 +1,4 @@
+import 'package:janseva/modules/loan/models/loan_agreement.dart';
 import 'package:janseva/modules/loan/models/models.dart';
 import '../../../models/user.dart';
 
@@ -22,6 +23,7 @@ class LoanApplicationData {
   User userId;
   LoanCategory category;
   LoanProduct product;
+  LoanAgreementModel? agreement;
   int amount;
   List<dynamic> documents;
   String approvalStatus;
@@ -40,6 +42,7 @@ class LoanApplicationData {
     required this.createdAt,
     required this.updatedAt,
     required this.v,
+    this.agreement,
   });
 
   LoanApplicationData copyWith({
@@ -53,6 +56,7 @@ class LoanApplicationData {
     DateTime? createdAt,
     DateTime? updatedAt,
     int? v,
+    LoanAgreementModel? agreement,
   }) => LoanApplicationData(
     id: id ?? this.id,
     userId: userId ?? this.userId,
@@ -64,6 +68,7 @@ class LoanApplicationData {
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     v: v ?? this.v,
+    agreement: agreement ?? this.agreement,
   );
 
   factory LoanApplicationData.fromJson(Map<String, dynamic> json) =>
@@ -77,6 +82,9 @@ class LoanApplicationData {
         approvalStatus: json["approvalStatus"],
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
+        agreement: json["loanAgreement"] != null
+            ? LoanAgreementModel.fromJson(json["loanAgreement"])
+            : null,
         v: json["__v"],
       );
 }

@@ -10,6 +10,7 @@ class ApiService {
   static Future<Map<String, dynamic>> request({
     required String method,
     required String url,
+    Map<String, dynamic>? headers,
     Map<String, dynamic> body = const {},
     String? accessToken,
     Duration timeout = _defaultTimeout,
@@ -35,7 +36,11 @@ class ApiService {
           request = await client.getUrl(Uri.parse(url));
           break;
       }
-
+      if (headers != null) {
+        headers.forEach((key, value) {
+          request.headers.set(key, value);
+        });
+      }
       // Set headers
       request.headers.set(HttpHeaders.contentTypeHeader, "application/json");
       if (accessToken != null && accessToken.isNotEmpty) {
@@ -104,8 +109,14 @@ class ApiService {
   static Future<Map<String, dynamic>> get(
     String url, {
     String? accessToken,
+    Map<String, dynamic>? headers,
   }) async {
-    return request(method: 'GET', url: url, accessToken: accessToken);
+    return request(
+      method: 'GET',
+      url: url,
+      accessToken: accessToken,
+      headers: headers,
+    );
   }
 
   /// POST request helper
@@ -113,12 +124,14 @@ class ApiService {
     String url, {
     Map<String, dynamic> body = const {},
     String? accessToken,
+    Map<String, dynamic>? headers,
   }) async {
     return request(
       method: 'POST',
       url: url,
       body: body,
       accessToken: accessToken,
+      headers: headers,
     );
   }
 

@@ -295,7 +295,7 @@ class _LoanApplicationProductSelectionWidgetState
     );
   }
 
-  String _formatAmount(int amount) {
+  String _formatAmount(double amount) {
     if (amount >= 10000000) {
       return '${(amount / 10000000).toStringAsFixed(1)}Cr';
     } else if (amount >= 100000) {

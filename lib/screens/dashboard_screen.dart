@@ -329,6 +329,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                   ),
                   ActionTile(
+                    title: 'Loan V2',
+                    icon: Icons.credit_card,
+                    color: AppColors.info,
+                    onTap: () {
+                      push(NamedRoutes.loanProductScreen);
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const LoanApplicationScreen(),
+                      //   ),
+                      // );
+                    },
+                  ),
+                  ActionTile(
                     title: 'Support',
                     icon: Icons.support_agent,
                     color: AppColors.error,

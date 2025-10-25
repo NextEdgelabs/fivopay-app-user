@@ -3,8 +3,8 @@ class LoanCategory {
   final String categoryName;
   final String description;
   final String loanType;
-  final int minLoanAmount;
-  final int maxLoanAmount;
+  final double minLoanAmount;
+  final double maxLoanAmount;
   final double interestRate;
   final int minTenureMonths;
   final int maxTenureMonths;
@@ -45,8 +45,12 @@ class LoanCategory {
       categoryName: json['categoryName'] ?? '',
       description: json['description'] ?? '',
       loanType: json['loanType'] ?? '',
-      minLoanAmount: json['minLoanAmount'] ?? 0,
-      maxLoanAmount: json['maxLoanAmount'] ?? 0,
+      minLoanAmount: json['minLoanAmount'] != null
+          ? (json['minLoanAmount'] as num).toDouble()
+          : 0,
+      maxLoanAmount: json['maxLoanAmount'] != null
+          ? (json['maxLoanAmount'] as num).toDouble()
+          : 0,
       interestRate: (json['interestRate'] ?? 0).toDouble(),
       minTenureMonths: json['minTenureMonths'] ?? 0,
       maxTenureMonths: json['maxTenureMonths'] ?? 0,

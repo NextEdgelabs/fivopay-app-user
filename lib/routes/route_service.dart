@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/modules/auth/screens/create_profile.dart';
 import 'package:janseva/modules/auth/screens/login_screen.dart';
+import 'package:janseva/modules/loan/screens/esign/esign_flow.dart';
 import 'package:janseva/modules/loan/screens/loan_application_screen.dart';
 import 'package:janseva/modules/loan/screens/loan_categories_screen.dart';
+import 'package:janseva/modules/loan/screens/loan_product_screen.dart';
 import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/routes.dart';
 import 'package:janseva/screens/dashboard_screen.dart';
@@ -32,11 +34,17 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return _getPageRoute(
         LoanDetailScreen(args: settings.arguments as LoanDetailScreenArguments),
       );
+    case NamedRoutes.loanProductScreen:
+      return _getPageRoute(LoanProductScreen());
     case NamedRoutes.loanApplicationForm:
       return _getPageRoute(
         LoanApplicationScreen(
           args: settings.arguments as LoanDetailScreenArguments,
         ),
+      );
+    case NamedRoutes.signAgreement:
+      return _getPageRoute(
+        EsignLoanScreen(args: settings.arguments as EsignLoanArguments),
       );
     case NamedRoutes.depositScreen:
       return _getPageRoute(DepositScreen());

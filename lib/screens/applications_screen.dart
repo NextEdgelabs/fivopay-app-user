@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/modules/loan/models/loan_application_response.dart';
 import 'package:janseva/modules/loan/providers/loan_provider.dart';
+import 'package:janseva/routes/arguments.dart';
+import 'package:janseva/routes/navigator.dart';
+import 'package:janseva/routes/routes.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../models/fixed_deposit.dart';
-import '../models/loan_application.dart';
 import '../utils/constants.dart';
 import '../components/components.dart';
 
@@ -50,7 +52,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
           }
 
           final fixedDeposits = user.fixedDeposits ?? [];
-          final loanApplications = loanProvider.myLoanApplications ?? [];
+          final loanApplications = loanProvider.myLoanApplications;
 
           final filteredApplications = _getFilteredApplications(
             fixedDeposits,
@@ -276,6 +278,19 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
               //     ),
               //   ),
             ],
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: TextButton(
+              onPressed: () {
+                push(
+                  NamedRoutes.signAgreement,
+                  arguments: EsignLoanArguments(loan: loan),
+                );
+                // Handle view details
+              },
+              child: const Text('Sign Agreement'),
+            ),
           ),
           // if (loan.notes != null && loan.notes!.isNotEmpty) ...[
           //   const SizedBox(height: AppSizes.paddingS),

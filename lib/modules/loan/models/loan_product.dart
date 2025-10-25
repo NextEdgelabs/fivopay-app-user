@@ -8,8 +8,9 @@ class LoanProduct {
   String name;
   String description;
   String productType;
-  int minAmount;
-  int maxAmount;
+  LoanCategory? loanCategory;
+  double minAmount;
+  double maxAmount;
   double interestRate;
   int minTenureMonths;
   int maxTenureMonths;
@@ -53,6 +54,7 @@ class LoanProduct {
     required this.promotionalOffers,
     required this.createdAt,
     required this.updatedAt,
+    required this.loanCategory,
     required this.v,
   });
 
@@ -126,8 +128,8 @@ class LoanProduct {
     String? name,
     String? description,
     String? productType,
-    int? minAmount,
-    int? maxAmount,
+    double? minAmount,
+    double? maxAmount,
     double? interestRate,
     int? minTenureMonths,
     int? maxTenureMonths,
@@ -146,7 +148,9 @@ class LoanProduct {
     DateTime? createdAt,
     DateTime? updatedAt,
     int? v,
+    LoanCategory? loanCategory,
   }) => LoanProduct(
+    loanCategory: loanCategory ?? this.loanCategory,
     id: id ?? this.id,
     name: name ?? this.name,
     description: description ?? this.description,
@@ -181,13 +185,20 @@ class LoanProduct {
     name: json["productName"] ?? '',
     description: json["description"] ?? '',
     productType: json["productType"] ?? '',
-    minAmount: json["minLoanAmount"] ?? 0,
-    maxAmount: json["maxLoanAmount"] ?? 0,
+    minAmount: json["minLoanAmount"] != null
+        ? (json["minLoanAmount"] as num).toDouble()
+        : 0,
+    maxAmount: json["maxLoanAmount"] != null
+        ? (json["maxLoanAmount"] as num).toDouble()
+        : 0,
     interestRate: json["interestRate"]?.toDouble() ?? 0.0,
     minTenureMonths: json["minTenureMonths"] ?? 0,
     maxTenureMonths: json["maxTenureMonths"] ?? 0,
     repaymentFrequency: json["repaymentFrequency"] ?? '',
     status: json["status"] ?? '',
+    loanCategory: json["category"] != null
+        ? LoanCategory.fromJson(json["category"])
+        : LoanCategory.fromJson({}),
     eligibilityCriteria: json["eligibilityCriteria"] != null
         ? EligibilityCriteria.fromJson(json["eligibilityCriteria"])
         : EligibilityCriteria.fromJson({}),
@@ -275,7 +286,7 @@ class PromotionalOffer {
   String description;
   DateTime validFrom;
   DateTime validTo;
-  int discountPercentage;
+  double discountPercentage;
 
   PromotionalOffer({
     required this.title,
@@ -290,7 +301,7 @@ class PromotionalOffer {
     String? description,
     DateTime? validFrom,
     DateTime? validTo,
-    int? discountPercentage,
+    double? discountPercentage,
   }) => PromotionalOffer(
     title: title ?? this.title,
     description: description ?? this.description,
@@ -314,7 +325,7 @@ class PromotionalOffer {
         validTo: json["validTo"] == null
             ? DateTime.now()
             : DateTime.parse(json["validTo"]),
-        discountPercentage: json["discountPercentage"] ?? 0,
+        discountPercentage: (json["discountPercentage"] ?? 0.0).toDouble(),
       );
 
   Map<String, dynamic> toJson() => {

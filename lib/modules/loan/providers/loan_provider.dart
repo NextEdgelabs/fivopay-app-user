@@ -486,9 +486,9 @@ class LoanProvider extends ChangeNotifier {
 
     // Get selected product constraints
     final productMinAmount =
-        _applicationData['selectedProductMinAmount'] as int?;
+        _applicationData['selectedProductMinAmount'] as double?;
     final productMaxAmount =
-        _applicationData['selectedProductMaxAmount'] as int?;
+        _applicationData['selectedProductMaxAmount'] as double?;
     final productMinTenure =
         _applicationData['selectedProductMinTenure'] as int?;
     final productMaxTenure =
