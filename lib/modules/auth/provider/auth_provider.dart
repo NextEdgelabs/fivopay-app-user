@@ -117,6 +117,7 @@ class AuthProvider extends ChangeNotifier {
           );
         } else {
           _currentUser = User.fromJson(result["result"]['user']);
+          accessToken = result["result"]['accessToken'];
           bContext.read<UserProvider>().updateUser(_currentUser!);
         }
 

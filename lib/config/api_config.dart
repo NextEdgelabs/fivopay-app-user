@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 class ApiConfig {
   // KYC Base URL
   static const String baseUrl = 'https://api.sandbox.co.in';
-  static const String domain = 'http://192.168.1.89:5000/api/v1';
+  static const String domain = 'http://localhost:4000/api/v1';
 
   static const String razorpayKeyId = 'rzp_test_jbbgzqb7j4eUF2';
 
