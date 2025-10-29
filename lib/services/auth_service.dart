@@ -40,7 +40,7 @@ class AuthService {
       if (res['success'] == true) {
         print("_______________________________________");
         log(res.toString());
-        log(res['result']['accessToken']);
+        // log(res['result']['accessToken']);
         await _saveToken(res['result']['accessToken']);
       }
       return res;
@@ -177,9 +177,9 @@ class AuthService {
   }
 
   // Helper methods
-  static Future<void> _saveToken(String token) async {
+  static Future<void> _saveToken(String? token) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(SfService.accesstoken, token);
+    await prefs.setString(SfService.accesstoken, token ?? '');
   }
 
   static Future<String?> _getToken() async {

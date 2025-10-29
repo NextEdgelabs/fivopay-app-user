@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 class ApiConfig {
   // KYC Base URL
   static const String baseUrl = 'https://api.sandbox.co.in';
-  static const String domain = 'http://localhost:4000/api/v1';
+  static const String domain = 'https://api.fivopay.nextlabsonline.com';
 
   static const String razorpayKeyId = 'rzp_test_jbbgzqb7j4eUF2';
 
@@ -24,33 +24,33 @@ class ApiConfig {
   // API Endpoints
 
   //Login
-  static const String loginPath = '/user/send-otp';
-  static const String verifyOtpPath = '/user/verify-otp';
-  static const String resendOtpPath = '/user/resend-otp';
+  static const String loginPath = '/api/v1/user/send-otp';
+  static const String verifyOtpPath = '/api/v1/user/verify-otp';
+  static const String resendOtpPath = '/api/v1/user/resend-otp';
   //User-details
-  static const String createProfile = '/user/create-profile';
-  static const String saveAdhar = '/user/save-aadhar';
-  static const String savePan = '/user/save-pan-card-details';
-  static const String getMemberId = '/user/get-member-id';
+  static const String createProfile = '/api/v1/user/create-profile';
+  static const String saveAdhar = '/api/v1/user/save-aadhar';
+  static const String savePan = '/api/v1/user/save-pan-card-details';
+  static const String getMemberId = '/api/v1/user/get-member-id';
   //KYC
-  static const String panVerifyPath = '/kyc/pan/verify';
-  static const String aadhaarOtpPath = '/kyc/aadhaar/okyc/otp';
-  static const String aadhaarVerifyPath = '/kyc/aadhaar/okyc/otp/verify';
-  static const String authenticate = '/authenticate';
-  static const String submitLoanApplication = '/loan/create-loan';
-  static const String getAllLoanApplication = '/loan/get-all-loans';
+  static const String panVerifyPath = '/api/v1/kyc/pan/verify';
+  static const String aadhaarOtpPath = '/api/v1/kyc/aadhaar/okyc/otp';
+  static const String aadhaarVerifyPath = '/api/v1/kyc/aadhaar/okyc/otp/verify';
+  static const String authenticate = '/api/v1/authenticate';
+  static const String submitLoanApplication = '/api/v1/loan/create-loan';
+  static const String getAllLoanApplication = '/api/v1/loan/get-all-loans';
 
   //Wallet
-  static const String createDeposit = '/deposit/create-deposit';
+  static const String createDeposit = '/api/v1/deposit/create-deposit';
 
   //loan
   static const String getLoancategories =
-      '/loan-category/get-all-loan-categories';
+      '/api/v1/loan-category/get-all-loan-categories';
   static const String getLoanProducts =
-      '/loan-product/get-loan-products-by-category';
+      '/api/v1/loan-product/get-loan-products-by-category';
   static const String getAllLoanProducts =
-      '/loan-product/get-all-loan-products';
-  static const String getLoanApplication = '/loan/get-all-loans';
+      '/api/v1/loan-product/get-all-loan-products';
+  static const String getLoanApplication = '/api/v1/loan/get-all-loans';
 
   // Headers
 
