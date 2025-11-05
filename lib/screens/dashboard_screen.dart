@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/main.dart';
 import 'package:janseva/modules/buyShares/screens/buysharesScreen.dart';
+import 'package:janseva/modules/loan/screens/components/adhaar_verify.dart';
 import 'package:janseva/modules/loan/screens/loan_categories_screen.dart';
 import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
+import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
 import 'package:janseva/modules/wallet_module/screens/withdraw_screen.dart';
+import 'package:janseva/services/tts_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/transaction_provider.dart';
@@ -44,7 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _buildHomeTab(),
           _buildTransactionsTab(),
           _buildApplicationsTab(),
-          _buildReferralTab(),
+          // _buildReferralTab(),
           _buildProfileTab(),
         ],
       ),
@@ -72,13 +75,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           NavigationDestination(
             icon: Icon(Icons.description_outlined, size: 24),
             selectedIcon: Icon(Icons.description, size: 24),
-            label: 'Apps',
+            label: 'Application',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.share_outlined, size: 24),
-            selectedIcon: Icon(Icons.share, size: 24),
-            label: 'Refer',
-          ),
+          // NavigationDestination(
+          //   icon: Icon(Icons.share_outlined, size: 24),
+          //   selectedIcon: Icon(Icons.share, size: 24),
+          //   label: 'Refer',
+          // ),
           NavigationDestination(
             icon: Icon(Icons.person_outline, size: 24),
             selectedIcon: Icon(Icons.person, size: 24),
@@ -94,14 +97,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final transactionProvider = Provider.of<WalletProvider>(context);
 
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(builder: (context) => LoanCategoriesScreen()),
-      //     );
-      //   },
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async{
+          await  TTSService.speak("जनसेवा वॉलेट में,    500 रुपये.  मिले");
+          // .then((e)async{
+          //   await TTSService.stop(); 
+          // });
+
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => AdhaarVerifyScreen(
+          //     args: AadharVerifyArguments(stepNumber: 1),
+          //   )),
+          // );
+        },
+      ),
       appBar: AppBar(
         title: Text(
           AppStrings.dashboard,
@@ -369,20 +379,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       // );
                     },
                   ),
-                  ActionTile(
-                    title: 'Loan V2',
-                    icon: Icons.credit_card,
-                    color: AppColors.info,
-                    onTap: () {
-                      push(NamedRoutes.loanProductScreen);
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const LoanApplicationScreen(),
-                      //   ),
-                      // );
-                    },
-                  ),
+                  // ActionTile(
+                  //   title: 'Loan V2',
+                  //   icon: Icons.credit_card,
+                  //   color: AppColors.info,
+                  //   onTap: () {
+                  //     push(NamedRoutes.loanProductScreen);
+                  //     // Navigator.push(
+                  //     //   context,
+                  //     //   MaterialPageRoute(
+                  //     //     builder: (context) => const LoanApplicationScreen(),
+                  //     //   ),
+                  //     // );
+                  //   },
+                  // ),
                   ActionTile(
                     title: 'Support',
                     icon: Icons.support_agent,

@@ -11,7 +11,7 @@ import '../services/storage_service.dart';
 
 class ShareProvider with ChangeNotifier {
   // Constants
-  static const double SHARE_PRICE = 100.0;
+  static const int SHARE_PRICE = 100;
   static const int SHARES_FOR_MEMBERSHIP = 10;
   static const double MEMBERSHIP_AMOUNT =
       1000.0; // SHARE_PRICE * SHARES_FOR_MEMBERSHIP
@@ -20,7 +20,7 @@ class ShareProvider with ChangeNotifier {
   final Share _availableShare = Share(
     id: 'SHARE001',
     name: 'JanSeva Cooperative Share',
-    pricePerShare: SHARE_PRICE,
+    pricePerShare: SHARE_PRICE.toDouble(),
     description: 'Become a member by purchasing cooperative shares',
     lastUpdated: DateTime.now(),
   );
@@ -51,7 +51,7 @@ class ShareProvider with ChangeNotifier {
   bool get hasMinimumShares => totalSharesOwned >= SHARES_FOR_MEMBERSHIP;
   int get sharesNeededForMembership => SHARES_FOR_MEMBERSHIP - totalSharesOwned;
   double get amountNeededForMembership => sharesNeededForMembership > 0
-      ? sharesNeededForMembership * SHARE_PRICE
+      ? sharesNeededForMembership * SHARE_PRICE.toDouble()
       : 0.0;
 
   ShareProvider() {
@@ -103,11 +103,11 @@ class ShareProvider with ChangeNotifier {
 
   // Calculate amount from shares
   double calculateAmountFromShares(int shares) {
-    return shares * SHARE_PRICE;
+    return shares * SHARE_PRICE.toDouble();
   }
 
   // Buy shares by quantity
-  Future<bool> buySharesByQuantity(int quantity) async {
+  Future<bool> buySharesByQuantity(int quantity, String userId) async {
     if (quantity <= 0) {
       _error = 'Please enter a valid quantity';
       notifyListeners();
@@ -115,30 +115,30 @@ class ShareProvider with ChangeNotifier {
     }
 
     final totalAmount = calculateAmountFromShares(quantity);
-    return await _processPurchase(quantity, totalAmount);
+    return await _processPurchase(quantity, totalAmount, userId);
   }
 
   // Buy shares by amount
-  Future<bool> buySharesByAmount(double amount) async {
-    if (amount < SHARE_PRICE) {
-      _error = 'Minimum amount is ₹${SHARE_PRICE.toStringAsFixed(0)}';
-      notifyListeners();
-      return false;
-    }
+  // Future<bool> buySharesByAmount(double amount) async {
+  //   if (amount < SHARE_PRICE) {
+  //     _error = 'Minimum amount is ₹${SHARE_PRICE.toStringAsFixed(0)}';
+  //     notifyListeners();
+  //     return false;
+  //   }
 
-    final quantity = calculateSharesFromAmount(amount);
-    if (quantity <= 0) {
-      _error = 'Invalid amount';
-      notifyListeners();
-      return false;
-    }
+  //   final quantity = calculateSharesFromAmount(amount);
+  //   if (quantity <= 0) {
+  //     _error = 'Invalid amount';
+  //     notifyListeners();
+  //     return false;
+  //   }
 
-    final totalAmount = calculateAmountFromShares(quantity);
-    return await _processPurchase(quantity, totalAmount);
-  }
+  //   final totalAmount = calculateAmountFromShares(quantity);
+  //   return await _processPurchase(quantity, totalAmount);
+  // }
 
   // Process the purchase
-  Future<bool> _processPurchase(int quantity, double totalAmount) async {
+  Future<bool> _processPurchase(int quantity, double totalAmount, String userId) async {
     _setLoading(true);
     _clearError();
 
@@ -147,21 +147,21 @@ class ShareProvider with ChangeNotifier {
       final Completer<bool> paymentCompleter = Completer<bool>();
 
       // Create deposit order
-      var res = await RazorpayService.createDepositOrder(
-        DepositParams(amount: totalAmount, description: "BUY SHARES"),
-        bContext.read<AuthProvider>().accessToken ?? '',
+      var res = await RazorpayService.createSharePurchaseOrder(
+        SharePurchaseParams(quantity : quantity, pricePerShare: SHARE_PRICE, customerId: userId),
+        bContext.read<AuthProvider>().appAccessToken ?? '',
       );
 
       // Open Razorpay checkout
       RazorpayService.openCheckoutWithModel(
-        razorpayOrder: res.order,
+        razorpayOrder: res.razorpayOrder,
         onPaymentSuccess: (e) async {
           try {
             final purchase = SharePurchase(
               id: 'PUR${DateTime.now().millisecondsSinceEpoch}',
               shareId: _availableShare.id,
               quantity: quantity,
-              pricePerShare: SHARE_PRICE,
+              pricePerShare: SHARE_PRICE.toDouble(),
               totalAmount: totalAmount,
               purchaseDate: DateTime.now(),
               status: 'completed',

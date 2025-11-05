@@ -118,108 +118,123 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
             },
           ),
         ),
-        body: Column(
+        body: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(), // Disable swipe, use buttons only
+          onPageChanged: (index) {
+            setState(() {
+              _currentStep = index;
+            });
+          },
           children: [
-            LoanApplicationProgressIndicator(
-              currentStep: _currentStep,
-              totalSteps: _totalSteps,
-              primaryColor: LoanUtils.getLoanTypeColor(
-                widget.args.loan.loanType,
+            _buildFullyScrollablePage(
+              LoanApplicationProductSelectionWidget(
+                loanCategory: widget.args.loan,
               ),
             ),
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (index) {
+            _buildFullyScrollablePage(
+              LoanApplicationLoanDetailsWidget(
+                loanCategory: widget.args.loan,
+                formKey: _formKey,
+                loanAmountController: _loanAmountController,
+                tenureController: _tenureController,
+                purposeController: _purposeController,
+                onLoanAmountChanged: _updateLoanAmount,
+              ),
+            ),
+            _buildFullyScrollablePage(
+              LoanApplicationPersonalDetailsWidget(
+                loanCategory: widget.args.loan,
+                fullNameController: _fullNameController,
+                emailController: _emailController,
+                phoneController: _phoneController,
+                panController: _panController,
+                aadharController: _aadharController,
+                addressController: _addressController,
+                cityController: _cityController,
+                pincodeController: _pincodeController,
+              ),
+            ),
+            _buildFullyScrollablePage(
+              LoanApplicationEmploymentDetailsWidget(
+                loanCategory: widget.args.loan,
+                selectedEmploymentType: _selectedEmploymentType,
+                onEmploymentTypeChanged: (value) {
                   setState(() {
-                    _currentStep = index;
+                    _selectedEmploymentType = value!;
                   });
                 },
-                children: [
-                  LoanApplicationProductSelectionWidget(
-                    loanCategory: widget.args.loan,
-                  ),
-                  LoanApplicationLoanDetailsWidget(
-                    loanCategory: widget.args.loan,
-                    formKey: _formKey,
-                    loanAmountController: _loanAmountController,
-                    tenureController: _tenureController,
-                    purposeController: _purposeController,
-                    onLoanAmountChanged: _updateLoanAmount,
-                  ),
-                  LoanApplicationPersonalDetailsWidget(
-                    loanCategory: widget.args.loan,
-                    fullNameController: _fullNameController,
-                    emailController: _emailController,
-                    phoneController: _phoneController,
-                    panController: _panController,
-                    aadharController: _aadharController,
-                    addressController: _addressController,
-                    cityController: _cityController,
-                    pincodeController: _pincodeController,
-                  ),
-                  LoanApplicationEmploymentDetailsWidget(
-                    loanCategory: widget.args.loan,
-                    selectedEmploymentType: _selectedEmploymentType,
-                    onEmploymentTypeChanged: (value) {
-                      setState(() {
-                        _selectedEmploymentType = value!;
-                      });
-                    },
-                    monthlyIncomeController: _monthlyIncomeController,
-                    employerNameController: _employerNameController,
-                    workExperienceController: _workExperienceController,
-                    selectedEducation: _selectedEducation,
-                    onEducationChanged: (value) {
-                      setState(() {
-                        _selectedEducation = value!;
-                      });
-                    },
-                    hasExistingLoans: _hasExistingLoans,
-                    onExistingLoansChanged: (value) {
-                      setState(() {
-                        _hasExistingLoans = value!;
-                      });
-                    },
-                  ),
-                  LoanApplicationReviewWidget(
-                    loanCategory: widget.args.loan,
-                    loanAmountController: _loanAmountController,
-                    tenureController: _tenureController,
-                    purposeController: _purposeController,
-                    fullNameController: _fullNameController,
-                    emailController: _emailController,
-                    phoneController: _phoneController,
-                    panController: _panController,
-                    addressController: _addressController,
-                    cityController: _cityController,
-                    selectedEmploymentType: _selectedEmploymentType,
-                    monthlyIncomeController: _monthlyIncomeController,
-                    employerNameController: _employerNameController,
-                    workExperienceController: _workExperienceController,
-                    selectedEducation: _selectedEducation,
-                    agreeToTerms: _agreeToTerms,
-                    onTermsChanged: (value) {
-                      setState(() {
-                        _agreeToTerms = value!;
-                      });
-                    },
-                    onSubmit: _submitApplication,
-                  ),
-                ],
+                monthlyIncomeController: _monthlyIncomeController,
+                employerNameController: _employerNameController,
+                workExperienceController: _workExperienceController,
+                selectedEducation: _selectedEducation,
+                onEducationChanged: (value) {
+                  setState(() {
+                    _selectedEducation = value!;
+                  });
+                },
+                hasExistingLoans: _hasExistingLoans,
+                onExistingLoansChanged: (value) {
+                  setState(() {
+                    _hasExistingLoans = value!;
+                  });
+                },
               ),
             ),
-            LoanApplicationNavigationButtons(
-              currentStep: _currentStep,
-              totalSteps: _totalSteps,
-              onPrevious: _currentStep > 0 ? _previousStep : null,
-              onNext: _currentStep < _totalSteps - 1 ? _nextStep : null,
-              primaryColor: LoanUtils.getLoanTypeColor(
-                widget.args.loan.loanType,
+            _buildFullyScrollablePage(
+              LoanApplicationReviewWidget(
+                loanCategory: widget.args.loan,
+                loanAmountController: _loanAmountController,
+                tenureController: _tenureController,
+                purposeController: _purposeController,
+                fullNameController: _fullNameController,
+                emailController: _emailController,
+                phoneController: _phoneController,
+                panController: _panController,
+                addressController: _addressController,
+                cityController: _cityController,
+                selectedEmploymentType: _selectedEmploymentType,
+                monthlyIncomeController: _monthlyIncomeController,
+                employerNameController: _employerNameController,
+                workExperienceController: _workExperienceController,
+                selectedEducation: _selectedEducation,
+                agreeToTerms: _agreeToTerms,
+                onTermsChanged: (value) {
+                  setState(() {
+                    _agreeToTerms = value!;
+                  });
+                },
+                onSubmit: _submitApplication,
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFullyScrollablePage(Widget contentWidget) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          LoanApplicationProgressIndicator(
+            currentStep: _currentStep,
+            totalSteps: _totalSteps,
+            primaryColor: LoanUtils.getLoanTypeColor(
+              widget.args.loan.loanType,
+            ),
+          ),
+          contentWidget,
+          LoanApplicationNavigationButtons(
+            currentStep: _currentStep,
+            totalSteps: _totalSteps,
+            onPrevious: _currentStep > 0 ? _previousStep : null,
+            onNext: _currentStep < _totalSteps - 1 ? _nextStep : null,
+            primaryColor: LoanUtils.getLoanTypeColor(
+              widget.args.loan.loanType,
+            ),
+          ),
+        ],
       ),
     );
   }

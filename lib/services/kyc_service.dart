@@ -3,100 +3,46 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:janseva/main.dart';
 import 'package:janseva/modules/auth/provider/auth_provider.dart';
+import 'package:janseva/services/api_service.dart';
 import 'package:provider/provider.dart';
 import '../config/api_config.dart';
 
 /// Service for KYC verification using Sandbox API
 class KycService {
-  int retryycount = 0;
 
-  /// Verify PAN card with name and date of birth
-  ///
-  /// API Response Format:
-  /// ```json
-  /// {
-  ///   "code": 200,
-  ///   "timestamp": 1760504569212,
-  ///   "data": {
-  ///     "@entity": "in.co.sandbox.kyc.pan_verification.response",
-  ///     "pan": "ANVPY9553G",
-  ///     "status": "valid",
-  ///     "remarks": null,
-  ///     "name_as_per_pan_match": true,
-  ///     "date_of_birth_match": true,
-  ///     "category": "individual",
-  ///     "aadhaar_seeding_status": "y"
-  ///   },
-  ///   "transaction_id": "609a142a-42d6-489e-9499-be795f0c1fa7"
-  /// }
-  /// ```
-  Future<PanVerificationResponse> verifyPan({
+  static Future<PanVerificationResponse> verifyPan({
     required String panNumber,
     required String name,
+    required String userId,
     String? dateOfBirth,
+    String? token,
     String consent = 'Y',
     String reason = 'For KYC verification purpose',
   }) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.panVerifyPath}');
-
-      // Build request body according to Sandbox API specs
-      final body = {
-        '@entity': 'in.co.sandbox.kyc.pan_verification.request',
+      final url = '${ApiConfig.domain}${ApiConfig.panVerifyPath}';
+  final body = {
+        'date_of_birth' : dateOfBirth ,   
+         'userId' : userId ,
         'pan': panNumber.toUpperCase(),
         'name_as_per_pan': name,
         'consent': consent,
         'reason': reason,
       };
+      var response = await ApiService.post(url, body: body);
+     
+     
 
-      // Add optional date of birth if provided
-      if (dateOfBirth != null && dateOfBirth.isNotEmpty) {
-        body['date_of_birth'] = dateOfBirth;
-      }
-
-      print('🔍 [KYC] PAN Verification Request:');
-      print('URL: $url');
-      print('Headers: ${ApiConfig.headers}');
-      print('Body: ${jsonEncode(body)}');
-
-      final response = await http.post(
-        url,
-        headers: ApiConfig.headers,
-        body: jsonEncode(body),
-      );
-
-      print('📡 [KYC] PAN Verification Response:');
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        return PanVerificationResponse.fromJson(jsonResponse);
-      } else if (response.statusCode == 403 || response.statusCode == 401) {
-        if (retryycount < 5) {
-          retryycount++;
-          await getAccessToken();
-          return verifyPan(
-            panNumber: panNumber,
-            name: name,
-            dateOfBirth: dateOfBirth,
-            consent: consent,
-            reason: reason,
-          );
-        } else {
-          final errorBody = jsonDecode(response.body);
-          throw KycApiException(
-            message: errorBody['message'] ?? 'Aadhaar OTP request failed',
-            statusCode: response.statusCode,
-            errorDetails: errorBody,
-          );
-        }
+     
+      if (response['success'] == true) {
+        final jsonResponse = response['data']['verificationData'];
+        return PanVerificationResponse.fromJson(jsonResponse , response['success'] == true ? 200 : 0);
       } else {
-        final errorBody = jsonDecode(response.body);
+        
         throw KycApiException(
-          message: errorBody['message'] ?? 'PAN verification failed',
-          statusCode: response.statusCode,
-          errorDetails: errorBody,
+          message: response['message'] ?? 'PAN verification failed',
+          statusCode: 400,
+          errorDetails: response,
         );
       }
     } catch (e) {
@@ -109,139 +55,32 @@ class KycService {
     }
   }
 
-  /// Verify Aadhaar card
-  Future<Map<String, dynamic>> verifyAadhaar({
+
+  static Future<AadhaarOtpResponse> requestAadhaarOtp({
     required String aadhaarNumber,
+    required String userId,
+
+   required  String reason ,
   }) async {
     try {
-      final url = Uri.parse(
-        '${ApiConfig.baseUrl}${ApiConfig.aadhaarVerifyPath}',
-      );
-
-      final body = {'aadhaar': aadhaarNumber};
-
-      final response = await http.post(
-        url,
-        headers: {},
-        body: jsonEncode(body),
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        final errorBody = jsonDecode(response.body);
-        throw KycApiException(
-          message: errorBody['message'] ?? 'Aadhaar verification failed',
-          statusCode: response.statusCode,
-          errorDetails: errorBody,
-        );
-      }
-    } catch (e) {
-      if (e is KycApiException) rethrow;
-      throw KycApiException(
-        message: 'Network error: ${e.toString()}',
-        statusCode: 0,
-        errorDetails: {'error': e.toString()},
-      );
-    }
-  }
-
-  /// Request OTP for Aadhaar verification
-  ///
-  ///
-  /// Step 0: Get Access Token
-  ///
-  Future<void> getAccessToken() async {
-    try {
-      final provider = bContext.read<AuthProvider>();
-      final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.authenticate}');
-      final header = {
-        'x-api-key': "key_live_c018d67e91bc4761b35d212fce69e17d",
-        'x-api-secret': 'secret_live_82d7c6010efe4764b12fd616211a9d7a',
-        'x-api-version': provider.apiversion ?? "2.0",
-        // 'Content-Type': 'application/json',
-      };
-      final response = await http.post(url, headers: header);
-
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        var token = jsonResponse['access_token'];
-        bContext.read<AuthProvider>().updateAccessToken(token);
-      } else {
-        final errorBody = jsonDecode(response.body);
-        throw KycApiException(
-          message: errorBody['message'] ?? 'Failed to get access token',
-          statusCode: response.statusCode,
-          errorDetails: errorBody,
-        );
-      }
-    } catch (e) {
-      if (e is KycApiException) rethrow;
-      throw KycApiException(
-        message: 'Network error: ${e.toString()}',
-        statusCode: 0,
-        errorDetails: {'error': e.toString()},
-      );
-    }
-  }
-
-  /// Step 1: Send OTP to Aadhaar registered mobile number
-  ///
-  ///
-  Future<AadhaarOtpResponse> requestAadhaarOtp({
-    required String aadhaarNumber,
-    String consent = 'Y',
-    String reason = 'For KYC verification purpose',
-  }) async {
-    try {
-      final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.aadhaarOtpPath}');
-
+      final url = '${ApiConfig.domain}${ApiConfig.aadhaarOtpPath}';
       final body = {
-        '@entity': 'in.co.sandbox.kyc.aadhaar.okyc.otp.request',
-        'aadhaar_number': aadhaarNumber,
-        'consent': consent,
-        'reason': reason,
+        "aadharNumber": aadhaarNumber,
+        "userId": userId,
+        "reason": reason,
       };
 
-      print('🔍 [KYC] Aadhaar OTP Request:');
-      print('URL: $url');
-      print('Body: ${jsonEncode(body)}');
-      // ApiConfig.headers['Authorization'] = accesstoken;
-      log(ApiConfig.headers.toString());
-      final response = await http.post(
-        url,
-        headers: ApiConfig.headers,
-        body: jsonEncode(body),
-      );
-
-      print('📡 [KYC] Aadhaar OTP Response:');
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        return AadhaarOtpResponse.fromJson(jsonResponse);
-      } else if (response.statusCode == 403 || response.statusCode == 401) {
-        if (retryycount < 5) {
-          retryycount++;
-          await getAccessToken();
-          return requestAadhaarOtp(aadhaarNumber: aadhaarNumber);
-        } else {
-          final errorBody = jsonDecode(response.body);
-          throw KycApiException(
-            message: errorBody['message'] ?? 'Aadhaar OTP request failed',
-            statusCode: response.statusCode,
-            errorDetails: errorBody,
-          );
-        }
-      } else {
-        final errorBody = jsonDecode(response.body);
+      final response = await ApiService.post(url, body: body);
+      if(response['success'] == true){
+        return AadhaarOtpResponse.fromJson(response['data'] , response['success'] == true ? 200 : 0);
+      }else{
         throw KycApiException(
-          message: errorBody['message'] ?? 'Aadhaar OTP request failed',
-          statusCode: response.statusCode,
-          errorDetails: errorBody,
+          message: response['message'] ?? 'Aadhaar OTP request failed',
+          statusCode: 0,
+          errorDetails: response,
         );
       }
+  
     } catch (e) {
       if (e is KycApiException) rethrow;
       throw KycApiException(
@@ -252,44 +91,42 @@ class KycService {
     }
   }
 
-  Future<AadhaarVerificationResponse> verifyAadhaarOtp({
-    required String referenceId,
+  static Future<AadhaarVerificationResponse> verifyAadhaarOtp({
+    required String transactionId,
     required String otp,
+    required String userId,
   }) async {
     try {
-      final url = Uri.parse(
-        '${ApiConfig.baseUrl}${ApiConfig.aadhaarVerifyPath}',
-      );
+      final url =
+        '${ApiConfig.domain}${ApiConfig.aadhaarVerifyPath}'
+      ;
 
       final body = {
-        '@entity': 'in.co.sandbox.kyc.aadhaar.okyc.request',
-        'reference_id': referenceId,
+        'userId': userId,
+        'transactionId': transactionId,
         'otp': otp,
       };
 
-      print('🔍 [KYC] Aadhaar OTP Verification:');
-      print('URL: $url');
-      print('Body: ${jsonEncode(body)}');
+      // print('🔍 [KYC] Aadhaar OTP Verification:');
+      // print('URL: $url');
+      // print('Body: ${jsonEncode(body)}');
 
-      final response = await http.post(
-        url,
-        headers: ApiConfig.headers,
-        body: jsonEncode(body),
-      );
+      // final response = await http.post(
+      //   url,
+      //   headers: ApiConfig.headers,
+      //   body: jsonEncode(body),
+      // );
+      final response = await ApiService.post(url, body: body);
 
-      print('📡 [KYC] Aadhaar Verification Response:');
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        return AadhaarVerificationResponse.fromJson(jsonResponse);
+      if (response['success'] == true) {
+        return AadhaarVerificationResponse.fromJson(response['data']);
       } else {
-        final errorBody = jsonDecode(response.body);
+       
         throw KycApiException(
-          message: errorBody['message'] ?? 'Aadhaar verification failed',
-          statusCode: response.statusCode,
-          errorDetails: errorBody,
+          message: response['message'] ?? 'Aadhaar verification failed',
+          statusCode: 0,
+          errorDetails: response,
         );
       }
     } catch (e) {
@@ -317,10 +154,10 @@ class PanVerificationResponse {
     required this.transactionId,
   });
 
-  factory PanVerificationResponse.fromJson(Map<String, dynamic> json) {
+  factory PanVerificationResponse.fromJson(Map<String, dynamic> json , int staus) {
     return PanVerificationResponse(
-      code: json['code'] as int,
-      timestamp: json['timestamp'] as int,
+      code: json['code'] ?? staus ,
+      timestamp: json['timestamp'] ?? 0,
       data: PanData.fromJson(json['data'] as Map<String, dynamic>),
       transactionId: json['transaction_id'] as String,
     );
@@ -413,24 +250,27 @@ class KycApiException implements Exception {
 /// Aadhaar OTP Response Model
 class AadhaarOtpResponse {
   final int code;
-  final int timestamp;
+  final String transactionId;
+  // final int timestamp;
   final String referenceId;
   final String message;
 
   AadhaarOtpResponse({
     required this.code,
-    required this.timestamp,
+    required this.transactionId,
+    // required this.timestamp,
     required this.referenceId,
     required this.message,
   });
 
-  factory AadhaarOtpResponse.fromJson(Map<String, dynamic> json) {
+  factory AadhaarOtpResponse.fromJson(Map<String, dynamic> json , int staus ) {
     return AadhaarOtpResponse(
-      code: json['code'] ?? 0,
-      timestamp: json['timestamp'] ?? 0,
+      transactionId: json['transactionId'] ?? '',
+      code: json['code'] ?? staus ?? 0,
+      // timestamp: json['timestamp'] ?? 0,
       referenceId:
           json['reference_id'] ??
-          (json['data']?['reference_id'] as int).toString() ??
+          
           '',
       message: json['message'] ?? 'OTP sent successfully',
     );
@@ -465,51 +305,201 @@ class AadhaarVerificationResponse {
   }
 
   bool get isSuccess => code == 200 && data != null;
-  bool get isValid => data?.status.toLowerCase() == 'valid';
+  bool get isValid => data?.status?.toLowerCase() == 'valid';
 }
 
-/// Aadhaar Data Model
 class AadhaarData {
-  final String aadhaarNumber;
-  final String status;
-  final String? name;
-  final String? dateOfBirth;
-  final String? gender;
-  final String? address;
-  final String? photo;
-  final String? careOf;
-  final String? splitAddress;
-  final Map<String, dynamic> jsonData;
+    final String? entity;
+    final int? referenceId;
+    final String? status;
+    final String? message;
+    final String? careOf;
+    final String? fullAddress;
+    final String? dateOfBirth;
+    final String? emailHash;
+    final String? gender;
+    final String? name;
+    final Address? address;
+    final int? yearOfBirth;
+    final String? mobileHash;
+    final String? photo;
+    final String? shareCode;
 
-  AadhaarData({
-    required this.aadhaarNumber,
-    required this.status,
-    this.name,
-    this.dateOfBirth,
-    this.gender,
-    this.address,
-    this.photo,
-    this.careOf,
-    this.splitAddress,
-    required this.jsonData,
-  });
+    AadhaarData({
+        this.entity,
+        this.referenceId,
+        this.status,
+        this.message,
+        this.careOf,
+        this.fullAddress,
+        this.dateOfBirth,
+        this.emailHash,
+        this.gender,
+        this.name,
+        this.address,
+        this.yearOfBirth,
+        this.mobileHash,
+        this.photo,
+        this.shareCode,
+    });
 
-  factory AadhaarData.fromJson(Map<String, dynamic> json) {
-    return AadhaarData(
-      jsonData: json,
-      aadhaarNumber: json['aadhaar_number'] ?? '',
-      status: json['status'] ?? 'invalid',
-      name: json['name'],
-      dateOfBirth: json['date_of_birth'] ?? json['dob'],
-      gender: json['gender'],
-      address:
-          json['full_address'] ??
-          "", //json['address']?['full_address'] ?? json['address']
-      photo: json['photo_link'],
-      careOf: json['care_of'],
-      splitAddress: json['split_address'] != null
-          ? jsonEncode(json['split_address'])
-          : null,
+    AadhaarData copyWith({
+        String? entity,
+        int? referenceId,
+        String? status,
+        String? message,
+        String? careOf,
+        String? fullAddress,
+        String? dateOfBirth,
+        String? emailHash,
+        String? gender,
+        String? name,
+        Address? address,
+        int? yearOfBirth,
+        String? mobileHash,
+        String? photo,
+        String? shareCode,
+    }) => 
+        AadhaarData(
+            entity: entity ?? this.entity,
+            referenceId: referenceId ?? this.referenceId,
+            status: status ?? this.status,
+            message: message ?? this.message,
+            careOf: careOf ?? this.careOf,
+            fullAddress: fullAddress ?? this.fullAddress,
+            dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+            emailHash: emailHash ?? this.emailHash,
+            gender: gender ?? this.gender,
+            name: name ?? this.name,
+            address: address ?? this.address,
+            yearOfBirth: yearOfBirth ?? this.yearOfBirth,
+            mobileHash: mobileHash ?? this.mobileHash,
+            photo: photo ?? this.photo,
+            shareCode: shareCode ?? this.shareCode,
+        );
+
+    factory AadhaarData.fromJson(Map<String, dynamic> json) => AadhaarData(
+        entity: json["@entity"],
+        referenceId: json["reference_id"],
+        status: json["status"],
+        message: json["message"],
+        careOf: json["care_of"],
+        fullAddress: json["full_address"],
+        dateOfBirth: json["date_of_birth"],
+        emailHash: json["email_hash"],
+        gender: json["gender"],
+        name: json["name"],
+        address: json["address"] == null ? null : Address.fromJson(json["address"]),
+        yearOfBirth: json["year_of_birth"],
+        mobileHash: json["mobile_hash"],
+        photo: json["photo"],
+        shareCode: json["share_code"],
     );
-  }
+
+    Map<String, dynamic> toJson() => {
+        "@entity": entity,
+        "reference_id": referenceId,
+        "status": status,
+        "message": message,
+        "care_of": careOf,
+        "full_address": fullAddress,
+        "date_of_birth": dateOfBirth,
+        "email_hash": emailHash,
+        "gender": gender,
+        "name": name,
+        "address": address?.toJson(),
+        "year_of_birth": yearOfBirth,
+        "mobile_hash": mobileHash,
+        "photo": photo,
+        "share_code": shareCode,
+    };
 }
+
+class Address {
+    final String? entity;
+    final String? country;
+    final String? district;
+    final String? house;
+    final String? landmark;
+    final int? pincode;
+    final String? postOffice;
+    final String? state;
+    final String? street;
+    final String? subdistrict;
+    final String? vtc;
+
+    Address({
+        this.entity,
+        this.country,
+        this.district,
+        this.house,
+        this.landmark,
+        this.pincode,
+        this.postOffice,
+        this.state,
+        this.street,
+        this.subdistrict,
+        this.vtc,
+    });
+
+    Address copyWith({
+        String? entity,
+        String? country,
+        String? district,
+        String? house,
+        String? landmark,
+        int? pincode,
+        String? postOffice,
+        String? state,
+        String? street,
+        String? subdistrict,
+        String? vtc,
+    }) => 
+        Address(
+            entity: entity ?? this.entity,
+            country: country ?? this.country,
+            district: district ?? this.district,
+            house: house ?? this.house,
+            landmark: landmark ?? this.landmark,
+            pincode: pincode ?? this.pincode,
+            postOffice: postOffice ?? this.postOffice,
+            state: state ?? this.state,
+            street: street ?? this.street,
+            subdistrict: subdistrict ?? this.subdistrict,
+            vtc: vtc ?? this.vtc,
+        );
+
+    factory Address.fromJson(Map<String, dynamic> json) => Address(
+        entity: json["@entity"],
+        country: json["country"],
+        district: json["district"],
+        house: json["house"],
+        landmark: json["landmark"],
+        pincode: json["pincode"],
+        postOffice: json["post_office"],
+        state: json["state"],
+        street: json["street"],
+        subdistrict: json["subdistrict"],
+        vtc: json["vtc"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "@entity": entity,
+        "country": country,
+        "district": district,
+        "house": house,
+        "landmark": landmark,
+        "pincode": pincode,
+        "post_office": postOffice,
+        "state": state,
+        "street": street,
+        "subdistrict": subdistrict,
+        "vtc": vtc,
+    };
+}
+
+
+
+
+
+

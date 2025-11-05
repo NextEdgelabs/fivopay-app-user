@@ -37,7 +37,7 @@ class _LoanApplicationProductSelectionWidgetState
   Widget build(BuildContext context) {
     return Consumer<LoanProvider>(
       builder: (context, loanProvider, child) {
-        return SingleChildScrollView(
+        return Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

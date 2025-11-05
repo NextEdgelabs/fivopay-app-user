@@ -39,6 +39,7 @@ class _KycScreenState extends State<KycScreen> {
   String? _aadhaarReferenceId;
   final String _selectedKycType = 'digital'; // Only digital KYC available
   PanVerificationResponse? _panVerificationResponse;
+  String? userId;
   // Reserved for future selfie capture step
   // bool _photoUploaded = false;
 
@@ -47,8 +48,10 @@ class _KycScreenState extends State<KycScreen> {
     super.initState();
     // Pre-fill name from user profile
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+
     if (userProvider.currentUser?.name != null) {
       _nameController.text = userProvider.currentUser!.name!;
+      userId = userProvider.currentUser!.id;
     }
 
     // Listen to Aadhaar controller changes
@@ -124,10 +127,11 @@ class _KycScreenState extends State<KycScreen> {
     setState(() => _isPanVerifying = true);
 
     try {
-      final response = await _kycService.verifyPan(
+      final response = await KycService.verifyPan(
         panNumber: pan,
         name: name,
         dateOfBirth: dob,
+        userId:  userId!
       );
 
       setState(() {
@@ -311,12 +315,15 @@ class _KycScreenState extends State<KycScreen> {
     setState(() => _isAadhaarRequestingOtp = true);
 
     try {
-      final response = await _kycService.requestAadhaarOtp(
+      final response = await KycService.requestAadhaarOtp(
+        userId: context.read<UserProvider>().currentUser!.id,
+        
         aadhaarNumber: aadhaar,
+        reason: "Loan Kyc Verification"
       );
 
       setState(() {
-        _aadhaarReferenceId = response.referenceId;
+        _aadhaarReferenceId = response.transactionId;
         _showAadhaarOtpField = true;
         _isAadhaarRequestingOtp = false;
       });
@@ -372,8 +379,9 @@ class _KycScreenState extends State<KycScreen> {
     setState(() => _isAadhaarVerifying = true);
 
     try {
-      final response = await _kycService.verifyAadhaarOtp(
-        referenceId: _aadhaarReferenceId!,
+      final response = await KycService.verifyAadhaarOtp(
+         userId: context.read<UserProvider>().currentUser!.id,
+        transactionId: _aadhaarReferenceId!,
         otp: otp,
       );
 
@@ -393,7 +401,7 @@ class _KycScreenState extends State<KycScreen> {
             aadhaarNumber: _aadharController.text.trim(),
             dateOfBirth: response.data!.dateOfBirth,
             gender: response.data!.gender,
-            address: response.data!.address,
+            address: response.data!.fullAddress,
           );
 
           // Update form fields with verified data

@@ -16,17 +16,17 @@ class BuySharesScreen extends StatefulWidget {
 
 class _BuySharesScreenState extends State<BuySharesScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController();
+  // final _amountController = TextEditingController();
   final _quantityController = TextEditingController();
   
-  bool _buyByAmount = true; // true for amount, false for quantity
+  bool _buyByAmount = false; // true for amount, false for quantity
   int _calculatedShares = 0;
   double _calculatedAmount = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _amountController.addListener(_onAmountChanged);
+    // _amountController.addListener(_onAmountChanged);
     _quantityController.addListener(_onQuantityChanged);
     
     // Initialize share provider
@@ -41,21 +41,21 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
 
   @override
   void dispose() {
-    _amountController.dispose();
+    // _amountController.dispose();
     _quantityController.dispose();
     super.dispose();
   }
 
-  void _onAmountChanged() {
-    if (_buyByAmount && _amountController.text.isNotEmpty) {
-      final amount = double.tryParse(_amountController.text) ?? 0.0;
-      final shareProvider = context.read<ShareProvider>();
-      setState(() {
-        _calculatedShares = shareProvider.calculateSharesFromAmount(amount);
-        _calculatedAmount = amount;
-      });
-    }
-  }
+  // void _onAmountChanged() {
+  //   if (_buyByAmount && _amountController.text.isNotEmpty) {
+  //     // final amount = double.tryParse(_amountController.text) ?? 0.0;
+  //     final shareProvider = context.read<ShareProvider>();
+  //     setState(() {
+  //       _calculatedShares = shareProvider.calculateSharesFromAmount(amount);
+  //       _calculatedAmount = amount;
+  //     });
+  //   }
+  // }
 
   void _onQuantityChanged() {
     if (!_buyByAmount && _quantityController.text.isNotEmpty) {
@@ -70,8 +70,8 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
 
   void _switchBuyMode(bool byAmount) {
     setState(() {
-      _buyByAmount = byAmount;
-      _amountController.clear();
+      // _buyByAmount = byAmount;
+      // _amountController.clear();
       _quantityController.clear();
       _calculatedShares = 0;
       _calculatedAmount = 0.0;
@@ -86,11 +86,11 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
     bool success = false;
 
     if (_buyByAmount) {
-      final amount = double.parse(_amountController.text);
-      success = await shareProvider.buySharesByAmount(amount);
+      // final amount = double.parse(_amountController.text);
+      // success = await shareProvider.buySharesByAmount(amount);
     } else {
       final quantity = int.parse(_quantityController.text);
-      success = await shareProvider.buySharesByQuantity(quantity);
+      success = await shareProvider.buySharesByQuantity(quantity, userProvider.currentUser!.id);
     }
 
     if (success && mounted) {
@@ -382,7 +382,7 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                             Expanded(
                               child: _buildInfoItem(
                                 'Price per Share',
-                                shareProvider.formatCurrency(ShareProvider.SHARE_PRICE),
+                                shareProvider.formatCurrency(ShareProvider.SHARE_PRICE.toDouble()),
                                 Icons.attach_money,
                               ),
                             ),
@@ -416,44 +416,44 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                     ),
                     child: Row(
                       children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _switchBuyMode(true),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: AppSizes.paddingL,
-                              ),
-                              decoration: BoxDecoration(
-                                color: _buyByAmount
-                                    ? AppColors.primary
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.currency_rupee,
-                                    color: _buyByAmount
-                                        ? Colors.white
-                                        : AppColors.textSecondary,
-                                  ),
-                                  const SizedBox(height: AppSizes.paddingS),
-                                  Text(
-                                    'By Amount',
-                                    style: AppTextStyles.body2.copyWith(
-                                      color: _buyByAmount
-                                          ? Colors.white
-                                          : AppColors.textSecondary,
-                                      fontWeight: _buyByAmount
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        // Expanded(
+                        //   child: GestureDetector(
+                        //     onTap: () => _switchBuyMode(true),
+                        //     child: Container(
+                        //       padding: const EdgeInsets.symmetric(
+                        //         vertical: AppSizes.paddingL,
+                        //       ),
+                        //       decoration: BoxDecoration(
+                        //         color: _buyByAmount
+                        //             ? AppColors.primary
+                        //             : Colors.transparent,
+                        //         borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                        //       ),
+                        //       child: Column(
+                        //         children: [
+                        //           Icon(
+                        //             Icons.currency_rupee,
+                        //             color: _buyByAmount
+                        //                 ? Colors.white
+                        //                 : AppColors.textSecondary,
+                        //           ),
+                        //           const SizedBox(height: AppSizes.paddingS),
+                        //           Text(
+                        //             'By Amount',
+                        //             style: AppTextStyles.body2.copyWith(
+                        //               color: _buyByAmount
+                        //                   ? Colors.white
+                        //                   : AppColors.textSecondary,
+                        //               fontWeight: _buyByAmount
+                        //                   ? FontWeight.w600
+                        //                   : FontWeight.normal,
+                        //             ),
+                        //           ),
+                        //         ],
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         Expanded(
                           child: GestureDetector(
                             onTap: () => _switchBuyMode(false),
@@ -499,37 +499,38 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                   const SizedBox(height: AppSizes.paddingXL),
 
                   // Input Field
-                  if (_buyByAmount) ...[
-                    Text(
-                      'Enter Amount',
-                      style: AppTextStyles.body1.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: AppSizes.paddingM),
-                    CustomTextField(
-                      controller: _amountController,
-                      labelText: 'Amount',
-                      hintText: '₹0.00',
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                      ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter an amount';
-                        }
-                        final amount = double.tryParse(value);
-                        if (amount == null || amount <= 0) {
-                          return 'Please enter a valid amount';
-                        }
-                        if (amount < ShareProvider.SHARE_PRICE) {
-                          return 'Minimum amount is ₹${ShareProvider.SHARE_PRICE.toStringAsFixed(0)}';
-                        }
-                        return null;
-                      },
-                    ),
-                  ] else ...[
+                  // if (_buyByAmount) ...[
+                  //   Text(
+                  //     'Enter Amount',
+                  //     style: AppTextStyles.body1.copyWith(
+                  //       fontWeight: FontWeight.w600,
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: AppSizes.paddingM),
+                  //   CustomTextField(
+                  //     controller: _amountController,
+                  //     labelText: 'Amount',
+                  //     hintText: '₹0.00',
+                  //     keyboardType: TextInputType.number,
+                  //     inputFormatters: [
+                  //       FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                  //     ],
+                  //     validator: (value) {
+                  //       if (value == null || value.isEmpty) {
+                  //         return 'Please enter an amount';
+                  //       }
+                  //       final amount = double.tryParse(value);
+                  //       if (amount == null || amount <= 0) {
+                  //         return 'Please enter a valid amount';
+                  //       }
+                  //       if (amount < ShareProvider.SHARE_PRICE) {
+                  //         return 'Minimum amount is ₹${ShareProvider.SHARE_PRICE.toStringAsFixed(0)}';
+                  //       }
+                  //       return null;
+                  //     },
+                  //   ),
+                 
+                  // ] else ...[
                     Text(
                       'Enter Quantity',
                       style: AppTextStyles.body1.copyWith(
@@ -556,7 +557,7 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                         return null;
                       },
                     ),
-                  ],
+                  
 
                   // Calculation Display
                   if (_calculatedShares > 0 || _calculatedAmount > 0) ...[

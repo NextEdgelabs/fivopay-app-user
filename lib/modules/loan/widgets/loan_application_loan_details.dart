@@ -31,7 +31,7 @@ class LoanApplicationLoanDetailsWidget extends StatelessWidget {
 
     return Consumer<LoanProvider>(
       builder: (context, loanProvider, child) {
-        return SingleChildScrollView(
+        return Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
             key: formKey,

@@ -21,7 +21,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isLoggedIn => _currentUser != null;
-  String? accessToken;
+  String? appAccessToken;
   String? apiKey;
   String? kycaccessToken;
   String? apiversion;
@@ -47,7 +47,7 @@ class AuthProvider extends ChangeNotifier {
       }
       final accessToken = await SfService.getString(SfService.accesstoken);
       if (accessToken != null) {
-        updateAccessToken(accessToken);
+        updateAppAccessToken(accessToken);
       }
     } catch (e) {
       _setError('Failed to initialize auth state');
@@ -62,8 +62,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateAccessToken(String token) async {
-    accessToken = token;
+  void updateAppAccessToken(String token) async {
+    appAccessToken = token;
     await SfService.saveString(SfService.accesstoken, token);
     notifyListeners();
   }
@@ -117,7 +117,8 @@ class AuthProvider extends ChangeNotifier {
           );
         } else {
           _currentUser = User.fromJson(result["result"]['user']);
-          accessToken = result["result"]['accessToken'];
+          // accessToken = result["result"]['accessToken'];
+          updateAppAccessToken(result["result"]['accessToken']);
           bContext.read<UserProvider>().updateUser(_currentUser!);
         }
 

@@ -1,20 +1,28 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:janseva/modules/loan/providers/loan_provider_v2.dart';
 import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
 import 'package:janseva/providers/share_provider.dart';
 import 'package:janseva/routes/route_service.dart';
 import 'package:provider/provider.dart';
+import 'firebase_options.dart';
 import 'modules/auth/provider/auth_provider.dart';
 import 'modules/loan/providers/loan_provider.dart';
 import 'providers/user_provider.dart';
 import 'providers/referral_provider.dart';
 import 'screens/splash_screen.dart';
+import 'services/tts_service.dart';
 import 'utils/theme.dart';
 import 'utils/constants.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 BuildContext get bContext => navigatorKey.currentContext!;
-void main() {
+void main() async{
+   WidgetsFlutterBinding.ensureInitialized();
+   await Firebase.initializeApp(
+   options: DefaultFirebaseOptions.currentPlatform,
+ );
+  await TTSService.init();
   runApp(const JanSevaApp());
 }
 

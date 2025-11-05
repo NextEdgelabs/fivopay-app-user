@@ -18,3 +18,9 @@ class EsignLoanArguments {
 
   EsignLoanArguments({required this.loan});
 }
+
+class AadharVerifyArguments {
+  final int stepNumber;
+
+  AadharVerifyArguments({required this.stepNumber});
+}

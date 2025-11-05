@@ -84,7 +84,7 @@ class WalletProvider with ChangeNotifier {
       // Simulate payment processing delay
       var res = await RazorpayService.createDepositOrder(
         DepositParams(amount: amount, description: description),
-        bContext.read<AuthProvider>().accessToken ?? '',
+        bContext.read<AuthProvider>().appAccessToken ?? '',
       );
       RazorpayService.openCheckoutWithModel(
         razorpayOrder: res.order,

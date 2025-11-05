@@ -66,6 +66,31 @@ class RazorpayService {
     }
   }
 
+    static Future<SharePurchaseResponse> createSharePurchaseOrder(
+    SharePurchaseParams params,
+    String accessToken,
+  ) async {
+    try {
+      var url = "${ApiConfig.domain}${ApiConfig.createShareTransaction}";
+      var res = await ApiService.post(
+        url,
+        body: params.toJson(),
+        accessToken: accessToken,
+      );
+      if (res['success']) {
+        log(res.toString());
+        return SharePurchaseResponse.fromJson(res['result']);
+      } else {
+        throw Exception(res['message']);
+      }
+    } catch (e) {
+      log('Error creating deposit order: $e');
+      rethrow;
+      // throw Exception('Error creating deposit order: $e');
+    }
+  }
+
+
   static void openCheckoutWithModel({
     required RazorpayOrder razorpayOrder,
     required Function(PaymentSuccessResponse) onPaymentSuccess,

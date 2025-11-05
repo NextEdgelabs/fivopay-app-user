@@ -56,38 +56,47 @@ class _LoanApplicationPersonalDetailsWidgetState
     final loanProvider = context.read<LoanProvider>();
     final aadhaarDetails = loanProvider.aadhaarDetails;
 
-    if (aadhaarDetails != null && aadhaarDetails['address'] != null) {
-      final address = aadhaarDetails['address'] as String;
+    if (aadhaarDetails != null ) {
+      final address = aadhaarDetails.fullAddress as String;
       // Parse address and fill fields
       widget.addressController.text = address;
 
       // Update provider data for validation
       loanProvider.updateApplicationData('address', address);
 
-      // Try to extract city and pincode from address if possible
-      final addressParts = address.split(',');
-      if (addressParts.length >= 2) {
-        // Try to find pincode (6 digits)
-        final pincodeRegex = RegExp(r'\b\d{6}\b');
-        final pincodeMatch = pincodeRegex.firstMatch(address);
-        if (pincodeMatch != null) {
-          final pincode = pincodeMatch.group(0) ?? '';
-          widget.pincodeController.text = pincode;
-          // Update provider data for validation
-          loanProvider.updateApplicationData('pincode', pincode);
-        }
-
-        // Extract city (usually before pincode or last meaningful part)
-        for (int i = addressParts.length - 1; i >= 0; i--) {
-          final part = addressParts[i].trim();
-          if (part.isNotEmpty && !RegExp(r'^\d+$').hasMatch(part)) {
-            widget.cityController.text = part;
-            // Update provider data for validation
-            loanProvider.updateApplicationData('city', part);
-            break;
-          }
-        }
+      if(aadhaarDetails.address?.pincode != null) {
+       widget.pincodeController.text = aadhaarDetails.address!.pincode.toString();
+       loanProvider.updateApplicationData('pincode', aadhaarDetails.address!.pincode.toString());
       }
+      if(aadhaarDetails.address?.district != null) {
+        widget.cityController.text = aadhaarDetails.address!.district.toString();
+        loanProvider.updateApplicationData('city', aadhaarDetails.address!.district.toString());
+      }
+
+      // // Try to extract city and pincode from address if possible
+      // final addressParts = address.split(',');
+      // if (addressParts.length >= 2) {
+      //   // Try to find pincode (6 digits)
+      //   final pincodeRegex = RegExp(r'\b\d{6}\b');
+      //   final pincodeMatch = pincodeRegex.firstMatch(address);
+      //   if (pincodeMatch != null) {
+      //     final pincode = pincodeMatch.group(0) ?? '';
+      //     widget.pincodeController.text = pincode;
+      //     // Update provider data for validation
+      //     loanProvider.updateApplicationData('pincode', pincode);
+      //   }
+
+      //   // Extract city (usually before pincode or last meaningful part)
+      //   for (int i = addressParts.length - 1; i >= 0; i--) {
+      //     final part = addressParts[i].trim();
+      //     if (part.isNotEmpty && !RegExp(r'^\d+$').hasMatch(part)) {
+      //       widget.cityController.text = part;
+      //       // Update provider data for validation
+      //       loanProvider.updateApplicationData('city', part);
+      //       break;
+      //     }
+      //   }
+      // }
     }
   }
 
@@ -101,7 +110,7 @@ class _LoanApplicationPersonalDetailsWidgetState
   Widget build(BuildContext context) {
     final primaryColor = _getLoanTypeColor(widget.loanCategory.loanType);
 
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.all(16),
       child: Consumer<LoanProvider>(
         builder: (context, loanProvider, child) {
@@ -301,7 +310,9 @@ class _LoanApplicationPersonalDetailsWidgetState
                 //     return null;
                 //   },
                 // ),
-                const AadhaarVerificationWidget(),
+                AadhaarVerificationWidget(
+                  reason: "Loan Application (${loanProvider.selectedProduct?.description})",
+                ),
                 const SizedBox(height: 24),
 
                 LoanApplicationSectionHeader(

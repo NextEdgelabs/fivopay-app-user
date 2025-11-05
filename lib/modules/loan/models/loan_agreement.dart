@@ -1,19 +1,19 @@
 import 'dart:convert';
 
 class LoanAgreementModel {
-  String id;
-  String documentName;
-  String document;
-  bool estampRequired;
+  String? id;
+  String? documentName;
+  String? document;
+  bool? estampRequired;
 
   // int txnExpiryMin;
 
-  String esignType;
+  String? esignType;
 
-  DateTime createdAt;
-  DateTime updatedAt;
+  DateTime? createdAt;
+  DateTime? updatedAt;
 
-  String estampId;
+  String? estampId;
 
   LoanAgreementModel({
     required this.id,
@@ -35,7 +35,7 @@ class LoanAgreementModel {
 
   factory LoanAgreementModel.fromJson(Map<String, dynamic> json) =>
       LoanAgreementModel(
-        id: json["_id"],
+        id: json["_id"] ,
         documentName: json["documentName"],
         document: json["document"],
         estampRequired: json["estampRequired"],

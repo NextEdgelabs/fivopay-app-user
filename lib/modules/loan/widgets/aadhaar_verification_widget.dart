@@ -9,7 +9,8 @@ import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 
 class AadhaarVerificationWidget extends StatefulWidget {
-  const AadhaarVerificationWidget({super.key});
+  final String reason;
+  const AadhaarVerificationWidget({super.key , required this.reason });
 
   @override
   State<AadhaarVerificationWidget> createState() =>
@@ -26,11 +27,13 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
   bool _isVerifying = false;
   String? _errorMessage;
   String? _referenceId;
+  late String userId;
 
   @override
   void initState() {
     super.initState();
     final loanProvider = context.read<LoanProvider>();
+    userId = context.read<UserProvider>().currentUser!.id;
     if (loanProvider.relativeAadhaar != null) {
       _aadhaarController.text = loanProvider.relativeAadhaar!;
     }
@@ -67,13 +70,15 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
     });
 
     try {
-      final response = await _kycService.requestAadhaarOtp(
+      final response = await KycService.requestAadhaarOtp(
         aadhaarNumber: aadhaar,
+        reason: widget.reason,
+        userId: userId,
       );
 
       if (mounted) {
         setState(() {
-          _referenceId = response.referenceId;
+          _referenceId = response.transactionId;
           _showOTPField = true;
           _isRequestingOtp = false;
         });
@@ -129,9 +134,10 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
     });
 
     try {
-      final response = await _kycService.verifyAadhaarOtp(
-        referenceId: _referenceId!,
+      final response = await KycService.verifyAadhaarOtp(
+        transactionId: _referenceId!,
         otp: otp,
+        userId: userId
       );
 
       if (mounted) {
@@ -156,7 +162,7 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
               aadhaarNumber: _aadhaarController.text.trim(),
               dateOfBirth: response.data!.dateOfBirth,
               gender: response.data!.gender,
-              address: response.data!.address,
+              address: response.data!.fullAddress,
             );
           }
 
@@ -420,13 +426,13 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
                         const SizedBox(height: AppSizes.paddingM),
                         const Divider(),
                         const SizedBox(height: AppSizes.paddingM),
-                        _buildDetailRow('Name', aadhaarDetails['name'] ?? ''),
+                        _buildDetailRow('Name', aadhaarDetails.name ?? ''),
                         const SizedBox(height: AppSizes.paddingS),
-                        _buildDetailRow('DOB', aadhaarDetails['dob'] ?? ''),
+                        _buildDetailRow('DOB', aadhaarDetails.dateOfBirth?? ''),
                         const SizedBox(height: AppSizes.paddingS),
                         _buildDetailRow(
                           'Address',
-                          aadhaarDetails['address'] ?? '',
+                          aadhaarDetails.fullAddress ?? '',
                         ),
                       ],
                     ],

@@ -24,6 +24,7 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
   bool _isVerifying = false;
 
   String? _errorMessage;
+  String? userId;
   PanVerificationResponse? _verificationResponse;
 
   @override
@@ -32,6 +33,7 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
     // final loanProvider = context.read<LoanProvider>();
     final user = context.read<UserProvider>().currentUser;
     if (user != null) {
+       userId = user.id;
       _panController.text = user.panNumber ?? '';
       _nameController.text = user.name ?? '';
     }
@@ -83,10 +85,11 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
 
     try {
       // Call real Sandbox API for PAN verification
-      final response = await _kycService.verifyPan(
+      final response = await KycService.verifyPan(
         panNumber: pan,
         name: name,
         dateOfBirth: dob,
+        userId: userId!,
       );
 
       setState(() {

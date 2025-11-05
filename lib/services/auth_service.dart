@@ -95,7 +95,7 @@ class AuthService {
           'id': id,
           'aadharNumber': aadharNumber,
           'address': aadharData.address,
-          'aadharDetails': aadharData.jsonData,
+          'aadharDetails': aadharData.toJson(),
         },
       );
       log(res.toString());

@@ -55,7 +55,7 @@ class _LoanApplicationEmploymentDetailsWidgetState
 
         return Form(
           key: _employmentFormKey,
-          child: SingleChildScrollView(
+          child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -5,24 +5,28 @@ import '../../../models/user.dart';
 class LoanApplicationResponse {
   final bool success;
   final List<LoanApplicationData> loanApplications;
+  
   LoanApplicationResponse({
     required this.success,
     required this.loanApplications,
   });
+  
   factory LoanApplicationResponse.fromJson(Map<String, dynamic> json) =>
       LoanApplicationResponse(
-        success: json["success"],
-        loanApplications: List<LoanApplicationData>.from(
-          json["result"]['loans'].map((x) => LoanApplicationData.fromJson(x)),
-        ),
+        success: json["success"] ?? false,
+        loanApplications: json["result"] != null && json["result"]['loans'] != null
+            ? List<LoanApplicationData>.from(
+                json["result"]['loans'].map((x) => LoanApplicationData.fromJson(x)),
+              )
+            : [],
       );
 }
 
 class LoanApplicationData {
   String id;
-  User userId;
-  LoanCategory category;
-  LoanProduct product;
+  User? userId;
+  LoanCategory? category;
+  LoanProduct? product;
   LoanAgreementModel? agreement;
   int amount;
   List<dynamic> documents;
@@ -33,9 +37,9 @@ class LoanApplicationData {
 
   LoanApplicationData({
     required this.id,
-    required this.userId,
-    required this.category,
-    required this.product,
+    this.userId,
+    this.category,
+    this.product,
     required this.amount,
     required this.documents,
     required this.approvalStatus,
@@ -73,18 +77,24 @@ class LoanApplicationData {
 
   factory LoanApplicationData.fromJson(Map<String, dynamic> json) =>
       LoanApplicationData(
-        id: json["_id"],
-        userId: User.fromJson(json["userId"]),
-        category: LoanCategory.fromJson(json["category"]),
-        product: LoanProduct.fromJson(json["product"]),
-        amount: json["amount"],
-        documents: List<dynamic>.from(json["documents"].map((x) => x)),
-        approvalStatus: json["approvalStatus"],
-        createdAt: DateTime.parse(json["createdAt"]),
-        updatedAt: DateTime.parse(json["updatedAt"]),
+        id: json["_id"] ?? '',
+        userId: json["userId"] != null ? User.fromJson(json["userId"]) : null,
+        category: json["category"] != null ? LoanCategory.fromJson(json["category"]) : null,
+        product: json["product"] != null ? LoanProduct.fromJson(json["product"]) : null,
+        amount: json["amount"] ?? 0,
+        documents: json["documents"] != null 
+            ? List<dynamic>.from(json["documents"].map((x) => x))
+            : [],
+        approvalStatus: json["approvalStatus"] ?? '',
+        createdAt: json["createdAt"] != null 
+            ? DateTime.parse(json["createdAt"]) 
+            : DateTime.now(),
+        updatedAt: json["updatedAt"] != null 
+            ? DateTime.parse(json["updatedAt"]) 
+            : DateTime.now(),
         agreement: json["loanAgreement"] != null
             ? LoanAgreementModel.fromJson(json["loanAgreement"])
             : null,
-        v: json["__v"],
+        v: json["__v"] ?? 0,
       );
 }

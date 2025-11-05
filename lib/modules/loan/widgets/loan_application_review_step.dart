@@ -51,7 +51,7 @@ class LoanApplicationReviewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final primaryColor = _getLoanTypeColor(loanCategory.loanType);
 
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

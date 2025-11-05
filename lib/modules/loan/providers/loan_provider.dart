@@ -25,7 +25,7 @@ class LoanProvider extends ChangeNotifier {
   // Loan product management
   List<LoanProduct> _availableProducts = [];
   LoanProduct? _selectedProduct;
-  Map<String, dynamic>? _aadhaarDetails;
+  AadhaarData? _aadhaarDetails;
   String? _relativeName;
   String? _relativePhone;
   String? _relativePAN;
@@ -65,7 +65,7 @@ class LoanProvider extends ChangeNotifier {
   int get currentPage => _currentPage;
   bool get isAadhaarVerified => _isAadhaarVerified;
   bool get isPanVerified => _isPanVerified;
-  Map<String, dynamic>? get aadhaarDetails => _aadhaarDetails;
+  AadhaarData? get aadhaarDetails => _aadhaarDetails;
   String? get relativeName => _relativeName;
   String? get relativePhone => _relativePhone;
   String? get relativePAN => _relativePAN;
@@ -292,12 +292,22 @@ class LoanProvider extends ChangeNotifier {
       );
       var res = await LoanServices.submmitLoanApplicattion(params);
 
+      if(res['success'] == true){
+        clearApplicationData();
+        return true;
+      }
+      else {
+        _setError(res['result']);
+        return false;
+      }
+
+
       // Here you would typically call your API service
       // final result = await LoanServices.submitApplication(_applicationData);
 
       // For now, simulate success
-      clearApplicationData();
-      return true;
+      // clearApplicationData();
+      // return true;
     } catch (e) {
       _setError('Failed to submit loan application: ${e.toString()}');
       return false;
@@ -400,12 +410,7 @@ class LoanProvider extends ChangeNotifier {
 
     // Store Aadhaar details from API response
     if (verificationResponse.data != null) {
-      _aadhaarDetails = {
-        'name': verificationResponse.data?.name,
-        'dob': verificationResponse.data?.dateOfBirth,
-        'gender': verificationResponse.data?.gender,
-        'address': verificationResponse.data?.address,
-      };
+      _aadhaarDetails = verificationResponse.data;
 
       // Store verification transaction ID if available
       // final prefs = await SharedPreferences.getInstance();

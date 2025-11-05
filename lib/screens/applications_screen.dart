@@ -279,6 +279,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
               //   ),
             ],
           ),
+          if(loan.agreement?.estampId !=null)
           Align(
             alignment: Alignment.bottomRight,
             child: TextButton(

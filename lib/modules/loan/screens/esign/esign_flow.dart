@@ -73,7 +73,7 @@ class _EsignLoanScreenState extends State<EsignLoanScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) =>
-          _SignerDetailsBottomSheet(loanName: widget.args.loan.product.name),
+          _SignerDetailsBottomSheet(loanName: widget.args.loan.product!.name!),
     );
   }
 
@@ -126,7 +126,7 @@ class _EsignLoanScreenState extends State<EsignLoanScreen> {
                             children: [
                               _InfoRow(
                                 label: 'Product Name',
-                                value: loan.product.name,
+                                value: loan.product!.name,
                               ),
                               _InfoRow(
                                 label: 'Loan Amount',

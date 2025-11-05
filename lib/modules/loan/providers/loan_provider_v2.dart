@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:janseva/modules/loan/models/loan_application_response.dart';
 import 'package:janseva/modules/loan/services/esign_service.dart';
 import 'package:janseva/services/common_utils.dart';
+import 'package:janseva/services/kyc_service.dart';
 import 'package:provider/provider.dart';
 
 import '../../../main.dart';
@@ -14,6 +15,8 @@ class LoanProviderV2 extends ChangeNotifier {
   //Common variables
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+  String _error = '';
+  String get error => _error;
 
   //Loan Products
   List<LoanProduct> _loanProducts = [];
@@ -55,6 +58,7 @@ class LoanProviderV2 extends ChangeNotifier {
   //Apply Loan
   bool _isApplyLoanLoading = false;
   bool get isApplyLoanLoading => _isApplyLoanLoading;
+
   Future<void> applyLoan() async {
     try {
       _isApplyLoanLoading = true;
@@ -152,4 +156,138 @@ class LoanProviderV2 extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  //adhaar Component
+  String? _transacrtionId;
+  bool _isAdhaarLoading = false;
+  AadhaarVerificationResponse? _aadhaarVerificationstatus;
+  bool get isAdhaarLoading => _isAdhaarLoading;
+  AadhaarVerificationResponse? get aadhaarVerificationstatus =>
+      _aadhaarVerificationstatus;
+
+  Future<void> sendAdhaarOtp(
+    String aadhaarNumber,
+    String userId, 
+    String reason,
+  ) async {
+    try {
+      _transacrtionId = null;
+      _error = '';
+      _isAdhaarLoading = true;
+      notifyListeners();
+
+      var res = await KycService.requestAadhaarOtp(
+        userId: userId,
+        reason: reason,
+        aadhaarNumber: aadhaarNumber,
+      );
+
+      if (!res.isSuccess) {
+        _error = res.message;
+      } else {
+        _transacrtionId = res.transactionId;
+      }
+    } on KycApiException catch (e) {
+      _error = e.message;
+    } catch (e) {
+      _error = "Something went wrong";
+    } finally {
+      _isAdhaarLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> verifyAdhaar(String otp , String userId) async {
+    try {
+      _error = '';
+      _isAdhaarLoading = true;
+      notifyListeners();
+
+      var res = await KycService.verifyAadhaarOtp(
+        otp: otp,
+        transactionId: _transacrtionId!,
+        userId: userId,
+      );
+
+      if (!res.isSuccess) {
+        _error = "OTP verification failed";
+      } else {
+        _aadhaarVerificationstatus = res;
+        _transacrtionId = null;
+      }
+    } on KycApiException catch (e) {
+      _error = e.message;
+    } catch (e) {
+      _error = "Something went wrong";
+    } finally {
+      _isAdhaarLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> clearAdhaarVerification() async {
+    _aadhaarVerificationstatus = null;
+    _transacrtionId = null;
+    notifyListeners();
+  }
+  //Pan Component
+
+  PanVerificationResponse? _panVerificationstatus;
+  PanVerificationResponse? get panVerificationstatus => _panVerificationstatus;
+
+  Future<void> verifyPan(String panNumber, String name, String userId, {String? dob}) async {
+    try {
+      _error = '';
+      _isLoading = true;
+      notifyListeners();
+
+      var res = await KycService.verifyPan(
+        name: name,
+        dateOfBirth: dob,
+        panNumber: panNumber,
+        userId: userId
+      );
+
+      if (!res.isSuccess) {
+        _error = "Pan verification failed";
+      } else {
+        _panVerificationstatus = res;
+      }
+    } on KycApiException catch (e) {
+      _error = e.message;
+    } catch (e) {
+      _error = "Something went wrong";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> clearPanVerification() async {
+    _panVerificationstatus = null;
+    notifyListeners();
+  }
+
+  //Document Upload Component
+  List<DocumentModel> _documentPaths = [];
+  List<DocumentModel> get documentPaths => _documentPaths;
+
+  void addDocument(DocumentModel document) {
+    _documentPaths = [..._documentPaths, document];
+    notifyListeners();
+  }
+
+  void removeDocument(DocumentModel document) {
+    _documentPaths = _documentPaths
+        .where((element) => element != document)
+        .toList();
+    notifyListeners();
+  }
+
+  void clearDocuments() {
+    _documentPaths = [];
+    notifyListeners();
+  }
+
+  //Application Details
 }
