@@ -55,11 +55,16 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
       pinned: true,
       backgroundColor: _getLoanTypeColor(widget.args.loan.loanType),
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          widget.args.loan.categoryName,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 20 , left: 20, right: 20),
+          child: Text(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            widget.args.loan.categoryName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         background: Container(
@@ -73,38 +78,36 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
               ],
             ),
           ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40),
-                Icon(
-                  _getLoanTypeIcon(widget.args.loan.loanType),
-                  size: 60,
-                  color: Colors.white.withOpacity(0.9),
+          child: Column(
+            // mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: MediaQuery.of(context).padding.top),
+              Icon(
+                _getLoanTypeIcon(widget.args.loan.loanType),
+                size: 60,
+                color: Colors.white.withOpacity(0.9),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
                 ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    widget.args.loan.loanType.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
-                    ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  widget.args.loan.loanType.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -296,6 +299,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
 
   Widget _buildDetailsTab() {
     return SingleChildScrollView(
+      physics: NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,6 +352,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
   Widget _buildEligibilityTab() {
     final criteria = widget.args.loan.eligibilityCriteria;
     return SingleChildScrollView(
+      physics: NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,6 +396,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
 
   Widget _buildFeaturesTab() {
     return SingleChildScrollView(
+      physics: NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       child: _buildInfoCard(
         'Loan Features',
@@ -430,6 +436,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
 
   Widget _buildChargesTab() {
     return SingleChildScrollView(
+      physics: NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [

@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:janseva/main.dart';
 import 'package:janseva/models/loan_application.dart';
+import 'package:janseva/modules/loan/models/document_model.dart';
 import 'package:janseva/providers/user_provider.dart';
 import 'package:janseva/services/kyc_service.dart';
+import 'package:janseva/services/storage_service.dart';
 import 'package:provider/provider.dart';
 import '../models/loan_application_response.dart';
 import '../models/models.dart';
@@ -17,6 +20,7 @@ class LoanProvider extends ChangeNotifier {
   String? _errorMessage;
   List<LoanCategory> _favoriteLoans = [];
   List<LoanApplicationData> _myLoanApplications = [];
+  List<LoanDocumentModel> _loanDocuments = [];
 
   // Application state
   Map<String, dynamic> _applicationData = {};
@@ -269,6 +273,7 @@ class LoanProvider extends ChangeNotifier {
     _isVerifyingPAN = false;
     // Clear any error messages
     _errorMessage = null;
+    _loanDocuments = [];
     notifyListeners();
   }
 
@@ -283,24 +288,25 @@ class LoanProvider extends ChangeNotifier {
     _clearError();
 
     try {
+     await  uploadLoanDocument();
       // Simulate API call for loan application
       var params = CreateLoanparams(
         categoryId: selectedLoanCategory!.id,
         userId: bContext.read<UserProvider>().currentUser!.id,
         productId: selectedProduct!.id,
         amount: _applicationData['loanAmount'],
+        document: _loanDocuments,
+        
       );
       var res = await LoanServices.submmitLoanApplicattion(params);
 
-      if(res['success'] == true){
+      if (res['success'] == true) {
         clearApplicationData();
         return true;
-      }
-      else {
+      } else {
         _setError(res['result']);
         return false;
       }
-
 
       // Here you would typically call your API service
       // final result = await LoanServices.submitApplication(_applicationData);
@@ -309,7 +315,7 @@ class LoanProvider extends ChangeNotifier {
       // clearApplicationData();
       // return true;
     } catch (e) {
-      _setError('Failed to submit loan application: ${e.toString()}');
+      _setError('Failed to submit loan application');
       return false;
     } finally {
       _setApplying(false);
@@ -729,5 +735,55 @@ class LoanProvider extends ChangeNotifier {
   void clearFormValidation() {
     _shouldValidateForms = false;
     notifyListeners();
+  }
+
+  //upload LOan Document
+Future<void> uploadLoanDocument() async {
+  _isLoading = true;
+  notifyListeners();
+  try {
+    if (_loanDocuments.isEmpty) return;
+
+    for (int i = 0; i < _loanDocuments.length; i++) {
+      final doc = _loanDocuments[i];
+      if (doc.file == null) continue;
+
+      final urls = await S3Service.getMultipleSignedUrls([doc.file!]);
+      if (urls.isNotEmpty) {
+        _loanDocuments[i] = doc.copyWith(documentUrl: urls.first);
+      }
+    }
+  } catch (e, st) {
+    // log/handle
+  } finally {
+    _isLoading = false;
+    notifyListeners();
+  }
+}
+  Future<void> selectLoanDocuments(File file, String type) async {
+    String fileName = file.path.split('/').last;
+    // if (_applicationData['files'] == null) {
+    //   _applicationData['files'] = [];
+    // }
+   _loanDocuments = [
+      ..._loanDocuments,
+      LoanDocumentModel(documentType: type, documentName: fileName, documentUrl: '' , file: file),
+    //   {
+    //   'file': file,
+    //   'fileName': fileName,
+    //   'type': type,
+    // }
+    ];
+      
+    notifyListeners();
+  }
+
+  // Remove document by type
+  void removeDocument(String type) {
+    final files = _applicationData['files'] as List?;
+    if (files != null) {
+      files.removeWhere((fileData) => fileData['type'] == type);
+      notifyListeners();
+    }
   }
 }

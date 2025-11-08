@@ -36,6 +36,17 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((e) {
+      Provider.of<WalletProvider>(
+        context,
+        listen: false,
+      ).loadWalletBalance(context.read<UserProvider>().currentUser!.id);
+    });
+  }
+
   int _currentIndex = 0;
 
   @override
@@ -47,8 +58,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _buildHomeTab(),
           _buildTransactionsTab(),
           _buildApplicationsTab(),
-          // _buildReferralTab(),
-          _buildProfileTab(),
+          _buildReferralTab(),
+          // _buildProfileTab(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -77,16 +88,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             selectedIcon: Icon(Icons.description, size: 24),
             label: 'Application',
           ),
-          // NavigationDestination(
-          //   icon: Icon(Icons.share_outlined, size: 24),
-          //   selectedIcon: Icon(Icons.share, size: 24),
-          //   label: 'Refer',
-          // ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline, size: 24),
-            selectedIcon: Icon(Icons.person, size: 24),
-            label: 'Profile',
+            icon: Icon(Icons.share_outlined, size: 24),
+            selectedIcon: Icon(Icons.share, size: 24),
+            label: 'Refer',
           ),
+          // NavigationDestination(
+          //   icon: Icon(Icons.person_outline, size: 24),
+          //   selectedIcon: Icon(Icons.person, size: 24),
+          //   label: 'Profile',
+          // ),
         ],
       ),
     );
@@ -98,10 +109,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () async{
-          await  TTSService.speak("जनसेवा वॉलेट में,    500 रुपये.  मिले");
+        onPressed: () async {
+          await TTSService.speak("जनसेवा वॉलेट में,    500 रुपये.  मिले");
           // .then((e)async{
-          //   await TTSService.stop(); 
+          //   await TTSService.stop();
           // });
 
           // Navigator.push(
@@ -120,15 +131,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
         elevation: 0,
         backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,
+        // leading: IconButton(
+        //   icon: const Icon(Icons.menu),
+        //   iconSize: 26,
+        //   onPressed: () {
+        //     // TODO: Implement menu
+        //   },
+        // ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            iconSize: 26,
-            onPressed: () {
-              // TODO: Implement notifications
+          // IconButton(
+          //   icon: const Icon(Icons.notifications_outlined),
+          //   iconSize: 26,
+          //   onPressed: () {
+          //     // TODO: Implement notifications
+          //   },
+          // ),
+          const SizedBox(width: AppSizes.paddingS),
+          Consumer<UserProvider>(
+            builder: (context, userProvider, child) {
+              final user = userProvider.currentUser;
+              final userName = user?.name ?? '';
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(),
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(right: AppSizes.paddingM),
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: AppColors.primary,
+                    child: userName.isNotEmpty
+                        ? Text(
+                            userName[0].toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                  ),
+                ),
+              );
             },
           ),
-          const SizedBox(width: AppSizes.paddingS),
         ],
       ),
       body: SafeArea(
@@ -137,275 +192,277 @@ class _DashboardScreenState extends State<DashboardScreen> {
             horizontal: AppSizes.paddingL,
             vertical: AppSizes.paddingM,
           ),
-          child:Consumer<UserProvider>(builder: (context, provider , child) {
-            var user = provider.currentUser;
-            return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Membership Banner (for non-members only)
-              if (user?.isMember != true)
-                MembershipBanner(
-                  onBecomeMember: () {
-                    // Navigate to membership registration screen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const BuySharesScreen(),
-                      ),
-                    );
-                  },
-                  showCloseButton: true,
-                  onClose: () {
-                    // User can dismiss the banner temporarily
-                    setState(() {
-                      // You could store a preference here to not show again for a while
-                    });
-                  },
-                ),
-                        
-              // Welcome Card
-              Container(
-                padding: const EdgeInsets.all(AppSizes.paddingXL),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.circular(
-                    AppSizes.radiusL,
-                  ), // Reduced for minimalism
-                  border: Border.all(color: AppColors.border),
-                  // Minimal shadow
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.shadow,
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+          child: Consumer<UserProvider>(
+            builder: (context, provider, child) {
+              var user = provider.currentUser;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Membership Banner (for non-members only)
+                  if (user?.isMember != true)
+                    MembershipBanner(
+                      onBecomeMember: () {
+                        // Navigate to membership registration screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const BuySharesScreen(),
+                          ),
+                        );
+                      },
+                      showCloseButton: true,
+                      onClose: () {
+                        // User can dismiss the banner temporarily
+                        setState(() {
+                          // You could store a preference here to not show again for a while
+                        });
+                      },
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                   
-                    Row(
-                      children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            // Sky blue gradient
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.primaryDark,
-                                AppColors.primaryLight,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(
-                              AppSizes.radiusL,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 32,
-                          ),
+
+                  // Welcome Card
+                  Container(
+                    padding: const EdgeInsets.all(AppSizes.paddingXL),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardBackground,
+                      borderRadius: BorderRadius.circular(
+                        AppSizes.radiusL,
+                      ), // Reduced for minimalism
+                      border: Border.all(color: AppColors.border),
+                      // Minimal shadow
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.shadow,
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
-                        const SizedBox(width: AppSizes.paddingL),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hello ${user?.name ?? 'Member'}',
-                                style: AppTextStyles.heading3,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Welcome back!',
-                                style: AppTextStyles.body2.copyWith(
-                                  color: AppColors.textSecondary,
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                // Sky blue gradient
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColors.primaryDark,
+                                    AppColors.primaryLight,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radiusL,
                                 ),
                               ),
-                            ],
-                          ),
+                              child: const Icon(
+                                Icons.person,
+                                color: Colors.white,
+                                size: 32,
+                              ),
+                            ),
+                            const SizedBox(width: AppSizes.paddingL),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Hello ${user?.name ?? 'Member'}',
+                                    style: AppTextStyles.heading3,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Welcome back!',
+                                    style: AppTextStyles.body2.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSizes.paddingXL),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildInfoCard(
+                                'Account Number',
+                                user?.memberId ?? 'JS001234567',
+                                Icons.account_balance,
+                              ),
+                            ),
+                            const SizedBox(width: AppSizes.paddingL),
+                            Expanded(
+                              child: _buildInfoCard(
+                                'Member Since',
+                                user?.memberSince ?? 'Jan 2024',
+                                Icons.calendar_today,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSizes.paddingXL),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildInfoCard(
-                            'Account Number',
-                            user?.memberId ?? 'JS001234567',
-                            Icons.account_balance,
-                          ),
-                        ),
-                        const SizedBox(width: AppSizes.paddingL),
-                        Expanded(
-                          child: _buildInfoCard(
-                            'Member Since',
-                            user?.memberSince ?? 'Jan 2024',
-                            Icons.calendar_today,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: AppSizes.sectionSpacing),
-
-              // Balance Card (Priority - Show first)
-              BalanceCard(
-                title: AppStrings.balance,
-                amountText: transactionProvider.balanceDisplay,
-                onPrimary: () => push(NamedRoutes.depositScreen),
-
-                // _showDepositDialog(context, transactionProvider),
-                onSecondary: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WithdrawScreen(),
                   ),
-                ),
-                // _showWithdrawDialog(context, transactionProvider),
-              ),
 
-              const SizedBox(height: AppSizes.sectionSpacing),
+                  const SizedBox(height: AppSizes.sectionSpacing),
 
-              // Membership Status
-              SectionHeader(
-                title: 'Membership Status',
-                subtitle: 'Your account information',
-              ),
-              const SizedBox(height: AppSizes.paddingL),
-              Row(
-                children: [
-                  Expanded(
-                    child: StatCard(
-                      icon: Icons.verified_user,
-                      label: 'KYC Status',
-                      value:
-                          user?.kycStatus?.toLowerCase() == 'completed' ||
-                              user?.kycStatus?.toLowerCase() == 'verified'
-                          ? 'Completed'
-                          : 'Pending',
-                      color:
-                          user?.kycStatus?.toLowerCase() == 'completed' ||
-                              user?.kycStatus?.toLowerCase() == 'verified'
-                          ? AppColors.success
-                          : AppColors.warning,
-                    ),
-                  ),
-                  const SizedBox(width: AppSizes.cardSpacing),
-                  Expanded(
-                    child: StatCard(
-                      icon: Icons.person,
-                      label: 'Member Type',
-                      value: user?.isMember == true ? 'Active' : 'Guest',
-                      color: user?.isMember == true
-                          ? AppColors.primary
-                          : AppColors.textLight,
-                    ),
-                  ),
-                ],
-              ),
+                  // Balance Card (Priority - Show first)
+                  BalanceCard(
+                    title: AppStrings.balance,
+                    amountText: transactionProvider.balanceDisplay,
+                    onPrimary: () => push(NamedRoutes.depositScreen),
 
-              const SizedBox(height: AppSizes.sectionSpacing),
-
-              // Quick Actions (Priority - Show before savings)
-              SectionHeader(
-                title: 'Quick Actions',
-                subtitle: 'Access your services',
-              ),
-              const SizedBox(height: AppSizes.paddingL),
-
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: AppSizes.cardSpacing,
-                mainAxisSpacing: AppSizes.cardSpacing,
-                childAspectRatio: 1.1, // Less square, more spacious
-                children: [
-                  ActionTile(
-                    title: 'Fixed Deposit',
-                    icon: Icons.account_balance,
-                    color: AppColors.secondary,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FixedDepositScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  ActionTile(
-                    title: 'Pay Bills',
-                    icon: Icons.receipt,
-                    color: AppColors.warning,
-                    onTap: () {
-                      // TODO: Implement bill payment
-                    },
-                  ),
-                  ActionTile(
-                    title: 'Shares',
-                    icon: Icons.auto_graph_sharp,
-                    color: AppColors.success,
-                    onTap: () {
-                       Navigator.push(
+                    // _showDepositDialog(context, transactionProvider),
+                    onSecondary: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const BuySharesScreen(),
+                        builder: (context) => const WithdrawScreen(),
                       ),
-                    );
-                      // TODO: Implement support
-                    },
+                    ),
+                    // _showWithdrawDialog(context, transactionProvider),
                   ),
-                  ActionTile(
-                    title: 'Loan',
-                    icon: Icons.credit_card,
-                    color: AppColors.info,
-                    onTap: () {
-                      push(NamedRoutes.loanCategoryScreen);
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const LoanApplicationScreen(),
-                      //   ),
-                      // );
-                    },
+
+                  const SizedBox(height: AppSizes.sectionSpacing),
+
+                  // Membership Status
+                  SectionHeader(
+                    title: 'Membership Status',
+                    subtitle: 'Your account information',
                   ),
-                  // ActionTile(
-                  //   title: 'Loan V2',
-                  //   icon: Icons.credit_card,
-                  //   color: AppColors.info,
-                  //   onTap: () {
-                  //     push(NamedRoutes.loanProductScreen);
-                  //     // Navigator.push(
-                  //     //   context,
-                  //     //   MaterialPageRoute(
-                  //     //     builder: (context) => const LoanApplicationScreen(),
-                  //     //   ),
-                  //     // );
-                  //   },
-                  // ),
-                  ActionTile(
-                    title: 'Support',
-                    icon: Icons.support_agent,
-                    color: AppColors.error,
-                    onTap: () {
-                      // TODO: Implement support
-                    },
+                  const SizedBox(height: AppSizes.paddingL),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: StatCard(
+                          icon: Icons.verified_user,
+                          label: 'KYC Status',
+                          value:
+                              user?.kycStatus?.toLowerCase() == 'completed' ||
+                                  user?.kycStatus?.toLowerCase() == 'verified'
+                              ? 'Completed'
+                              : 'Pending',
+                          color:
+                              user?.kycStatus?.toLowerCase() == 'completed' ||
+                                  user?.kycStatus?.toLowerCase() == 'verified'
+                              ? AppColors.success
+                              : AppColors.warning,
+                        ),
+                      ),
+                      const SizedBox(width: AppSizes.cardSpacing),
+                      Expanded(
+                        child: StatCard(
+                          icon: Icons.person,
+                          label: 'Member Type',
+                          value: user?.isMember == true ? 'Active' : 'Guest',
+                          color: user?.isMember == true
+                              ? AppColors.primary
+                              : AppColors.textLight,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: AppSizes.sectionSpacing),
+
+                  // Quick Actions (Priority - Show before savings)
+                  SectionHeader(
+                    title: 'Quick Actions',
+                    subtitle: 'Access your services',
+                  ),
+                  const SizedBox(height: AppSizes.paddingL),
+
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: AppSizes.cardSpacing,
+                    mainAxisSpacing: AppSizes.cardSpacing,
+                    childAspectRatio: 1.1, // Less square, more spacious
+                    children: [
+                      ActionTile(
+                        title: 'Fixed Deposit',
+                        icon: Icons.account_balance,
+                        color: AppColors.secondary,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const FixedDepositScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      ActionTile(
+                        title: 'Pay Bills',
+                        icon: Icons.receipt,
+                        color: AppColors.warning,
+                        onTap: () {
+                          // TODO: Implement bill payment
+                        },
+                      ),
+                      ActionTile(
+                        title: 'Shares',
+                        icon: Icons.auto_graph_sharp,
+                        color: AppColors.success,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const BuySharesScreen(),
+                            ),
+                          );
+                          // TODO: Implement support
+                        },
+                      ),
+                      ActionTile(
+                        title: 'Loan',
+                        icon: Icons.credit_card,
+                        color: AppColors.info,
+                        onTap: () {
+                          push(NamedRoutes.loanCategoryScreen);
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const LoanApplicationScreen(),
+                          //   ),
+                          // );
+                        },
+                      ),
+                      // ActionTile(
+                      //   title: 'Loan V2',
+                      //   icon: Icons.credit_card,
+                      //   color: AppColors.info,
+                      //   onTap: () {
+                      //     push(NamedRoutes.loanProductScreen);
+                      //     // Navigator.push(
+                      //     //   context,
+                      //     //   MaterialPageRoute(
+                      //     //     builder: (context) => const LoanApplicationScreen(),
+                      //     //   ),
+                      //     // );
+                      //   },
+                      // ),
+                      ActionTile(
+                        title: 'Support',
+                        icon: Icons.support_agent,
+                        color: AppColors.error,
+                        onTap: () {
+                          // TODO: Implement support
+                        },
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ],
-          );
-          }) ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }

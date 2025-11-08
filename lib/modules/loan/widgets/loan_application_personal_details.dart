@@ -6,6 +6,8 @@ import '../models/models.dart';
 import '../providers/loan_provider.dart';
 import 'loan_application_input_fields.dart';
 import 'loan_application_section_header.dart';
+import 'address_proof_upload_widget.dart';
+import '../../../utils/file_picker_helper.dart';
 
 class LoanApplicationPersonalDetailsWidget extends StatefulWidget {
   final LoanCategory loanCategory;
@@ -447,6 +449,92 @@ class _LoanApplicationPersonalDetailsWidgetState
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 24),
+
+                // Address Proof Upload Section
+                AddressProofUploadWidget(
+                  primaryColor: primaryColor,
+                  onPickFile: (proofType) async {
+                    try {
+                      // Pick file using helper
+                      final file = await FilePickerHelper.pickDocument(
+                        context: context,
+                        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+                      );
+
+                      if (file == null) {
+                        // User cancelled
+                        return;
+                      }
+
+                      // Validate file size (max 5MB)
+                      final isValidSize = await FilePickerHelper.validateFileSize(
+                        file,
+                         5 * 1024 * 1024,
+                      );
+
+                      if (!isValidSize) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('File size must be less than 5MB'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                        return;
+                      }
+
+                      // Validate file type
+                    
+                      final isValidType = FilePickerHelper.isValidFileType(
+                        file,
+                        ['pdf', 'jpg', 'jpeg', 'png'],
+                      );
+
+                      if (!isValidType) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Invalid file type. Please select PDF, JPG, or PNG',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                        return;
+                      }
+
+                      // Upload to provider
+                      final loanProvider = context.read<LoanProvider>();
+                      await loanProvider.selectLoanDocuments(
+                        file,
+                        'address_proof_$proofType',
+                      );
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Address proof ($proofType) uploaded successfully!',
+                            ),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Failed to upload: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
                 ),
               ],
             ),

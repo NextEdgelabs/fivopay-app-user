@@ -44,6 +44,7 @@ class _EsignLoanScreenState extends State<EsignLoanScreen> {
       signer: signer,
       url: widget.args.loan.agreement?.document ?? "",
       estampId: widget.args.loan.agreement?.estampId,
+      loanId: widget.args.loan.id,
     );
 
     if (!mounted) return;
@@ -156,7 +157,7 @@ class _EsignLoanScreenState extends State<EsignLoanScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      ViewPdfScreen(pdfUrl: url),
+                                     PdfViewScreen(url: url),
                                 ),
                               );
                             },

@@ -18,7 +18,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context).currentUser;
     final referralProvider = Provider.of<ReferralProvider>(context);
-    final referralCode = referralProvider.referralCode ?? 'JANSEVA123';
+    final referralCode = "app.janseva/${user?.memberId}";
 
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.inviteFriends)),

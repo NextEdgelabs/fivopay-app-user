@@ -17,8 +17,11 @@ class UserProvider extends ChangeNotifier {
   bool get isMember => _currentUser?.isMember ?? false;
   String? get accessToken => _accessToken;
 
-  // Initialize user data
+  // Initialize user data - called automatically by ProxyProvider
   Future<void> initializeUser() async {
+    // Prevent multiple simultaneous initializations
+    if (_isLoading) return;
+    
     _setLoading(true);
     try {
       final user = await AuthService.getCurrentUser();
@@ -33,6 +36,8 @@ class UserProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+    
+    return;
   }
 
   // // Update user profile
@@ -127,7 +132,7 @@ class UserProvider extends ChangeNotifier {
         address: address ?? _currentUser!.address,
       );
       if (aadhaarData != null) {
-        var res = AuthService.saveAadharDetails(
+        AuthService.saveAadharDetails(
           aadhaarNumber,
           aadhaarData,
           _currentUser!.id,

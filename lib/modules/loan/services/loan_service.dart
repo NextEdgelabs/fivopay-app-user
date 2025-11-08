@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:janseva/modules/loan/models/document_model.dart';
 import 'package:janseva/modules/loan/models/loan_product_response.dart';
 import 'package:janseva/services/api_service.dart';
 import '../../../config/api_config.dart';
@@ -110,6 +111,7 @@ class LoanServices {
       log('Loan Application Response: $res');
       return res;
     } catch (e) {
+
       print('Exception in submmitLoanApplicattion: $e');
     }
   }
@@ -162,12 +164,14 @@ class CreateLoanparams {
   final String userId;
   final String productId;
   final String amount;
+  final List<LoanDocumentModel> document;
 
   CreateLoanparams({
     required this.categoryId,
     required this.userId,
     required this.productId,
     required this.amount,
+    required this.document,
   });
   Map<String, dynamic> toJson() {
     return {
@@ -175,6 +179,8 @@ class CreateLoanparams {
       'userId': userId,
       'product': productId,
       'amount': amount,
+      'organisation' : "Nextlabs",
+      'documents': document.map((e) => e.toJson()).toList(),
     };
   }
 }

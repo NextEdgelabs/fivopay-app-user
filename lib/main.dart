@@ -34,12 +34,24 @@ class JanSevaApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, UserProvider>(
+          create: (_) => UserProvider(),
+          update: (_, authProvider, userProvider) =>
+              userProvider!..initializeUser(),
+        ),
         ChangeNotifierProvider(create: (_) => ReferralProvider()),
-        ChangeNotifierProvider(create: (_) => WalletProvider()),
+        ChangeNotifierProxyProvider<UserProvider, WalletProvider>(
+          create: (_) => WalletProvider(),
+          update: (_, userProvider, walletProvider) =>
+              walletProvider!..updateUserProvider(userProvider),
+        ),
         ChangeNotifierProvider(create: (_) => LoanProvider()),
         ChangeNotifierProvider(create: (_) => LoanProviderV2()),
-        ChangeNotifierProvider(create: (_) => ShareProvider()),
+        ChangeNotifierProxyProvider<UserProvider, ShareProvider>(
+          create: (_) => ShareProvider(),
+          update: (_, userProvider, shareProvider) =>
+              shareProvider!..updateUserProvider(userProvider),
+        ),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

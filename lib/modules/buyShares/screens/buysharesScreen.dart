@@ -31,11 +31,7 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
     
     // Initialize share provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userProvider = context.read<UserProvider>();
-      final shareProvider = context.read<ShareProvider>();
-      if (userProvider.currentUser != null) {
-        shareProvider.initialize(userProvider.currentUser!);
-      }
+  
     });
   }
 
@@ -689,7 +685,6 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                         const SizedBox(height: AppSizes.paddingM),
                         Text(
                           '• Each share costs ₹${ShareProvider.SHARE_PRICE.toStringAsFixed(0)}\n'
-                          '• Minimum ${ShareProvider.SHARES_FOR_MEMBERSHIP} shares (₹${ShareProvider.MEMBERSHIP_AMOUNT.toStringAsFixed(0)}) required for membership\n'
                           '• Members get exclusive benefits and voting rights\n'
                           '• Shares represent ownership in the cooperative',
                           style: AppTextStyles.body2.copyWith(
@@ -743,14 +738,14 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                                         ),
                                       ),
                                       Text(
-                                        _formatDate(purchase.purchaseDate),
+                                        _formatDate(purchase.createdAt!),
                                         style: AppTextStyles.caption,
                                       ),
                                     ],
                                   ),
                                 ),
                                 Text(
-                                  shareProvider.formatCurrency(purchase.totalAmount),
+                                  shareProvider.formatCurrency(purchase.totalAmount!),
                                   style: AppTextStyles.body1.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: AppColors.primary,

@@ -102,18 +102,15 @@ class AuthProvider extends ChangeNotifier {
 
       if (result['success']) {
         //TEMP INIT
-        await SfService.saveString(SfService.apikey, ApiConfig.apiKey);
-        await SfService.saveString(
-          SfService.kycAccessToken,
-          ApiConfig.apiToken,
-        );
-        await SfService.saveString(SfService.apiversion, "2.0");
+    
 
         if (result["result"]['user'] == null) {
           _currentUser = User(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
             phoneNumber: phoneNumber,
             isNew: true,
+            isShareHolder: false,
+            totalSharePurchased: 0,
           );
         } else {
           _currentUser = User.fromJson(result["result"]['user']);

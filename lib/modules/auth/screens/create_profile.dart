@@ -91,9 +91,13 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             backgroundColor: AppColors.success,
           ),
         );
-
+  Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const KycScreen()),
+          (route) => false,
+        );
         // Navigate to dashboard for existing users
-        pushAndRemoveUntil(NamedRoutes.dashboard);
+        // pushAndRemoveUntil(NamedRoutes.dashboard);
       } else {
         // Navigate to KYC for new users
         Navigator.pushAndRemoveUntil(

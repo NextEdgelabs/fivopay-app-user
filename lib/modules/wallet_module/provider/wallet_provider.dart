@@ -4,7 +4,9 @@ import 'package:janseva/main.dart';
 import 'package:janseva/modules/auth/provider/auth_provider.dart';
 import 'package:janseva/modules/wallet_module/models/deposit_params.dart';
 import 'package:janseva/modules/wallet_module/provider/razorpay_service.dart';
+import 'package:janseva/modules/wallet_module/provider/service/wallet_servoce.dart';
 import 'package:janseva/providers/user_provider.dart';
+import 'package:janseva/services/api_service.dart';
 import 'package:provider/provider.dart';
 import '../../../models/user.dart';
 import '../../../services/storage_service.dart';
@@ -29,7 +31,7 @@ class WalletProvider with ChangeNotifier {
   bool get isProcessing => _isProcessing;
   String? get paymentStatus => _paymentStatus;
 
-  // UserProvider? userProvider;
+  UserProvider? userProvider;
 
   // Transaction type getters
   List<Transaction> get deposits =>
@@ -50,20 +52,29 @@ class WalletProvider with ChangeNotifier {
     _razorpayService.initialize();
   }
 
-  WalletProvider() {
-    _initializeRazorpay();
-  }
   // WalletProvider() {
-  //   userProvider = bContext.read<UserProvider>();
+  //   _initializeRazorpay();
   // }
-  // // Initialize wallet with user data
-  // Future<void> initializeWallet(User user) async {
-  //   _currentUser = user;
-  //   _balance = user.balance ?? 5000.0;
-  //   await _loadTransactionHistory();
-  //   await _loadBalanceFromStorage();
-  //   notifyListeners();
-  // }
+  WalletProvider() {
+  _initializeRazorpay();
+// loadWalletBalance();
+  }
+  
+  // Update user provider dependency
+  void updateUserProvider(UserProvider provider) {
+    userProvider = provider;
+    _currentUser = provider.currentUser;
+    notifyListeners();
+  }
+  
+  // Initialize wallet with user data
+
+
+Future<void> loadWalletBalance(String userId ) async {
+  var authToken = bContext.read<AuthProvider>().appAccessToken ?? '';
+  _balance = await WalletService.getWalletBalance(authToken , userId);
+  notifyListeners();
+}
 
   // Add money to wallet (deposit)
   Future<void> addMoney({

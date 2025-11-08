@@ -50,6 +50,8 @@ dependencies:
   firebase_messaging: ^16.0.4
   flutter_tts: ^4.2.3
   firebase_core: ^4.2.1
+  file_picker: ^10.3.3
+  webview_flutter_plus: ^0.4.19
 
 dev_dependencies:
   flutter_test:

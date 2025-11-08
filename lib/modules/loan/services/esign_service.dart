@@ -9,12 +9,12 @@ class EsignService {
     "api-key": "TSG1V81-5K6MXYK-JRH2FE3-A4JNV5R",
     "app-id": "68e7dd5ce8e915e7ced9e36b",
   };
-  static Future<EsignResponse> signDocument(EsignRequest request) async {
+  static Future<EsignResponse> signDocument(EsignRequest request, String loanId) async {
     try {
       var url = '${ApiConfig.eSignBaseUrl}${ApiConfig.eSignDocumnent}';
       var res = await ApiService.post(
         url,
-        body: request.toJson(),
+        body: request.toJson(loanId),
         headers: headers,
       );
       if (res['success'] == true) {

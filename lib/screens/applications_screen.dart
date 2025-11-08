@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/modules/loan/models/loan_application_response.dart';
 import 'package:janseva/modules/loan/providers/loan_provider.dart';
+import 'package:janseva/modules/loan/screens/esign/view_pdf.dart';
 import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
@@ -75,12 +76,13 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                     itemCount: filteredApplications.length,
                     itemBuilder: (context, index) {
                       final application = filteredApplications[index];
-                      if (application is FixedDeposit) {
-                        return _buildFDCard(application);
-                      } else if (application is LoanApplicationData) {
-                        return _buildLoanCard(application);
-                      }
-                      return const SizedBox.shrink();
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: 10),
+                        child: application is FixedDeposit
+                            ? _buildFDCard(application)
+                            : _buildLoanCard(application),
+                      );
+                      // return const SizedBox.shrink();
                     },
                   ),
           );
@@ -212,92 +214,116 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
 
   Widget _buildLoanCard(LoanApplicationData loan) {
     return FormSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListCard(
-            leading: Container(
-              padding: const EdgeInsets.all(AppSizes.paddingS),
-              decoration: BoxDecoration(
-                color: AppColors.secondary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppSizes.radiusS),
-              ),
-              child: const Icon(
-                Icons.receipt_long,
-                color: AppColors.secondary,
-                size: 20,
-              ),
-            ),
-            title: 'Loan Application',
-            subtitle: 'Loan ID: ${loan.id}',
-            trailing: _buildStatusChip(loan.approvalStatus),
-          ),
-          const SizedBox(height: AppSizes.paddingS),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Amount',
-                  '₹${loan.amount.toStringAsFixed(2)}',
+      child: InkWell(
+        onTap: () {
+          // push(
+          //   NamedRoutes.loanApplicationDetails,
+          //   arguments: LoanApplicationDetailsArguments(loan: loan),
+          // );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListCard(
+              leading: Container(
+                padding: const EdgeInsets.all(AppSizes.paddingS),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusS),
+                ),
+                child: const Icon(
+                  Icons.receipt_long,
+                  color: AppColors.secondary,
+                  size: 20,
                 ),
               ),
-              // Expanded(
-              //   child: _buildInfoItem('Tenure', '${loan,} months'),
-              // ),
-            ],
-          ),
-          const SizedBox(height: AppSizes.paddingS),
+              title: 'Loan Application',
+              subtitle: 'Loan ID: ${loan.id}',
+              trailing: _buildStatusChip(loan.approvalStatus),
+            ),
+            const SizedBox(height: AppSizes.paddingS),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildInfoItem(
+                    'Amount',
+                    '₹${loan.amount.toStringAsFixed(2)}',
+                  ),
+                ),
+                // Expanded(
+                //   child: _buildInfoItem('Tenure', '${loan,} months'),
+                // ),
+              ],
+            ),
+            // const SizedBox(height: AppSizes.paddingS),
 
-          // Row(
-          //   children: [
-          //     Expanded(
-          //       child: _buildInfoItem(
-          //         'Monthly EMI',
-          //         loan.monthlyInstallment != null
-          //             ? '₹${loan.monthlyInstallment!.toStringAsFixed(2)}'
-          //             : 'TBD',
-          //       ),
-          //     ),
-          //     Expanded(child: _buildInfoItem('Purpose', loan.purpose)),
-          //   ],
-          // ),
-          // const SizedBox(height: AppSizes.paddingS),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Applied Date',
-                  _formatDate(loan.createdAt),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildInfoItem(
+                    'Applied Date',
+                    _formatDate(loan.createdAt),
+                  ),
+                ),
+
+                // if (loan.approvalDate != null)
+                //   Expanded(
+                //     child: _buildInfoItem(
+                //       'Approved Date',
+                //       _formatDate(loan.approvalDate!),
+                //     ),
+                //   ),
+              ],
+            ),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _buildInfoItem(
+                    'Signed At',
+                    loan.esignStatus?.result?.document?.signedAt != null
+                        ? _formatDate(
+                            loan.esignStatus!.result!.document!.signedAt,
+                          )
+                        : '-',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSizes.paddingS),
+            if (loan.esignStatus != null) ...[
+              Align(
+                alignment: Alignment.bottomRight,
+                child: TextButton(
+                  onPressed: () {
+                    //TODO TEMP NNAVIGATUION
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => PdfViewScreen(url: loan.esignStatus!.result!.document!.signedUrl,)));;
+                    // Handle view details
+                  },
+                  child: const Text('View Details'),
                 ),
               ),
-              // if (loan.approvalDate != null)
-              //   Expanded(
-              //     child: _buildInfoItem(
-              //       'Approved Date',
-              //       _formatDate(loan.approvalDate!),
-              //     ),
-              //   ),
-            ],
-          ),
-          if(loan.agreement?.estampId !=null)
-          Align(
-            alignment: Alignment.bottomRight,
-            child: TextButton(
-              onPressed: () {
-                push(
-                  NamedRoutes.signAgreement,
-                  arguments: EsignLoanArguments(loan: loan),
-                );
-                // Handle view details
-              },
-              child: const Text('Sign Agreement'),
-            ),
-          ),
-          // if (loan.notes != null && loan.notes!.isNotEmpty) ...[
-          //   const SizedBox(height: AppSizes.paddingS),
-          //   _buildInfoItem('Notes', loan.notes!),
-          // ],
-        ],
+            ] else if (loan.agreement?.estampId != null)
+              Align(
+                alignment: Alignment.bottomRight,
+                child: TextButton(
+                  onPressed: () {
+                    push(
+                      NamedRoutes.signAgreement,
+                      arguments: EsignLoanArguments(loan: loan),
+                    );
+                    // Handle view details
+                  },
+                  child: const Text('Sign Agreement'),
+                ),
+              ),
+
+            // if (loan.notes != null && loan.notes!.isNotEmpty) ...[
+            //   const SizedBox(height: AppSizes.paddingS),
+            //   _buildInfoItem('Notes', loan.notes!),
+            // ],
+          ],
+        ),
       ),
     );
   }

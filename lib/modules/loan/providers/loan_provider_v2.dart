@@ -130,6 +130,7 @@ class LoanProviderV2 extends ChangeNotifier {
   String _esignError = '';
   String get esignError => _esignError;
   Future<void> esignLoanDocuments({
+    required String loanId,
     Signer? signer,
     required String url,
     String? estampId,
@@ -143,7 +144,7 @@ class LoanProviderV2 extends ChangeNotifier {
         document: DocumentModel(name: 'loan_document.pdf', data: document),
         estampId: estampId,
       );
-      var res = await EsignService.signDocument(reqdata);
+      var res = await EsignService.signDocument(reqdata , loanId);
       if (res != null) {
         _esignurl = res.requests.first.signingUrl;
         notifyListeners();

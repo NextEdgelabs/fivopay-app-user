@@ -8,14 +8,13 @@ import '../models/user.dart';
 import '../modules/auth/provider/auth_provider.dart' show AuthProvider;
 import '../modules/wallet_module/provider/razorpay_service.dart';
 import '../services/storage_service.dart';
+import 'user_provider.dart';
 
 class ShareProvider with ChangeNotifier {
   // Constants
   static const int SHARE_PRICE = 100;
   static const int SHARES_FOR_MEMBERSHIP = 10;
-  static const double MEMBERSHIP_AMOUNT =
-      1000.0; // SHARE_PRICE * SHARES_FOR_MEMBERSHIP
-
+  
   // Available share (dummy data)
   final Share _availableShare = Share(
     id: 'SHARE001',
@@ -40,13 +39,14 @@ class ShareProvider with ChangeNotifier {
   List<SharePurchase> get purchases => List.unmodifiable(_purchases);
   bool get isLoading => _isLoading;
   String? get error => _error;
-  int get totalSharesOwned => _purchases
-      .where((p) => p.status == 'completed')
-      .fold(0, (sum, p) => sum + p.quantity);
+  int  totalSharesOwned = 0;
+  // => _purchases
+  //     .where((p) => p.status == 'completed')
+  //     .fold(0, (sum, p) => sum + p.quantity!);
 
   double get totalInvestment => _purchases
       .where((p) => p.status == 'completed')
-      .fold(0.0, (sum, p) => sum + p.totalAmount);
+      .fold(0.0, (sum, p) => sum + p.totalAmount!);
 
   bool get hasMinimumShares => totalSharesOwned >= SHARES_FOR_MEMBERSHIP;
   int get sharesNeededForMembership => SHARES_FOR_MEMBERSHIP - totalSharesOwned;
@@ -56,15 +56,26 @@ class ShareProvider with ChangeNotifier {
 
   ShareProvider() {
     _initializeRazorpay();
+
+
+
   }
 
-  // Initialize with user
-  Future<void> initialize(User user) async {
-    _currentUser = user;
-    await _loadPurchases();
+  void _initShareProvider(){
+    totalSharesOwned = _currentUser?.totalSharePurchased ?? 0;
+    
     notifyListeners();
   }
 
+  // Update user provider dependency - called automatically by ProxyProvider
+  void updateUserProvider(UserProvider userProvider) {
+    _currentUser = userProvider.currentUser;
+    if (_currentUser != null) {
+      _loadPurchases();
+      _initShareProvider();
+    }
+    notifyListeners();
+  }
   // Load purchases from storage
   Future<void> _loadPurchases() async {
     try {
@@ -75,7 +86,7 @@ class ShareProvider with ChangeNotifier {
           final List<dynamic> purchaseList = data['purchases'] ?? [];
           _purchases =
               purchaseList.map((json) => SharePurchase.fromJson(json)).toList()
-                ..sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
+                ..sort((a, b) => b.createdAt!.compareTo(a.completedAt!));
         }
       }
     } catch (e) {
@@ -138,7 +149,11 @@ class ShareProvider with ChangeNotifier {
   // }
 
   // Process the purchase
-  Future<bool> _processPurchase(int quantity, double totalAmount, String userId) async {
+  Future<bool> _processPurchase(
+    int quantity,
+    double totalAmount,
+    String userId,
+  ) async {
     _setLoading(true);
     _clearError();
 
@@ -148,7 +163,11 @@ class ShareProvider with ChangeNotifier {
 
       // Create deposit order
       var res = await RazorpayService.createSharePurchaseOrder(
-        SharePurchaseParams(quantity : quantity, pricePerShare: SHARE_PRICE, customerId: userId),
+        SharePurchaseParams(
+          quantity: quantity,
+          pricePerShare: SHARE_PRICE,
+          customerId: userId,
+        ),
         bContext.read<AuthProvider>().appAccessToken ?? '',
       );
 
@@ -159,19 +178,24 @@ class ShareProvider with ChangeNotifier {
           try {
             final purchase = SharePurchase(
               id: 'PUR${DateTime.now().millisecondsSinceEpoch}',
-              shareId: _availableShare.id,
+              customerId: userId,
+              // shareId: _availableShare.id,
               quantity: quantity,
               pricePerShare: SHARE_PRICE.toDouble(),
               totalAmount: totalAmount,
-              purchaseDate: DateTime.now(),
+
               status: 'completed',
+
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+              completedAt: DateTime.now(),
             );
 
             _purchases.insert(0, purchase);
             await _savePurchases();
-            
+
             _setLoading(false);
-            
+
             // Complete with success
             if (!paymentCompleter.isCompleted) {
               paymentCompleter.complete(true);
@@ -179,7 +203,7 @@ class ShareProvider with ChangeNotifier {
           } catch (e) {
             _error = 'Failed to save purchase: $e';
             _setLoading(false);
-            
+
             // Complete with failure
             if (!paymentCompleter.isCompleted) {
               paymentCompleter.complete(false);
@@ -189,7 +213,7 @@ class ShareProvider with ChangeNotifier {
         onPaymentError: (r) {
           _error = "Payment failed: ${r.error ?? 'Unknown error'}";
           _setLoading(false);
-          
+
           // Complete with failure
           if (!paymentCompleter.isCompleted) {
             paymentCompleter.complete(false);
@@ -199,7 +223,6 @@ class ShareProvider with ChangeNotifier {
 
       // Wait for payment to complete
       return await paymentCompleter.future;
-      
     } catch (e) {
       _error = 'Purchase failed: $e';
       _setLoading(false);
@@ -207,7 +230,6 @@ class ShareProvider with ChangeNotifier {
       return false;
     }
   }
-
 
   // Get purchase history
   List<SharePurchase> getPurchaseHistory({int? limit}) {
@@ -256,12 +278,12 @@ class ShareProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Refresh data
-  Future<void> refresh() async {
-    if (_currentUser != null) {
-      await initialize(_currentUser!);
-    }
-  }
+  // // Refresh data
+  // Future<void> refresh() async {
+  //   if (_currentUser != null) {
+  //     await initialize(_currentUser!);
+  //   }
+  // }
 
   // Clear all data
   Future<void> clear() async {

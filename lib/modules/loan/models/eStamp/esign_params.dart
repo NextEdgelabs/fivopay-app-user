@@ -1,3 +1,5 @@
+import 'package:janseva/config/api_config.dart';
+
 class EsignRequest {
   final DocumentModel document;
   final List<Signer> signers;
@@ -23,7 +25,7 @@ class EsignRequest {
     this.emailTemplate,
   });
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson(String loanId) => {
     'document': document.toJson(),
     'signers': signers.map((e) => e.toJson()).toList(),
     'estamp_required': estampRequired,
@@ -31,7 +33,8 @@ class EsignRequest {
     'estamp_version': estampVersion,
     'txn_expiry_min': txnExpiryMin,
     'white_label': whiteLabel,
-    'response_url': responseUrl,
+    'response_url': 'https://0eaa991ddb75.ngrok-free.app/api/v1/esign/esign-status/$loanId',
+    'redirect_url': 'https://www.google.com/',
     'esign_type': esignType,
     'email_template': emailTemplate?.toJson(),
   };
@@ -144,6 +147,7 @@ final esignRequest = EsignRequest(
   txnExpiryMin: "10080", // 7 days
   whiteLabel: "Y",
   responseUrl: "https://eocfpl67562kcer.m.pipedream.net",
+
   esignType: "AADHAAR",
   emailTemplate: EmailTemplate(orgName: "NEXT LABS"),
 );

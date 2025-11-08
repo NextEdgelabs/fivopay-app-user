@@ -40,6 +40,8 @@ class User {
   // final List<LoanApplication>? loanApplications;
   final double? totalDeposits;
   final double? totalLoans;
+  final bool isShareHolder;
+  final int totalSharePurchased;
 
   User({
     this.memberId,
@@ -76,6 +78,9 @@ class User {
     this.totalDeposits,
     this.totalLoans,
     this.isNew = false,
+    required this.isShareHolder,
+    required this.totalSharePurchased,
+
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -85,6 +90,8 @@ class User {
       id: json['id'] ?? json["_id"] ?? '',
       phoneNumber: json['phoneNumber'] ?? json["phone"] ?? '',
       name: json['name'] ?? json["fullName"],
+          isShareHolder: json['isShareHolder'] ?? false,
+      totalSharePurchased: json['totalSharesPurchased'] ?? 0,
       email: json['email'],
       dateOfBirth: json['dateOfBirth'],
       gender: json['gender'],
@@ -103,7 +110,7 @@ class User {
       referredUsers: json['referredUsers'] != null
           ? List<String>.from(json['referredUsers'])
           : null,
-      isMember: json['isMember'] ?? false,
+      isMember: json['isMember'] ?? json['isApproved'] ?? false,
       isActive: json['isActive'] ?? true,
       kycStatus: json['kycStatus'],
       kycType: json['kycType'],
@@ -126,11 +133,14 @@ class User {
       totalDeposits: json['totalDeposits']?.toDouble(),
       totalLoans: json['totalLoans']?.toDouble(),
       isNew: json['memberId'] == null ? true : false,
+  
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'isShareHolder': isShareHolder,
+      'totalSharesPurchased': totalSharePurchased,
       'memberId': memberId,
       'country': country,
       'id': id,
@@ -164,6 +174,7 @@ class User {
       // 'loanApplications': loanApplications?.map((la) => la.toJson()).toList(),
       'totalDeposits': totalDeposits,
       'totalLoans': totalLoans,
+   
     };
   }
 
@@ -200,6 +211,8 @@ class User {
     double? totalDeposits,
     double? totalLoans,
     bool? isNew,
+    bool ?isShareHolder,
+    int ?totalSharePurchased,
   }) {
     return User(
       memberId: memberId,
@@ -235,6 +248,8 @@ class User {
       totalDeposits: totalDeposits ?? this.totalDeposits,
       totalLoans: totalLoans ?? this.totalLoans,
       isNew: isNew ?? this.isNew,
+      isShareHolder: isShareHolder ?? this.isShareHolder,
+      totalSharePurchased: totalSharePurchased ?? this.totalSharePurchased,
     );
   }
 }
