@@ -56,14 +56,14 @@ class LoanCategory {
       maxTenureMonths: json['maxTenureMonths'] ?? 0,
       status: json['status'] ?? '',
       eligibilityCriteria: EligibilityCriteria.fromJson(
-        json['eligibilityCriteria'] ?? {},
+        json['eligibilityCriteria'] ??json['defaultEligibilityCriteria'] ?? {},
       ),
-      processingFee: ProcessingFee.fromJson(json['processingFee'] ?? {}),
+      processingFee: ProcessingFee.fromJson(json['processingFee'] ?? json['defaultProcessingFee'] ?? {}),
       prepaymentCharges: PrepaymentCharges.fromJson(
-        json['prepaymentCharges'] ?? {},
+        json['prepaymentCharges'] ?? json['defaultPrepaymentCharges'] ??{},
       ),
       latePaymentCharges: LatePaymentCharges.fromJson(
-        json['latePaymentCharges'] ?? {},
+        json['latePaymentCharges'] ?? json['defaultLatePaymentCharges'] ?? {},
       ),
       features: List<String>.from(json['features'] ?? []),
       termsAndConditions: json['termsAndConditions'] ?? '',

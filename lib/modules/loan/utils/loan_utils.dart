@@ -13,6 +13,8 @@ class LoanUtils {
         return Colors.purple;
       case 'business':
         return Colors.teal;
+      case 'gold':
+        return const Color.fromARGB(255, 112, 91, 28);
       default:
         return Colors.grey;
     }
@@ -30,6 +32,8 @@ class LoanUtils {
         return Icons.school;
       case 'business':
         return Icons.business;
+      case 'gold':
+        return Icons.account_balance_wallet;
       default:
         return Icons.account_balance;
     }

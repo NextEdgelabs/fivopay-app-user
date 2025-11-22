@@ -24,6 +24,7 @@ class LoanApplicationReviewWidget extends StatelessWidget {
   final bool agreeToTerms;
   final ValueChanged<bool?> onTermsChanged;
   final VoidCallback onSubmit;
+  final TextEditingController? goldWeightController;
 
   const LoanApplicationReviewWidget({
     Key? key,
@@ -45,6 +46,7 @@ class LoanApplicationReviewWidget extends StatelessWidget {
     required this.agreeToTerms,
     required this.onTermsChanged,
     required this.onSubmit,
+    this.goldWeightController,
   }) : super(key: key);
 
   @override
@@ -102,7 +104,23 @@ class LoanApplicationReviewWidget extends StatelessWidget {
             ],
             loanType: loanCategory.loanType,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+
+          // Gold details review (if applicable)
+          if (goldWeightController != null && loanCategory.loanType.toLowerCase() == 'gold')
+            Column(
+              children: [
+                LoanApplicationReviewCard(
+                  title: 'Gold Details',
+                  reviewItems: [
+                    MapEntry('Gold Weight', '${goldWeightController!.text} grams'),
+                  ],
+                  loanType: loanCategory.loanType,
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          const SizedBox(height: 8),
 
           // Terms and conditions
           LoanApplicationTermsAndConditions(

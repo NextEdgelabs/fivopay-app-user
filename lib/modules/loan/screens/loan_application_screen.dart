@@ -20,7 +20,6 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _pageController = PageController();
   int _currentStep = 0;
-  final int _totalSteps = 5;
 
   // Form controllers
   final _loanAmountController = TextEditingController();
@@ -37,12 +36,17 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
   final _monthlyIncomeController = TextEditingController();
   final _employerNameController = TextEditingController();
   final _workExperienceController = TextEditingController();
+  final _goldWeightController = TextEditingController();
 
   // Form data
   String _selectedEmploymentType = 'Salaried';
   String _selectedEducation = 'Graduate';
   bool _hasExistingLoans = false;
   bool _agreeToTerms = false;
+
+  // Getter to calculate total steps dynamically based on loan type
+  int get _totalSteps =>
+      widget.args.loan.loanType.toLowerCase() == 'gold' ? 6 : 5;
 
   @override
   void initState() {
@@ -88,6 +92,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
     _monthlyIncomeController.dispose();
     _employerNameController.dispose();
     _workExperienceController.dispose();
+    _goldWeightController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -181,6 +186,13 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
                 },
               ),
             ),
+            if (widget.args.loan.loanType.toLowerCase() == 'gold')
+              _buildFullyScrollablePage(
+                LoanApplicationGoldWeightWidget(
+                  loanCategory: widget.args.loan,
+                  goldWeightController: _goldWeightController,
+                ),
+              ),
             _buildFullyScrollablePage(
               LoanApplicationReviewWidget(
                 loanCategory: widget.args.loan,
@@ -205,6 +217,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
                   });
                 },
                 onSubmit: _submitApplication,
+                goldWeightController: widget.args.loan.loanType.toLowerCase() == 'gold' ? _goldWeightController : null,
               ),
             ),
           ],
@@ -337,6 +350,22 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
       case 3: // Employment Details step - handled by widget's internal form validation
         // These steps have their own Form widgets with validators
         // The provider validation below will catch any validation errors
+        break;
+      case 4: // Gold Weight step (for gold loans)
+        if (widget.args.loan.loanType.toLowerCase() == 'gold') {
+          if (_goldWeightController.text.isEmpty) {
+            _showValidationErrors(['Please enter gold weight']);
+            return false;
+          }
+          if (double.tryParse(_goldWeightController.text) == null) {
+            _showValidationErrors(['Please enter a valid number']);
+            return false;
+          }
+          if (double.parse(_goldWeightController.text) <= 0) {
+            _showValidationErrors(['Weight must be greater than 0']);
+            return false;
+          }
+        }
         break;
     }
 

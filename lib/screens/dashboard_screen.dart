@@ -440,12 +440,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       //   color: AppColors.info,
                       //   onTap: () {
                       //     push(NamedRoutes.loanProductScreen);
-                      //     // Navigator.push(
-                      //     //   context,
-                      //     //   MaterialPageRoute(
-                      //     //     builder: (context) => const LoanApplicationScreen(),
-                      //     //   ),
-                      //     // );
+                      
                       //   },
                       // ),
                       ActionTile(

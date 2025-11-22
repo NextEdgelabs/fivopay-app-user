@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/modules/loan/providers/loan_provider_v2.dart';
+import 'package:janseva/modules/loan/widgets/loan_application_personal_details.dart';
 import 'package:janseva/modules/loan/widgets/loan_category_display_card.dart';
 import 'package:provider/provider.dart';
+
+import '../../../routes/arguments.dart';
+import '../../../routes/navigator.dart';
+import '../../../routes/routes.dart';
 
 class LoanProductScreen extends StatefulWidget {
   const LoanProductScreen({super.key});
@@ -37,11 +42,21 @@ class _LoanProductScreenState extends State<LoanProductScreen> {
                   padding: EdgeInsets.all(10),
                   itemCount: products.length,
                   itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        //forward to next screen
-                      },
-                      child: LoanProductDisplayCard(product: products[index]),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: InkWell(
+                        onTap: () {
+                          push(
+                            NamedRoutes.loanApplicationScreenv2,
+                            arguments: LoanApplicationScreenV2Arguments(
+                              loan: products[index],
+                            ),
+                          );
+
+                          //forward to next screen
+                        },
+                        child: LoanProductDisplayCard(product: products[index]),
+                      ),
                     );
                   },
                 );

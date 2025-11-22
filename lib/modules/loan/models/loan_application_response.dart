@@ -96,7 +96,7 @@ class LoanApplicationData {
         updatedAt: json["updatedAt"] != null 
             ? DateTime.parse(json["updatedAt"]) 
             : DateTime.now(),
-        agreement: json["loanAgreement"] != null
+        agreement: json["loanAgreement"] != null && json["loanAgreement"] is Map<String, dynamic>
             ? LoanAgreementModel.fromJson(json["loanAgreement"])
             : null,
         v: json["__v"] ?? 0,

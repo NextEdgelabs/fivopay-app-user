@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:janseva/modules/loan/models/loan_application_response.dart';
 import 'package:janseva/modules/loan/models/models.dart';
 
@@ -21,6 +22,12 @@ class EsignLoanArguments {
 
 class AadharVerifyArguments {
   final int stepNumber;
+  final Color themeColor;
 
-  AadharVerifyArguments({required this.stepNumber});
+  AadharVerifyArguments({required this.stepNumber , required this.themeColor});
+}
+
+class LoanApplicationScreenV2Arguments{
+  final LoanProduct loan;
+  LoanApplicationScreenV2Arguments({required this.loan});
 }

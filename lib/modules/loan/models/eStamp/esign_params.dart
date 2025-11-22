@@ -33,8 +33,8 @@ class EsignRequest {
     'estamp_version': estampVersion,
     'txn_expiry_min': txnExpiryMin,
     'white_label': whiteLabel,
-    'response_url': 'https://0eaa991ddb75.ngrok-free.app/api/v1/esign/esign-status/$loanId',
-    'redirect_url': 'https://www.google.com/',
+    'response_url': 'http://34.100.148.226:4000/api/v1/esign/esign-status/$loanId',
+    'redirect_url': 'http://34.100.148.226:4000/api/v1/esign/esign-status/$loanId',
     'esign_type': esignType,
     'email_template': emailTemplate?.toJson(),
   };
@@ -125,7 +125,7 @@ class EmailTemplate {
 
 // TEMP ESIGN data
 
-final esignRequest = EsignRequest(
+EsignRequest esignRequest(String loanId)=>  EsignRequest(
   document: DocumentModel(
     name: "Agreement_Esigning.pdf",
     info: "test",
@@ -146,7 +146,8 @@ final esignRequest = EsignRequest(
   estampVersion: "v2",
   txnExpiryMin: "10080", // 7 days
   whiteLabel: "Y",
-  responseUrl: "https://eocfpl67562kcer.m.pipedream.net",
+  responseUrl: "https://0eaa991ddb75.ngrok-free.app/api/v1/esign/esign-status/${loanId}",
+ 
 
   esignType: "AADHAAR",
   emailTemplate: EmailTemplate(orgName: "NEXT LABS"),

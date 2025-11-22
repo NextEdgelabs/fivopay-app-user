@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:janseva/modules/loan/utils/loan_utils.dart';
 import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
@@ -53,7 +54,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
       expandedHeight: 200.0,
       floating: false,
       pinned: true,
-      backgroundColor: _getLoanTypeColor(widget.args.loan.loanType),
+      backgroundColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
       flexibleSpace: FlexibleSpaceBar(
         title: Padding(
           padding: const EdgeInsets.only(top: 20 , left: 20, right: 20),
@@ -73,8 +74,8 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                _getLoanTypeColor(widget.args.loan.loanType),
-                _getLoanTypeColor(widget.args.loan.loanType).withOpacity(0.8),
+                LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
+                LoanUtils.getLoanTypeColor(widget.args.loan.loanType).withOpacity(0.8),
               ],
             ),
           ),
@@ -83,7 +84,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
             children: [
               SizedBox(height: MediaQuery.of(context).padding.top),
               Icon(
-                _getLoanTypeIcon(widget.args.loan.loanType),
+                LoanUtils.getLoanTypeIcon(widget.args.loan.loanType),
                 size: 60,
                 color: Colors.white.withOpacity(0.9),
               ),
@@ -264,9 +265,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
       delegate: _SliverTabBarDelegate(
         TabBar(
           controller: _tabController,
-          labelColor: _getLoanTypeColor(widget.args.loan.loanType),
+          labelColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
           unselectedLabelColor: Colors.grey,
-          indicatorColor: _getLoanTypeColor(widget.args.loan.loanType),
+          indicatorColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
           indicatorWeight: 3,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
           tabs: const [
@@ -374,7 +375,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
                         Icon(
                           Icons.description,
                           size: 20,
-                          color: _getLoanTypeColor(widget.args.loan.loanType),
+                          color: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -412,7 +413,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: _getLoanTypeColor(widget.args.loan.loanType),
+                        color: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -490,7 +491,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: _getLoanTypeColor(widget.args.loan.loanType),
+                color: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
               ),
             ),
             const SizedBox(height: 12),
@@ -546,9 +547,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
               icon: const Icon(Icons.calculate),
               label: const Text('Calculate EMI'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: _getLoanTypeColor(widget.args.loan.loanType),
+                foregroundColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
                 side: BorderSide(
-                  color: _getLoanTypeColor(widget.args.loan.loanType),
+                  color: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
@@ -562,7 +563,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
               icon: const Icon(Icons.send),
               label: const Text('Apply Now'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _getLoanTypeColor(widget.args.loan.loanType),
+                backgroundColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -576,39 +577,6 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
     );
   }
 
-  Color _getLoanTypeColor(String loanType) {
-    switch (loanType.toLowerCase()) {
-      case 'personal':
-        return Colors.blue;
-      case 'home':
-        return Colors.green;
-      case 'car':
-        return Colors.orange;
-      case 'education':
-        return Colors.purple;
-      case 'business':
-        return Colors.teal;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  IconData _getLoanTypeIcon(String loanType) {
-    switch (loanType.toLowerCase()) {
-      case 'personal':
-        return Icons.person;
-      case 'home':
-        return Icons.home;
-      case 'car':
-        return Icons.directions_car;
-      case 'education':
-        return Icons.school;
-      case 'business':
-        return Icons.business;
-      default:
-        return Icons.account_balance;
-    }
-  }
 
   void _shareLoadDetails() {
     // Implement share functionality
@@ -653,7 +621,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
         children: [
           Icon(
             Icons.calculate,
-            color: _getLoanTypeColor(widget.args.loan.loanType),
+            color: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
           ),
           const SizedBox(width: 8),
           const Text('EMI Calculator'),

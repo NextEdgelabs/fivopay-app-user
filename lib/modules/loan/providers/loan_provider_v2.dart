@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/modules/loan/models/loan_application_response.dart';
+import 'package:janseva/modules/loan/screens/components/adhaar_verify.dart';
 import 'package:janseva/modules/loan/services/esign_service.dart';
 import 'package:janseva/services/common_utils.dart';
 import 'package:janseva/services/kyc_service.dart';
@@ -21,6 +22,8 @@ class LoanProviderV2 extends ChangeNotifier {
   //Loan Products
   List<LoanProduct> _loanProducts = [];
   List<LoanProduct> get loanProducts => _loanProducts;
+  LoanProduct? _selectedLoanProduct;
+  LoanProduct? get selectedLoanProduct => _selectedLoanProduct;
   bool hasmoreLoanProducts = true;
   int _page = 1;
   Future<void> getLoanProducts({bool isRefresh = false}) async {
@@ -53,6 +56,40 @@ class LoanProviderV2 extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  //Select Loan Product
+  void selectLoanProduct(LoanProduct product) {
+    _selectedLoanProduct = product;
+    notifyListeners();
+  }
+
+  //get LOan Steps
+  int _currentLoanStep = 1;
+  int get currentLoanStep => _currentLoanStep;
+  int loanApplicationSteps() {
+    //TODO INMPELMENT LOAN WISE
+    return 5;
+  }
+
+  void nextLoanStep() {
+    if (_currentLoanStep >= loanApplicationSteps()) {
+      return;
+    }
+    _currentLoanStep++;
+    notifyListeners();
+  }
+
+  void previousLoanStep() {
+    if (_currentLoanStep <= 1) {
+      return;
+    }
+    _currentLoanStep--;
+    notifyListeners();
+  }
+
+  List<Widget> loanApplicationScreens() {
+    return [AdhaarVerifyScreen()];
   }
 
   //Apply Loan
@@ -139,12 +176,16 @@ class LoanProviderV2 extends ChangeNotifier {
       _isEsignLoading = true;
       notifyListeners();
       var document = await pdfToBase64(url);
-      var reqdata = esignRequest.copyWith(
-        signers: signer != null ? [signer] : esignRequest.signers,
-        document: DocumentModel(name: 'loan_document.pdf', data: document),
-        estampId: estampId,
+      var reqdata = esignRequest(loanId);
+
+      var res = await EsignService.signDocument(
+        reqdata.copyWith(
+          signers: signer != null ? [signer] : reqdata.signers,
+          document: DocumentModel(name: 'loan_document.pdf', data: document),
+          estampId: estampId,
+        ),
+        loanId,
       );
-      var res = await EsignService.signDocument(reqdata , loanId);
       if (res != null) {
         _esignurl = res.requests.first.signingUrl;
         notifyListeners();
@@ -168,7 +209,7 @@ class LoanProviderV2 extends ChangeNotifier {
 
   Future<void> sendAdhaarOtp(
     String aadhaarNumber,
-    String userId, 
+    String userId,
     String reason,
   ) async {
     try {
@@ -198,7 +239,7 @@ class LoanProviderV2 extends ChangeNotifier {
     }
   }
 
-  Future<void> verifyAdhaar(String otp , String userId) async {
+  Future<void> verifyAdhaar(String otp, String userId) async {
     try {
       _error = '';
       _isAdhaarLoading = true;
@@ -231,12 +272,18 @@ class LoanProviderV2 extends ChangeNotifier {
     _transacrtionId = null;
     notifyListeners();
   }
+
   //Pan Component
 
   PanVerificationResponse? _panVerificationstatus;
   PanVerificationResponse? get panVerificationstatus => _panVerificationstatus;
 
-  Future<void> verifyPan(String panNumber, String name, String userId, {String? dob}) async {
+  Future<void> verifyPan(
+    String panNumber,
+    String name,
+    String userId, {
+    String? dob,
+  }) async {
     try {
       _error = '';
       _isLoading = true;
@@ -246,7 +293,7 @@ class LoanProviderV2 extends ChangeNotifier {
         name: name,
         dateOfBirth: dob,
         panNumber: panNumber,
-        userId: userId
+        userId: userId,
       );
 
       if (!res.isSuccess) {
@@ -287,6 +334,16 @@ class LoanProviderV2 extends ChangeNotifier {
 
   void clearDocuments() {
     _documentPaths = [];
+    notifyListeners();
+  }
+
+  void clearApplicationData() {
+    _selectedLoanProduct = null;
+    _documentPaths = [];
+    _panVerificationstatus = null;
+    _aadhaarVerificationstatus = null;
+    _transacrtionId = null;
+
     notifyListeners();
   }
 
