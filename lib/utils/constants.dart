@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/main.dart';
 
 class AppColors {
   // Primary Colors (Sky Blue - Main Theme)
   static const Color primary = Color(0xFF0EA5E9); // sky-500 (vibrant sky blue)
-  static const Color primaryLight = Color(0xFF38BDF8); // sky-400 (light sky blue)
+  static const Color primaryLight = Color(
+    0xFF38BDF8,
+  ); // sky-400 (light sky blue)
   static const Color primaryDark = Color(0xFF0284C7); // sky-600 (deep sky blue)
 
   // Secondary Colors (Lighter Sky Blue for accents)
   static const Color secondary = Color(0xFF7DD3FC); // sky-300 (soft light blue)
-  static const Color secondaryLight = Color(0xFFBAE6FD); // sky-200 (very light blue)
+  static const Color secondaryLight = Color(
+    0xFFBAE6FD,
+  ); // sky-200 (very light blue)
   static const Color secondaryDark = Color(0xFF38BDF8); // sky-400 (medium blue)
 
   // Background Colors (Clean & Minimal)
@@ -18,7 +23,9 @@ class AppColors {
 
   // Text Colors (High Contrast)
   static const Color textPrimary = Color(0xFF111827); // gray-900 (almost black)
-  static const Color textSecondary = Color(0xFF6B7280); // gray-500 (medium gray)
+  static const Color textSecondary = Color(
+    0xFF6B7280,
+  ); // gray-500 (medium gray)
   static const Color textLight = Color(0xFF9CA3AF); // gray-400 (light gray)
 
   // Status Colors
@@ -30,7 +37,9 @@ class AppColors {
 
   // Border Colors (Subtle & Clean)
   static const Color border = Color(0xFFE5E7EB); // gray-200 (light gray border)
-  static const Color borderLight = Color(0xFFF3F4F6); // gray-100 (very light border)
+  static const Color borderLight = Color(
+    0xFFF3F4F6,
+  ); // gray-100 (very light border)
 
   // Shadow Colors (Minimal & Subtle)
   static const Color shadow = Color(0x0D000000); // rgba(0, 0, 0, 0.05)
@@ -89,6 +98,8 @@ class AppTextStyles {
 }
 
 class AppSizes {
+  static double dW = MediaQuery.of(bContext).size.width;
+  static double dH = MediaQuery.of(bContext).size.height;
   // Spacing (Generous spacing for breathable UI)
   static const double paddingXS = 6.0; // Increased from 4
   static const double paddingS = 10.0; // Increased from 8
@@ -102,17 +113,19 @@ class AppSizes {
   static const double radiusM = 10.0; // Increased from 6
   static const double radiusL = 14.0; // Increased from 8
   static const double radiusXL = 18.0; // Increased from 12
+  static const double radiusXXL = 24.0; // Increased from 16
 
   // Icon Sizes (Better visual hierarchy)
   static const double iconSizeS = 18.0; // Increased from 16
   static const double iconSizeM = 22.0; // Increased from 20
   static const double iconSizeL = 26.0; // Increased from 24
   static const double iconSizeXL = 32.0; // Increased from 28
+  static double iconSizeXXL = 0.3 * dW; // Increased from 32
 
   // Component Heights (More comfortable touch targets)
   static const double buttonHeight = 52.0; // Increased from 48
   static const double inputHeight = 52.0; // Increased from 48
-  
+
   // Card spacing
   static const double cardSpacing = 16.0; // Consistent card gaps
   static const double sectionSpacing = 24.0; // Space between sections

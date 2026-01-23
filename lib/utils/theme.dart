@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:janseva/utils/app_color.dart';
 import 'constants.dart';
 
 class AppTheme {
@@ -19,6 +20,7 @@ class AppTheme {
       fontFamily: 'Poppins',
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colorScheme.background,
+      extensions: const [NewAppColors.light],
 
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.background,
@@ -246,6 +248,7 @@ class AppTheme {
       useMaterial3: true,
       fontFamily: 'Poppins',
       colorScheme: colorScheme,
+      extensions: const [NewAppColors.dark],
       scaffoldBackgroundColor: colorScheme.background,
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.background,

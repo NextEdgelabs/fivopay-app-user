@@ -1,65 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/utils/theme_extension.dart';
 import '../utils/constants.dart';
 
 class StatCard extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String label;
-  final String value;
+  final String? value;
   final Color? color;
+  final VoidCallback? onTap;
 
   const StatCard({
     super.key,
     required this.icon,
     required this.label,
-    required this.value,
+    this.value,
     this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final Color accent = color ?? AppColors.secondary;
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingL),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(AppSizes.radiusL),
-        border: Border.all(color: AppColors.border.withOpacity(0.5)),
-        // Minimal shadow for subtle depth
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: accent.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(AppSizes.radiusM),
+    return InkWell(
+      onTap: onTap,
+
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.paddingM),
+        decoration: BoxDecoration(
+          color: context.colors.specialCard,
+          borderRadius: BorderRadius.circular(AppSizes.radiusM),
+          // border: Border.all(color: AppColors.borderLight),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Icon(icon, color: AppColors.textLight, size: AppSizes.iconSizeS),
+            const SizedBox(height: AppSizes.paddingS),
+            Text(label, style: AppTextStyles.caption),
+            if (value != null) ...[
+              const SizedBox(height: AppSizes.paddingXS),
+              Text(
+                value!,
+                style: AppTextStyles.body1.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+            const SizedBox(height: AppSizes.paddingXS),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Image.asset(
+                "assets/icons/$icon.png",
+                fit: BoxFit.contain,
+                width: 0.18 * AppSizes.dW,
+                height: 0.18 * AppSizes.dW,
+              ),
             ),
-            child: Icon(icon, color: accent, size: 24),
-          ),
-          const SizedBox(height: AppSizes.paddingM),
-          Text(
-            label,
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: AppTextStyles.body1.copyWith(
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

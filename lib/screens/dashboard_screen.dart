@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:janseva/main.dart';
 import 'package:janseva/modules/buyShares/screens/buysharesScreen.dart';
 import 'package:janseva/modules/loan/screens/components/adhaar_verify.dart';
@@ -8,13 +9,13 @@ import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
 import 'package:janseva/modules/wallet_module/screens/withdraw_screen.dart';
-import 'package:janseva/services/tts_service.dart';
+import 'package:janseva/utils/theme_extension.dart';
+
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/constants.dart';
-import '../widgets/custom_button.dart';
-import '../widgets/custom_text_field.dart';
+
 import '../widgets/section_header.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/action_tile.dart';
@@ -52,6 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 212, 212, 212),
       body: IndexedStack(
         index: _currentIndex,
         children: [
@@ -59,7 +61,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _buildTransactionsTab(),
           _buildApplicationsTab(),
           _buildReferralTab(),
-          // _buildProfileTab(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -67,7 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onDestinationSelected: (index) {
           setState(() => _currentIndex = index);
         },
-        height: 70, // More spacious
+        height: 70,
         elevation: 0,
         backgroundColor: AppColors.cardBackground,
         indicatorColor: AppColors.primary.withOpacity(0.12),
@@ -93,59 +94,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
             selectedIcon: Icon(Icons.share, size: 24),
             label: 'Refer',
           ),
-          // NavigationDestination(
-          //   icon: Icon(Icons.person_outline, size: 24),
-          //   selectedIcon: Icon(Icons.person, size: 24),
-          //   label: 'Profile',
-          // ),
         ],
       ),
     );
   }
 
   Widget _buildHomeTab() {
-    // final user = Provider.of<UserProvider>(context).currentUser;
     final transactionProvider = Provider.of<WalletProvider>(context);
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await TTSService.speak("जनसेवा वॉलेट में,    500 रुपये.  मिले");
-          // .then((e)async{
-          //   await TTSService.stop();
-          // });
-
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => AdhaarVerifyScreen(
-          //     args: AadharVerifyArguments(stepNumber: 1),
-          //   )),
-          // );
-        },
-      ),
+      backgroundColor: Color.fromARGB(255, 212, 212, 212),
       appBar: AppBar(
         title: Text(
-          AppStrings.dashboard,
-          style: AppTextStyles.heading2.copyWith(fontWeight: FontWeight.bold),
+          'FIVOPAY',
+          style: AppTextStyles.heading2.copyWith(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
         ),
         elevation: 0,
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.bgColors,
+        centerTitle: false,
         surfaceTintColor: Colors.transparent,
-        // leading: IconButton(
-        //   icon: const Icon(Icons.menu),
-        //   iconSize: 26,
-        //   onPressed: () {
-        //     // TODO: Implement menu
-        //   },
-        // ),
         actions: [
-          // IconButton(
-          //   icon: const Icon(Icons.notifications_outlined),
-          //   iconSize: 26,
-          //   onPressed: () {
-          //     // TODO: Implement notifications
-          //   },
-          // ),
           const SizedBox(width: AppSizes.paddingS),
           Consumer<UserProvider>(
             builder: (context, userProvider, child) {
@@ -202,7 +173,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (user?.isMember != true)
                     MembershipBanner(
                       onBecomeMember: () {
-                        // Navigate to membership registration screen
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -212,135 +182,130 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       },
                       showCloseButton: true,
                       onClose: () {
-                        // User can dismiss the banner temporarily
-                        setState(() {
-                          // You could store a preference here to not show again for a while
-                        });
+                        setState(() {});
                       },
                     ),
 
-                  // Welcome Card
-                  Container(
-                    padding: const EdgeInsets.all(AppSizes.paddingXL),
-                    decoration: BoxDecoration(
-                      color: AppColors.cardBackground,
-                      borderRadius: BorderRadius.circular(
-                        AppSizes.radiusL,
-                      ), // Reduced for minimalism
-                      border: Border.all(color: AppColors.border),
-                      // Minimal shadow
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.shadow,
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                // Sky blue gradient
-                                gradient: LinearGradient(
-                                  colors: [
-                                    AppColors.primaryDark,
-                                    AppColors.primaryLight,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                  AppSizes.radiusL,
-                                ),
-                              ),
-                              child: const Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 32,
-                              ),
-                            ),
-                            const SizedBox(width: AppSizes.paddingL),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Hello ${user?.name ?? 'Member'}',
-                                    style: AppTextStyles.heading3,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Welcome back!',
-                                    style: AppTextStyles.body2.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
+                  // User Info Card
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  context.colors.gradientOne,
+                                  context.colors.gradientTwo,
                                 ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusL,
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: AppSizes.paddingXL),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildInfoCard(
-                                'Account Number',
-                                user?.memberId ?? 'JS001234567',
-                                Icons.account_balance,
-                              ),
+                            child: Center(
+                              child:
+                                  user?.name != null && user!.name!.isNotEmpty
+                                  ? Text(
+                                      user.name![0].toUpperCase(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 24,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.person,
+                                      color: Colors.white,
+                                      size: 32,
+                                    ),
                             ),
-                            const SizedBox(width: AppSizes.paddingL),
-                            Expanded(
-                              child: _buildInfoCard(
-                                'Member Since',
-                                user?.memberSince ?? 'Jan 2024',
-                                Icons.calendar_today,
-                              ),
+                          ),
+                          const SizedBox(width: AppSizes.paddingS),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Wellcome Back !',
+                                  style: AppTextStyles.body2.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+
+                                Text(
+                                  user?.name ?? 'Member',
+                                  style: AppTextStyles.heading3.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSizes.paddingXL),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: StatCard(
+                              icon: "bank",
+                              label: 'Account Number',
+                              value: user?.memberId ?? 'N/A',
+                            ),
+
+                            // _buildInfoCard(
+                            //   ,
+                            //   ,
+                            //   "bank",
+                            // ),
+                          ),
+                          const SizedBox(width: AppSizes.paddingL),
+                          Expanded(
+                            child: StatCard(
+                              label: 'Member Since',
+                              value: user?.memberSince ?? '20 Jan, 2025',
+                              icon: "calender",
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: AppSizes.sectionSpacing),
 
-                  // Balance Card (Priority - Show first)
+                  // Balance Card
                   BalanceCard(
                     title: AppStrings.balance,
                     amountText: transactionProvider.balanceDisplay,
                     onPrimary: () => push(NamedRoutes.depositScreen),
-
-                    // _showDepositDialog(context, transactionProvider),
                     onSecondary: () => Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const WithdrawScreen(),
                       ),
                     ),
-                    // _showWithdrawDialog(context, transactionProvider),
                   ),
 
                   const SizedBox(height: AppSizes.sectionSpacing),
 
-                  // Membership Status
+                  // Account Information Section
                   SectionHeader(
-                    title: 'Membership Status',
-                    subtitle: 'Your account information',
+                    title: 'Your Account Information',
+                    subtitle: '',
                   ),
                   const SizedBox(height: AppSizes.paddingL),
                   Row(
                     children: [
                       Expanded(
                         child: StatCard(
-                          icon: Icons.verified_user,
+                          icon: "shield",
                           label: 'KYC Status',
                           value:
                               user?.kycStatus?.toLowerCase() == 'completed' ||
@@ -357,7 +322,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(width: AppSizes.cardSpacing),
                       Expanded(
                         child: StatCard(
-                          icon: Icons.person,
+                          icon: "profile",
                           label: 'Member Type',
                           value: user?.isMember == true ? 'Active' : 'Guest',
                           color: user?.isMember == true
@@ -370,11 +335,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   const SizedBox(height: AppSizes.sectionSpacing),
 
-                  // Quick Actions (Priority - Show before savings)
-                  SectionHeader(
-                    title: 'Quick Actions',
-                    subtitle: 'Access your services',
-                  ),
+                  // Quick Actions
+                  SectionHeader(title: 'Quick Actions', subtitle: ''),
                   const SizedBox(height: AppSizes.paddingL),
 
                   GridView.count(
@@ -383,11 +345,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisCount: 2,
                     crossAxisSpacing: AppSizes.cardSpacing,
                     mainAxisSpacing: AppSizes.cardSpacing,
-                    childAspectRatio: 1.1, // Less square, more spacious
+                    childAspectRatio: 1.1,
                     children: [
-                      ActionTile(
-                        title: 'Fixed Deposit',
-                        icon: Icons.account_balance,
+                      StatCard(
+                        label: 'Fixed Deposit',
+                        icon: "fd",
                         color: AppColors.secondary,
                         onTap: () {
                           Navigator.push(
@@ -398,17 +360,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                         },
                       ),
-                      ActionTile(
-                        title: 'Pay Bills',
-                        icon: Icons.receipt,
+                      StatCard(
+                        label: 'Pay Bills',
+                        icon: "pay",
                         color: AppColors.warning,
                         onTap: () {
                           // TODO: Implement bill payment
                         },
                       ),
-                      ActionTile(
-                        title: 'Shares',
-                        icon: Icons.auto_graph_sharp,
+                      StatCard(
+                        label: 'Shares',
+                        icon: "share",
                         color: AppColors.success,
                         onTap: () {
                           Navigator.push(
@@ -417,35 +379,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               builder: (context) => const BuySharesScreen(),
                             ),
                           );
-                          // TODO: Implement support
                         },
                       ),
-                      ActionTile(
-                        title: 'Loan',
-                        icon: Icons.credit_card,
+                      StatCard(
+                        label: 'Loan',
+                        icon: "loan",
                         color: AppColors.info,
                         onTap: () {
                           push(NamedRoutes.loanCategoryScreen);
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const LoanApplicationScreen(),
-                          //   ),
-                          // );
                         },
                       ),
-                      // ActionTile(
-                      //   title: 'Loan V2',
-                      //   icon: Icons.credit_card,
-                      //   color: AppColors.info,
-                      //   onTap: () {
-                      //     push(NamedRoutes.loanProductScreen);
-                      
-                      //   },
-                      // ),
-                      ActionTile(
-                        title: 'Support',
-                        icon: Icons.support_agent,
+                      StatCard(
+                        label: 'Support',
+                        icon: "support",
                         color: AppColors.error,
                         onTap: () {
                           // TODO: Implement support
@@ -462,18 +408,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildInfoCard(String title, String value, IconData icon) {
+  Widget _buildInfoCard(String title, String value, String icon) {
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingM),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.specialCard,
         borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        border: Border.all(color: AppColors.borderLight),
+        // border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppColors.textLight, size: AppSizes.iconSizeS),
+          // Icon(icon, color: AppColors.textLight, size: AppSizes.iconSizeS),
           const SizedBox(height: AppSizes.paddingS),
           Text(title, style: AppTextStyles.caption),
           const SizedBox(height: AppSizes.paddingXS),
@@ -481,12 +427,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
             value,
             style: AppTextStyles.body1.copyWith(fontWeight: FontWeight.w600),
           ),
+          const SizedBox(height: AppSizes.paddingXS),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Image.asset(
+              "assets/icons/$icon.png",
+              fit: BoxFit.contain,
+              width: 0.18 * AppSizes.dW,
+              height: 0.18 * AppSizes.dW,
+            ),
+          ),
         ],
       ),
     );
   }
-
-  // Removed legacy status/action card builders in favor of reusable widgets
 
   Widget _buildTransactionsTab() {
     return const TransactionsScreen();
@@ -498,135 +452,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildReferralTab() {
     return const ReferralScreen();
-  }
-
-  Widget _buildProfileTab() {
-    return const ProfileScreen();
-  }
-
-  // Deposit Dialog
-  void _showDepositDialog(
-    BuildContext context,
-    WalletProvider transactionProvider,
-  ) {
-    final amountController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Deposit Money'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomTextField(
-              controller: amountController,
-              labelText: 'Amount',
-              hintText: 'Enter amount to deposit',
-              keyboardType: TextInputType.number,
-              prefixIcon: Icons.account_balance_wallet,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          CustomButton(
-            onPressed: () async {
-              final amount = double.tryParse(amountController.text);
-              if (amount != null && amount > 0) {
-                Navigator.pop(context);
-                await transactionProvider.addMoney(amount: amount);
-                // if (success && mounted) {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(
-                //       content: Text(
-                //         'Successfully deposited ₹${amount.toStringAsFixed(2)}',
-                //       ),
-                //       backgroundColor: AppColors.success,
-                //     ),
-                //   );
-                // } else if (mounted) {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(
-                //       content: Text(
-                //         transactionProvider.error ?? 'Deposit failed',
-                //       ),
-                //       backgroundColor: AppColors.error,
-                //     ),
-                //   );
-                // }
-              }
-            },
-            text: 'Deposit',
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Withdraw Dialog
-  void _showWithdrawDialog(
-    BuildContext context,
-    WalletProvider transactionProvider,
-  ) {
-    final amountController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Withdraw Money'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomTextField(
-              controller: amountController,
-              labelText: 'Amount',
-              hintText: 'Enter amount to withdraw',
-              keyboardType: TextInputType.number,
-              prefixIcon: Icons.account_balance_wallet,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          CustomButton(
-            onPressed: () async {
-              final amount = double.tryParse(amountController.text);
-              if (amount != null && amount > 0) {
-                Navigator.pop(context);
-                final success = await transactionProvider.withdrawMoney(
-                  amount: amount,
-                );
-                if (success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Successfully withdrew ₹${amount.toStringAsFixed(2)}',
-                      ),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                } else if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        transactionProvider.error ?? 'Withdrawal failed',
-                      ),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
-              }
-            },
-            text: 'Withdraw',
-          ),
-        ],
-      ),
-    );
   }
 }
