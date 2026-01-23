@@ -348,7 +348,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     childAspectRatio: 1.1,
                     children: [
                       StatCard(
-                        label: 'Fixed Deposit',
+                        value: 'Fixed Deposit',
                         icon: "fd",
                         color: AppColors.secondary,
                         onTap: () {
@@ -361,7 +361,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         },
                       ),
                       StatCard(
-                        label: 'Pay Bills',
+                        value: 'Pay Bills',
                         icon: "pay",
                         color: AppColors.warning,
                         onTap: () {
@@ -369,7 +369,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         },
                       ),
                       StatCard(
-                        label: 'Shares',
+                        value: 'Shares',
                         icon: "share",
                         color: AppColors.success,
                         onTap: () {
@@ -382,7 +382,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         },
                       ),
                       StatCard(
-                        label: 'Loan',
+                        value: 'Loan',
                         icon: "loan",
                         color: AppColors.info,
                         onTap: () {
@@ -390,7 +390,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         },
                       ),
                       StatCard(
-                        label: 'Support',
+                        value: 'Support',
                         icon: "support",
                         color: AppColors.error,
                         onTap: () {

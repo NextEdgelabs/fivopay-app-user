@@ -4,16 +4,16 @@ import '../utils/constants.dart';
 
 class StatCard extends StatelessWidget {
   final String icon;
-  final String label;
-  final String? value;
+  final String? label;
+  final String value;
   final Color? color;
   final VoidCallback? onTap;
 
   const StatCard({
     super.key,
     required this.icon,
-    required this.label,
-    this.value,
+    this.label,
+    required this.value,
     this.color,
     this.onTap,
   });
@@ -31,21 +31,26 @@ class StatCard extends StatelessWidget {
           // border: Border.all(color: AppColors.borderLight),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
           children: [
             // Icon(icon, color: AppColors.textLight, size: AppSizes.iconSizeS),
-            const SizedBox(height: AppSizes.paddingS),
-            Text(label, style: AppTextStyles.caption),
-            if (value != null) ...[
-              const SizedBox(height: AppSizes.paddingXS),
-              Text(
-                value!,
+            if (label != null) ...[
+              const SizedBox(height: AppSizes.paddingS),
+              Text(label!, style: AppTextStyles.caption),
+              // const SizedBox(height:),
+            ],
+
+            Padding(
+              padding: const EdgeInsets.only(top: AppSizes.paddingS),
+              child: Text(
+                value,
                 style: AppTextStyles.body1.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            ],
-            const SizedBox(height: AppSizes.paddingXS),
+            ),
             Align(
               alignment: Alignment.bottomRight,
               child: Image.asset(
