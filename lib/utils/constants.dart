@@ -17,7 +17,12 @@ class AppColors {
   static const Color secondaryDark = Color(0xFF38BDF8); // sky-400 (medium blue)
 
   // Background Colors (Clean & Minimal)
-  static const Color background = Color(0xFFFFFFFF); // pure white
+  static const Color background = Color.fromARGB(
+    255,
+    228,
+    228,
+    228,
+  ); // pure white
   static const Color surface = Color(0xFFF9FAFB); // very light gray (gray-50)
   static const Color cardBackground = Color(0xFFFFFFFF); // white cards
 

@@ -66,7 +66,7 @@ class RazorpayService {
     }
   }
 
-    static Future<SharePurchaseResponse> createSharePurchaseOrder(
+  static Future<SharePurchaseResponse> createSharePurchaseOrder(
     SharePurchaseParams params,
     String accessToken,
   ) async {
@@ -89,7 +89,6 @@ class RazorpayService {
       // throw Exception('Error creating deposit order: $e');
     }
   }
-
 
   static void openCheckoutWithModel({
     required RazorpayOrder razorpayOrder,
@@ -124,7 +123,7 @@ class RazorpayService {
     };
 
     try {
-     _razorpay.open(options);
+      _razorpay.open(options);
     } catch (e) {
       log('Error opening Razorpay: $e');
       _onPaymentError?.call(
@@ -137,17 +136,3 @@ class RazorpayService {
     _razorpay.clear();
   }
 }
-
-
-// PORT=5000
-// MONGO_URI=""
-// MSG91AUTHKEY=341505ArKU4rb1610a478bP1
-// MSG91TEMPLATEID=619200684b4d6d1128154f35
-// JWT_SECRET=fivopay
-// JWT_REFRESH_SECRET=fivopay
-
-// # Razorpay Configuration
-// RAZORPAY_KEY_ID=rzp_test_jbbgzqb7j4eUF2
-// RAZORPAY_KEY_SECRET=zqRrbsIU64yGEywz5FaYI59z
-// RAZORPAY_WEBHOOK_SECRET=Nine_Beyond_Success_Payment2023
-// RAZORPAY_MERCHANT_ID=NK4VhUb1xvHa8G

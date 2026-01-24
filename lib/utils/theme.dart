@@ -19,7 +19,7 @@ class AppTheme {
       useMaterial3: true,
       fontFamily: 'Poppins',
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.background,
+      scaffoldBackgroundColor: AppColors.background,
       extensions: const [NewAppColors.light],
 
       appBarTheme: AppBarTheme(
