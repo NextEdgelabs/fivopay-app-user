@@ -40,13 +40,13 @@ class MembershipBanner extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSizes.paddingL,
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSizes.paddingS,
                   vertical: AppSizes.paddingS,
                 ),
                 decoration: BoxDecoration(
                   color: context.colors.famerStrokeOrange,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusM),
                 ),
                 child: Icon(
                   Icons.card_membership,
@@ -56,15 +56,22 @@ class MembershipBanner extends StatelessWidget {
               ),
               InkWell(
                 onTap: onClose,
-                child: Container(
-                  padding: const EdgeInsets.all(AppSizes.paddingXS),
-                  decoration: BoxDecoration(
-                    // color: context.colors.border,
-                    border: Border.all(color: context.colors.border),
-                    borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-                  ),
-                  child: const Text("Close"),
+                child: Icon(
+                  Icons.close,
+                  color: context.colors.backIcon,
+                  size: AppSizes.iconSizeXL,
                 ),
+                // Icon(Icons.close, color: context.colors.textSecondary, size: 24),
+
+                // Container(
+                //   padding: const EdgeInsets.all(AppSizes.paddingXS),
+                //   decoration: BoxDecoration(
+                //     // color: context.colors.border,
+                //     border: Border.all(color: context.colors.border),
+                //     borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                //   ),
+                //   child: const Text("Close"),
+                // ),
               ),
             ],
           ),
@@ -106,7 +113,7 @@ class MembershipBanner extends StatelessWidget {
                 backgroundColor: context.colors.brandColor,
                 foregroundColor: context.colors.subtext,
                 padding: const EdgeInsets.symmetric(
-                  vertical: AppSizes.paddingL,
+                  vertical: AppSizes.paddingS,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppSizes.radiusL),
@@ -138,96 +145,134 @@ class MembershipBanner extends StatelessWidget {
     );
   }
 
-  Widget _buildBenefit(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.white, size: 20),
-        const SizedBox(width: AppSizes.paddingM),
-        Expanded(
-          child: Text(
-            text,
-            style: AppTextStyles.body2.copyWith(
-              color: Colors.white.withOpacity(0.95),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildBenefit(IconData icon, String text) {
+  //   return Row(
+  //     children: [
+  //       Icon(icon, color: Colors.white, size: 20),
+  //       const SizedBox(width: AppSizes.paddingM),
+  //       Expanded(
+  //         child: Text(
+  //           text,
+  //           style: AppTextStyles.body2.copyWith(
+  //             color: Colors.white.withOpacity(0.95),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 }
 
 // Compact version for smaller spaces
-class CompactMembershipBanner extends StatelessWidget {
-  final VoidCallback onBecomeMember;
+// class CompactMembershipBanner extends StatelessWidget {
+//   final VoidCallback onBecomeMember;
 
-  const CompactMembershipBanner({super.key, required this.onBecomeMember});
+//   const CompactMembershipBanner({super.key, required this.onBecomeMember});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: AppSizes.paddingL),
+//       padding: const EdgeInsets.all(AppSizes.paddingL),
+//       decoration: BoxDecoration(
+//         gradient: const LinearGradient(
+//           colors: [Color(0xFF0EA5E9), Color(0xFF0284C7)],
+//           begin: Alignment.topLeft,
+//           end: Alignment.bottomRight,
+//         ),
+//         borderRadius: BorderRadius.circular(AppSizes.radiusL),
+//       ),
+//       child: Row(
+//         children: [
+//           Container(
+//             padding: const EdgeInsets.all(AppSizes.paddingS),
+//             decoration: BoxDecoration(
+//               color: Colors.white.withOpacity(0.2),
+//               borderRadius: BorderRadius.circular(AppSizes.radiusM),
+//             ),
+//             child: const Icon(
+//               Icons.workspace_premium,
+//               color: Colors.white,
+//               size: 24,
+//             ),
+//           ),
+//           const SizedBox(width: AppSizes.paddingM),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   'Become a Member',
+//                   style: AppTextStyles.body1.copyWith(
+//                     color: Colors.white,
+//                     fontWeight: FontWeight.w600,
+//                   ),
+//                 ),
+//                 Text(
+//                   'Get exclusive benefits',
+//                   style: AppTextStyles.caption.copyWith(
+//                     color: Colors.white.withOpacity(0.9),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           ElevatedButton(
+//             onPressed: onBecomeMember,
+//             style: ElevatedButton.styleFrom(
+//               backgroundColor: Colors.white,
+//               foregroundColor: AppColors.primary,
+//               padding: const EdgeInsets.symmetric(
+//                 horizontal: AppSizes.paddingL,
+//                 vertical: AppSizes.paddingM,
+//               ),
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(AppSizes.radiusM),
+//               ),
+//               elevation: 0,
+//             ),
+//             child: const Text('Join'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+class CustomContainer extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
+  final Decoration? decoration;
+  final Color? color;
+  final BorderRadius? borderRadius;
+  final Border? border;
+  const CustomContainer({
+    super.key,
+    required this.child,
+    this.margin,
+    this.padding,
+    this.decoration,
+    this.color,
+    this.borderRadius,
+    this.border,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSizes.paddingL),
-      padding: const EdgeInsets.all(AppSizes.paddingL),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0EA5E9), Color(0xFF0284C7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppSizes.radiusL),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppSizes.paddingS),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(AppSizes.radiusM),
-            ),
-            child: const Icon(
-              Icons.workspace_premium,
-              color: Colors.white,
-              size: 24,
-            ),
+      margin: margin ?? const EdgeInsets.only(bottom: AppSizes.sectionSpacing),
+      padding: padding ?? const EdgeInsets.all(AppSizes.paddingXL),
+
+      decoration:
+          decoration ??
+          BoxDecoration(
+            color: color ?? context.colors.specialCard,
+            borderRadius:
+                borderRadius ?? BorderRadius.circular(AppSizes.radiusL),
+            border: border,
           ),
-          const SizedBox(width: AppSizes.paddingM),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Become a Member',
-                  style: AppTextStyles.body1.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  'Get exclusive benefits',
-                  style: AppTextStyles.caption.copyWith(
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: onBecomeMember,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSizes.paddingL,
-                vertical: AppSizes.paddingM,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radiusM),
-              ),
-              elevation: 0,
-            ),
-            child: const Text('Join'),
-          ),
-        ],
-      ),
+      child: child,
     );
   }
 }

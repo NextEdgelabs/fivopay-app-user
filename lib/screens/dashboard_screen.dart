@@ -20,6 +20,8 @@ import '../widgets/section_header.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/membership_banner.dart';
+import '../widgets/info_card_widget.dart';
+import '../widgets/quick_action_card.dart';
 import 'referral_screen.dart';
 import 'profile_screen.dart';
 import 'fixed_deposit_screen.dart';
@@ -327,104 +329,60 @@ Widget _buildHomeTab() {
                   ),
 
                 // User Info Card
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        // Container(
-                        //   width: 56,
-                        //   height: 56,
-                        //   decoration: BoxDecoration(
-                        //     gradient: LinearGradient(
-                        //       colors: [
-                        //         context.colors.gradientOne,
-                        //         context.colors.gradientTwo,
-                        //       ],
-                        //       begin: Alignment.topLeft,
-                        //       end: Alignment.bottomRight,
-                        //     ),
-                        //     borderRadius: BorderRadius.circular(
-                        //       AppSizes.radiusL,
-                        //     ),
-                        //   ),
-                        //   child: Center(
-                        //     child:
-                        //         user?.name != null && user!.name!.isNotEmpty
-                        //         ? Text(
-                        //             user.name![0].toUpperCase(),
-                        //             style: const TextStyle(
-                        //               color: Colors.white,
-                        //               fontWeight: FontWeight.bold,
-                        //               fontSize: 24,
-                        //             ),
-                        //           )
-                        //         : const Icon(
-                        //             Icons.person,
-                        //             color: Colors.white,
-                        //             size: 32,
-                        //           ),
-                        //   ),
-                        // ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                          child: Image.asset(
-                            "assets/icons/avatars.jpg",
-                            fit: BoxFit.cover,
-                            width: 56,
-                            height: 56,
+                CustomContainer(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusL,
+                            ),
+                            child: Image.asset(
+                              "assets/icons/avatars.jpg",
+                              fit: BoxFit.cover,
+                              width: 56,
+                              height: 56,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: AppSizes.paddingS),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Wellcome Back !',
-                                style: AppTextStyles.body2.copyWith(
-                                  color: AppColors.textSecondary,
+                          const SizedBox(width: AppSizes.paddingS),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Wellcome Back !',
+                                  style: AppTextStyles.body2.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
                                 ),
-                              ),
 
-                              Text(
-                                user?.name ?? 'Member',
-                                style: AppTextStyles.heading3.copyWith(
-                                  fontWeight: FontWeight.bold,
+                                Text(
+                                  user?.name ?? 'Member',
+                                  style: AppTextStyles.heading3.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSizes.paddingXL),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: StatCard(
-                            icon: "bank",
-                            label: 'Account Number',
-                            value: user?.memberId ?? 'N/A',
-                          ),
-
-                          // _buildInfoCard(
-                          //   ,
-                          //   ,
-                          //   "bank",
-                          // ),
-                        ),
-                        const SizedBox(width: AppSizes.paddingL),
-                        Expanded(
-                          child: StatCard(
-                            label: 'Member Since',
-                            value: user?.memberSince ?? '20 Jan, 2025',
-                            icon: "calender",
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: AppSizes.paddingXL),
+                      InfoCardWidget(
+                        icon: Icons.account_balance,
+                        label: 'Account Number',
+                        value: user?.memberId ?? 'N/A',
+                      ),
+                      const SizedBox(height: AppSizes.paddingM),
+                      InfoCardWidget(
+                        icon: Icons.calendar_month,
+                        label: 'Member Since',
+                        value: user?.memberSince ?? "20 JAN 2025",
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: AppSizes.sectionSpacing),
@@ -443,21 +401,35 @@ Widget _buildHomeTab() {
                 ),
 
                 const SizedBox(height: AppSizes.sectionSpacing),
-
                 // Account Information Section
-                SectionHeader(title: 'Your Account Information', subtitle: ''),
-                const SizedBox(height: AppSizes.paddingL),
-                Row(
+                // SectionHeader(title: 'Your Account Information', subtitle: ''),
+                Column(
                   children: [
-                    Expanded(
-                      child: StatCard(
-                        icon: "shield",
-                        label: 'KYC Status',
-                        value:
-                            user?.kycStatus?.toLowerCase() == 'completed' ||
-                                user?.kycStatus?.toLowerCase() == 'verified'
-                            ? 'Completed'
-                            : 'Pending',
+                    Row(
+                      children: [
+                        Text(
+                          'Your Account Information',
+                          style: AppTextStyles.heading3,
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: AppSizes.paddingS),
+                    InfoCardWidget(
+                      icon: Icons.account_balance,
+                      label: 'KYC Status',
+                      value:
+                          user?.kycStatus?.toLowerCase() == 'completed' ||
+                              user?.kycStatus?.toLowerCase() == 'verified'
+                          ? 'Completed'
+                          : 'Pending',
+
+                      // valueColor:
+                      backgroundColor: context.colors.specialCard,
+                      valueStyle: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
                         color:
                             user?.kycStatus?.toLowerCase() == 'completed' ||
                                 user?.kycStatus?.toLowerCase() == 'verified'
@@ -465,25 +437,56 @@ Widget _buildHomeTab() {
                             : AppColors.warning,
                       ),
                     ),
-                    const SizedBox(width: AppSizes.cardSpacing),
-                    Expanded(
-                      child: StatCard(
-                        icon: "profile",
-                        label: 'Member Type',
-                        value: user?.isMember == true ? 'Active' : 'Guest',
-                        color: user?.isMember == true
-                            ? AppColors.primary
-                            : AppColors.textLight,
+                    SizedBox(height: AppSizes.paddingM),
+                    InfoCardWidget(
+                      icon: Icons.calendar_month,
+                      label: 'Member Type',
+                      value: user?.isMember == true ? 'Active' : 'Guest',
+                      backgroundColor: context.colors.specialCard,
+                      valueStyle: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        color: context.colors.text,
                       ),
                     ),
                   ],
                 ),
 
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: StatCard(
+                //         icon: "shield",
+                //         label: 'KYC Status',
+                //         value:
+                //             user?.kycStatus?.toLowerCase() == 'completed' ||
+                //                 user?.kycStatus?.toLowerCase() == 'verified'
+                //             ? 'Completed'
+                //             : 'Pending',
+                //         color:
+                //             user?.kycStatus?.toLowerCase() == 'completed' ||
+                //                 user?.kycStatus?.toLowerCase() == 'verified'
+                //             ? AppColors.success
+                //             : AppColors.warning,
+                //       ),
+                //     ),
+                //     const SizedBox(width: AppSizes.cardSpacing),
+                //     Expanded(
+                //       child: StatCard(
+                //         icon: "profile",
+                //         label: 'Member Type',
+                //         value: user?.isMember == true ? 'Active' : 'Guest',
+                //         color: user?.isMember == true
+                //             ? AppColors.primary
+                //             : AppColors.textLight,
+                //       ),
+                //     ),
+                //   ],
+                // ),
                 const SizedBox(height: AppSizes.sectionSpacing),
 
                 // Quick Actions
                 SectionHeader(title: 'Quick Actions', subtitle: ''),
-                const SizedBox(height: AppSizes.paddingL),
 
                 GridView.count(
                   shrinkWrap: true,
@@ -491,12 +494,11 @@ Widget _buildHomeTab() {
                   crossAxisCount: 2,
                   crossAxisSpacing: AppSizes.cardSpacing,
                   mainAxisSpacing: AppSizes.cardSpacing,
-                  childAspectRatio: 1.1,
+                  childAspectRatio: 2.2,
                   children: [
-                    StatCard(
-                      value: 'Fixed Deposit',
-                      icon: "fd",
-                      color: AppColors.secondary,
+                    QuickActionCard(
+                      icon: Icons.account_balance,
+                      label: 'Fixed Deposit',
                       onTap: () {
                         Navigator.push(
                           context,
@@ -506,18 +508,16 @@ Widget _buildHomeTab() {
                         );
                       },
                     ),
-                    StatCard(
-                      value: 'Pay Bills',
-                      icon: "pay",
-                      color: AppColors.warning,
+                    QuickActionCard(
+                      icon: Icons.payments,
+                      label: 'Pay Bills',
                       onTap: () {
                         // TODO: Implement bill payment
                       },
                     ),
-                    StatCard(
-                      value: 'Shares',
-                      icon: "share",
-                      color: AppColors.success,
+                    QuickActionCard(
+                      icon: Icons.account_balance_wallet,
+                      label: 'Shares',
                       onTap: () {
                         Navigator.push(
                           context,
@@ -527,22 +527,71 @@ Widget _buildHomeTab() {
                         );
                       },
                     ),
-                    StatCard(
-                      value: 'Loan',
-                      icon: "loan",
-                      color: AppColors.info,
+                    QuickActionCard(
+                      icon: Icons.account_balance_wallet,
+                      label: 'Loan',
                       onTap: () {
                         push(NamedRoutes.loanCategoryScreen);
                       },
                     ),
-                    StatCard(
-                      value: 'Support',
-                      icon: "support",
-                      color: AppColors.error,
+                    QuickActionCard(
+                      icon: Icons.support_agent,
+                      label: 'Support',
                       onTap: () {
                         // TODO: Implement support
                       },
                     ),
+
+                    // StatCard(
+                    //   value: 'Fixed Deposit',
+                    //   icon: "fd",
+                    //   color: AppColors.secondary,
+                    //   onTap: () {
+                    //     Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //         builder: (context) => const FixedDepositScreen(),
+                    //       ),
+                    //     );
+                    //   },
+                    // ),
+                    // StatCard(
+                    //   value: 'Pay Bills',
+                    //   icon: "pay",
+                    //   color: AppColors.warning,
+                    //   onTap: () {
+                    //     // TODO: Implement bill payment
+                    //   },
+                    // ),
+                    // StatCard(
+                    //   value: 'Shares',
+                    //   icon: "share",
+                    //   color: AppColors.success,
+                    //   onTap: () {
+                    //     Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //         builder: (context) => const BuySharesScreen(),
+                    //       ),
+                    //     );
+                    //   },
+                    // ),
+                    // StatCard(
+                    //   value: 'Loan',
+                    //   icon: "loan",
+                    //   color: AppColors.info,
+                    //   onTap: () {
+                    //     push(NamedRoutes.loanCategoryScreen);
+                    //   },
+                    // ),
+                    // StatCard(
+                    //   value: 'Support',
+                    //   icon: "support",
+                    //   color: AppColors.error,
+                    //   onTap: () {
+                    //     // TODO: Implement support
+                    //   },
+                    // ),
                   ],
                 ),
               ],

@@ -32,7 +32,7 @@ class BalanceCard extends StatelessWidget {
         //   begin: Alignment.topLeft,
         //   end: Alignment.bottomRight,
         // ),
-        color: context.colors.specialCard,
+        color: context.colors.brandColor,
 
         borderRadius: BorderRadius.circular(AppSizes.radiusXL),
         // Subtle shadow for depth
@@ -47,41 +47,45 @@ class BalanceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row(
-          //   children: [
-          //     Container(
-          //       padding: const EdgeInsets.all(8),
-          //       decoration: BoxDecoration(
-          //         color: Colors.white.withOpacity(0.2),
-          //         borderRadius: BorderRadius.circular(AppSizes.radiusM),
-          //       ),
-          //       child: const Icon(
-          //         Icons.account_balance_wallet,
-          //         color: Colors.white,
-          //         size: 22,
-          //       ),
-          //     ),
-          //     const SizedBox(width: AppSizes.paddingM),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSizes.paddingS),
+                decoration: BoxDecoration(
+                  color: context.colors.specialCard.withAlpha(50),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                ),
+                child: Icon(
+                  Icons.account_balance_wallet,
+                  color: context.colors.specialCard,
+                  size: AppSizes.iconSizeL,
+                ),
+              ),
+              const SizedBox(width: AppSizes.paddingS),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTextStyles.heading3.copyWith(
+                      color: context.colors.textLight,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    amountText,
+                    style: AppTextStyles.heading3.copyWith(
+                      color: context.colors.textLight,
+                      // fontSize: 32,
+                      // fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
 
-          //   ],
-          // ),
-          Text(
-            title,
-            style: AppTextStyles.body1.copyWith(
-              color: context.colors.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: AppSizes.paddingS),
-          Text(
-            amountText,
-            style: AppTextStyles.heading1.copyWith(
-              color: context.colors.text,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              letterSpacing: -0.5,
-            ),
-          ),
           const SizedBox(height: AppSizes.paddingM),
           Row(
             children: [
@@ -89,8 +93,8 @@ class BalanceCard extends StatelessWidget {
                 child: CustomButton(
                   onPressed: onPrimary,
                   text: primaryText,
-                  backgroundColor: context.colors.brandColor,
-                  textColor: context.colors.textLight,
+                  backgroundColor: context.colors.specialCard,
+                  textColor: context.colors.brandColor,
                   height: 46,
                 ),
               ),
@@ -99,8 +103,8 @@ class BalanceCard extends StatelessWidget {
                 child: CustomButton(
                   onPressed: onSecondary,
                   text: secondaryText,
-                  backgroundColor: context.colors.bgColors,
-                  textColor: context.colors.brandColor,
+                  backgroundColor: context.colors.specialCard.withAlpha(120),
+                  textColor: context.colors.specialCard,
                   height: 46,
                 ),
               ),
