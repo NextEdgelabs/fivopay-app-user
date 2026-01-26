@@ -186,7 +186,7 @@ class AppTheme {
         ),
       ),
 
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         displayLarge: AppTextStyles.heading1,
         displayMedium: AppTextStyles.heading2,
         displaySmall: AppTextStyles.heading3,
