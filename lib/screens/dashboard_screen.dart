@@ -178,14 +178,16 @@ class _DashboardScreenState extends State<DashboardScreen>
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.primary.withOpacity(0.12)
+                    ? bContext.colors.famerStrokeOrange
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 isSelected ? selectedIcon : icon,
                 size: 22,
-                color: isSelected ? AppColors.primary : AppColors.textLight,
+                color: isSelected
+                    ? context.colors.brandColor
+                    : AppColors.textLight,
               ),
             ),
             const SizedBox(height: 2),
@@ -194,7 +196,9 @@ class _DashboardScreenState extends State<DashboardScreen>
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? AppColors.primary : AppColors.textLight,
+                color: isSelected
+                    ? context.colors.brandColor
+                    : AppColors.textLight,
               ),
               child: Text(label),
             ),
