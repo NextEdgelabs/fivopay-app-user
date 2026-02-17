@@ -4,10 +4,10 @@ class ApiConfig {
   // static const String baseUrl = 'https://api.sandbox.co.in';
   // static const String domain = 'https://api.fivopay.nextlabsonline.com';
 
-  static const String domain = 'http://192.168.1.31:4000';
-  //   static const String domain = 'http://34.100.148.226:4000';
+  static const String domain = 'http://172.16.39.229:4000';
+    // static const String domain = 'http://34.100.148.226:4000';
 
-  static const String razorpayKeyId = 'rzp_test_jbbgzqb7j4eUF2';
+  static const String razorpayKeyId = 'rzp_test_SBwik9QIBrqeIE';
 
   //Estamp+Esign
   static const String eStampBaseUrl = 'https://test.zoop.one/contract/estamp';

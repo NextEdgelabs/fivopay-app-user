@@ -103,7 +103,7 @@ class RazorpayService {
 
     var options = {
       'key':
-          razorpayOrder.razorpayKeyId ??
+          // razorpayOrder.razorpayKeyId ??
           ApiConfig.razorpayKeyId, // Replace with your Razorpay key
       // 'amount': razorpayOrder.amount, // Amount already in paise from API
       'order_id': razorpayOrder.id, // Use Razorpay order ID

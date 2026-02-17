@@ -166,38 +166,38 @@ class LoanProviderV2 extends ChangeNotifier {
   String? get esignurl => _esignurl;
   String _esignError = '';
   String get esignError => _esignError;
-  Future<void> esignLoanDocuments({
-    required String loanId,
-    Signer? signer,
-    required String url,
-    String? estampId,
-  }) async {
-    try {
-      _isEsignLoading = true;
-      notifyListeners();
-      var document = await pdfToBase64(url);
-      var reqdata = esignRequest(loanId);
+  // Future<void> esignLoanDocuments({
+  //   required String loanId,
+  //   Signer? signer,
+  //   required String url,
+  //   String? estampId,
+  // }) async {
+  //   try {
+  //     _isEsignLoading = true;
+  //     notifyListeners();
+  //     var document = await pdfToBase64(url);
+  //     var reqdata = esignRequest(loanId);
 
-      var res = await EsignService.signDocument(
-        reqdata.copyWith(
-          signers: signer != null ? [signer] : reqdata.signers,
-          document: DocumentModel(name: 'loan_document.pdf', data: document),
-          estampId: estampId,
-        ),
-        loanId,
-      );
-      if (res != null) {
-        _esignurl = res.requests.first.signingUrl;
-        notifyListeners();
-      }
-    } catch (e) {
-      _esignError = e.toString();
-      notifyListeners();
-    } finally {
-      _isEsignLoading = false;
-      notifyListeners();
-    }
-  }
+  //     var res = await EsignService.signDocument(
+  //       reqdata.copyWith(
+  //         signers: signer != null ? [signer] : reqdata.signers,
+  //         document: DocumentModel(name: 'loan_document.pdf', data: document),
+  //         estampId: estampId,
+  //       ),
+  //       loanId,
+  //     );
+  //     if (res != null) {
+  //       _esignurl = res.requests.first.signingUrl;
+  //       notifyListeners();
+  //     }
+  //   } catch (e) {
+  //     _esignError = e.toString();
+  //     notifyListeners();
+  //   } finally {
+  //     _isEsignLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
 
   //adhaar Component
   String? _transacrtionId;

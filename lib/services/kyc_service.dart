@@ -9,7 +9,6 @@ import '../config/api_config.dart';
 
 /// Service for KYC verification using Sandbox API
 class KycService {
-
   static Future<PanVerificationResponse> verifyPan({
     required String panNumber,
     required String name,
@@ -21,24 +20,23 @@ class KycService {
   }) async {
     try {
       final url = '${ApiConfig.domain}${ApiConfig.panVerifyPath}';
-  final body = {
-        'date_of_birth' : dateOfBirth ,   
-         'userId' : userId ,
+      final body = {
+        'date_of_birth': dateOfBirth,
+        'userId': userId,
         'pan': panNumber.toUpperCase(),
         'name_as_per_pan': name,
         'consent': consent,
         'reason': reason,
       };
       var response = await ApiService.post(url, body: body);
-     
-     
 
-     
       if (response['success'] == true) {
         final jsonResponse = response['data']['verificationData'];
-        return PanVerificationResponse.fromJson(jsonResponse , response['success'] == true ? 200 : 0);
+        return PanVerificationResponse.fromJson(
+          jsonResponse,
+          response['success'] == true ? 200 : 0,
+        );
       } else {
-        
         throw KycApiException(
           message: response['message'] ?? 'PAN verification failed',
           statusCode: 400,
@@ -55,12 +53,11 @@ class KycService {
     }
   }
 
-
   static Future<AadhaarOtpResponse> requestAadhaarOtp({
     required String aadhaarNumber,
     required String userId,
 
-   required  String reason ,
+    required String reason,
   }) async {
     try {
       final url = '${ApiConfig.domain}${ApiConfig.aadhaarOtpPath}';
@@ -71,16 +68,18 @@ class KycService {
       };
 
       final response = await ApiService.post(url, body: body);
-      if(response['success'] == true){
-        return AadhaarOtpResponse.fromJson(response['data'] , response['success'] == true ? 200 : 0);
-      }else{
+      if (response['success'] == true) {
+        return AadhaarOtpResponse.fromJson(
+          response['data'],
+          response['success'] == true ? 200 : 0,
+        );
+      } else {
         throw KycApiException(
           message: response['message'] ?? 'Aadhaar OTP request failed',
           statusCode: 0,
           errorDetails: response,
         );
       }
-  
     } catch (e) {
       if (e is KycApiException) rethrow;
       throw KycApiException(
@@ -97,9 +96,7 @@ class KycService {
     required String userId,
   }) async {
     try {
-      final url =
-        '${ApiConfig.domain}${ApiConfig.aadhaarVerifyPath}'
-      ;
+      final url = '${ApiConfig.domain}${ApiConfig.aadhaarVerifyPath}';
 
       final body = {
         'userId': userId,
@@ -118,11 +115,9 @@ class KycService {
       // );
       final response = await ApiService.post(url, body: body);
 
-
       if (response['success'] == true) {
         return AadhaarVerificationResponse.fromJson(response['data']);
       } else {
-       
         throw KycApiException(
           message: response['message'] ?? 'Aadhaar verification failed',
           statusCode: 0,
@@ -154,9 +149,12 @@ class PanVerificationResponse {
     required this.transactionId,
   });
 
-  factory PanVerificationResponse.fromJson(Map<String, dynamic> json , int staus) {
+  factory PanVerificationResponse.fromJson(
+    Map<String, dynamic> json,
+    int staus,
+  ) {
     return PanVerificationResponse(
-      code: json['code'] ?? staus ,
+      code: json['code'] ?? staus,
       timestamp: json['timestamp'] ?? 0,
       data: PanData.fromJson(json['data'] as Map<String, dynamic>),
       transactionId: json['transaction_id'] as String,
@@ -263,15 +261,12 @@ class AadhaarOtpResponse {
     required this.message,
   });
 
-  factory AadhaarOtpResponse.fromJson(Map<String, dynamic> json , int staus ) {
+  factory AadhaarOtpResponse.fromJson(Map<String, dynamic> json, int staus) {
     return AadhaarOtpResponse(
       transactionId: json['transactionId'] ?? '',
       code: json['code'] ?? staus ?? 0,
       // timestamp: json['timestamp'] ?? 0,
-      referenceId:
-          json['reference_id'] ??
-          
-          '',
+      referenceId: json['reference_id'] ?? '',
       message: json['message'] ?? 'OTP sent successfully',
     );
   }
@@ -309,197 +304,189 @@ class AadhaarVerificationResponse {
 }
 
 class AadhaarData {
-    final String? entity;
-    final int? referenceId;
-    final String? status;
-    final String? message;
-    final String? careOf;
-    final String? fullAddress;
-    final String? dateOfBirth;
-    final String? emailHash;
-    final String? gender;
-    final String? name;
-    final Address? address;
-    final int? yearOfBirth;
-    final String? mobileHash;
-    final String? photo;
-    final String? shareCode;
+  final String? entity;
+  final int? referenceId;
+  final String? status;
+  final String? message;
+  final String? careOf;
+  final String? fullAddress;
+  final String? dateOfBirth;
+  final String? emailHash;
+  final String? gender;
+  final String? name;
+  final Address? address;
+  final int? yearOfBirth;
+  final String? mobileHash;
+  final String? photo;
+  final String? shareCode;
 
-    AadhaarData({
-        this.entity,
-        this.referenceId,
-        this.status,
-        this.message,
-        this.careOf,
-        this.fullAddress,
-        this.dateOfBirth,
-        this.emailHash,
-        this.gender,
-        this.name,
-        this.address,
-        this.yearOfBirth,
-        this.mobileHash,
-        this.photo,
-        this.shareCode,
-    });
+  AadhaarData({
+    this.entity,
+    this.referenceId,
+    this.status,
+    this.message,
+    this.careOf,
+    this.fullAddress,
+    this.dateOfBirth,
+    this.emailHash,
+    this.gender,
+    this.name,
+    this.address,
+    this.yearOfBirth,
+    this.mobileHash,
+    this.photo,
+    this.shareCode,
+  });
 
-    AadhaarData copyWith({
-        String? entity,
-        int? referenceId,
-        String? status,
-        String? message,
-        String? careOf,
-        String? fullAddress,
-        String? dateOfBirth,
-        String? emailHash,
-        String? gender,
-        String? name,
-        Address? address,
-        int? yearOfBirth,
-        String? mobileHash,
-        String? photo,
-        String? shareCode,
-    }) => 
-        AadhaarData(
-            entity: entity ?? this.entity,
-            referenceId: referenceId ?? this.referenceId,
-            status: status ?? this.status,
-            message: message ?? this.message,
-            careOf: careOf ?? this.careOf,
-            fullAddress: fullAddress ?? this.fullAddress,
-            dateOfBirth: dateOfBirth ?? this.dateOfBirth,
-            emailHash: emailHash ?? this.emailHash,
-            gender: gender ?? this.gender,
-            name: name ?? this.name,
-            address: address ?? this.address,
-            yearOfBirth: yearOfBirth ?? this.yearOfBirth,
-            mobileHash: mobileHash ?? this.mobileHash,
-            photo: photo ?? this.photo,
-            shareCode: shareCode ?? this.shareCode,
-        );
+  AadhaarData copyWith({
+    String? entity,
+    int? referenceId,
+    String? status,
+    String? message,
+    String? careOf,
+    String? fullAddress,
+    String? dateOfBirth,
+    String? emailHash,
+    String? gender,
+    String? name,
+    Address? address,
+    int? yearOfBirth,
+    String? mobileHash,
+    String? photo,
+    String? shareCode,
+  }) => AadhaarData(
+    entity: entity ?? this.entity,
+    referenceId: referenceId ?? this.referenceId,
+    status: status ?? this.status,
+    message: message ?? this.message,
+    careOf: careOf ?? this.careOf,
+    fullAddress: fullAddress ?? this.fullAddress,
+    dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+    emailHash: emailHash ?? this.emailHash,
+    gender: gender ?? this.gender,
+    name: name ?? this.name,
+    address: address ?? this.address,
+    yearOfBirth: yearOfBirth ?? this.yearOfBirth,
+    mobileHash: mobileHash ?? this.mobileHash,
+    photo: photo ?? this.photo,
+    shareCode: shareCode ?? this.shareCode,
+  );
 
-    factory AadhaarData.fromJson(Map<String, dynamic> json) => AadhaarData(
-        entity: json["@entity"],
-        referenceId: json["reference_id"],
-        status: json["status"],
-        message: json["message"],
-        careOf: json["care_of"],
-        fullAddress: json["full_address"],
-        dateOfBirth: json["date_of_birth"],
-        emailHash: json["email_hash"],
-        gender: json["gender"],
-        name: json["name"],
-        address: json["address"] == null ? null : Address.fromJson(json["address"]),
-        yearOfBirth: json["year_of_birth"],
-        mobileHash: json["mobile_hash"],
-        photo: json["photo"],
-        shareCode: json["share_code"],
-    );
+  factory AadhaarData.fromJson(Map<String, dynamic> json) => AadhaarData(
+    entity: json["@entity"],
+    referenceId: json["reference_id"],
+    status: json["status"],
+    message: json["message"],
+    careOf: json["care_of"],
+    fullAddress: json["full_address"],
+    dateOfBirth: json["date_of_birth"],
+    emailHash: json["email_hash"],
+    gender: json["gender"],
+    name: json["name"],
+    address: json["address"] == null ? null : Address.fromJson(json["address"]),
+    yearOfBirth: json["year_of_birth"],
+    mobileHash: json["mobile_hash"],
+    photo: json["photo"],
+    shareCode: json["share_code"],
+  );
 
-    Map<String, dynamic> toJson() => {
-        "@entity": entity,
-        "reference_id": referenceId,
-        "status": status,
-        "message": message,
-        "care_of": careOf,
-        "full_address": fullAddress,
-        "date_of_birth": dateOfBirth,
-        "email_hash": emailHash,
-        "gender": gender,
-        "name": name,
-        "address": address?.toJson(),
-        "year_of_birth": yearOfBirth,
-        "mobile_hash": mobileHash,
-        "photo": photo,
-        "share_code": shareCode,
-    };
+  Map<String, dynamic> toJson() => {
+    "@entity": entity,
+    "reference_id": referenceId,
+    "status": status,
+    "message": message,
+    "care_of": careOf,
+    "full_address": fullAddress,
+    "date_of_birth": dateOfBirth,
+    "email_hash": emailHash,
+    "gender": gender,
+    "name": name,
+    "address": jsonEncode(address?.toJson()),
+    "year_of_birth": yearOfBirth,
+    "mobile_hash": mobileHash,
+    "photo": photo,
+    "share_code": shareCode,
+  };
 }
 
 class Address {
-    final String? entity;
-    final String? country;
-    final String? district;
-    final String? house;
-    final String? landmark;
-    final int? pincode;
-    final String? postOffice;
-    final String? state;
-    final String? street;
-    final String? subdistrict;
-    final String? vtc;
+  final String? entity;
+  final String? country;
+  final String? district;
+  final String? house;
+  final String? landmark;
+  final int? pincode;
+  final String? postOffice;
+  final String? state;
+  final String? street;
+  final String? subdistrict;
+  final String? vtc;
 
-    Address({
-        this.entity,
-        this.country,
-        this.district,
-        this.house,
-        this.landmark,
-        this.pincode,
-        this.postOffice,
-        this.state,
-        this.street,
-        this.subdistrict,
-        this.vtc,
-    });
+  Address({
+    this.entity,
+    this.country,
+    this.district,
+    this.house,
+    this.landmark,
+    this.pincode,
+    this.postOffice,
+    this.state,
+    this.street,
+    this.subdistrict,
+    this.vtc,
+  });
 
-    Address copyWith({
-        String? entity,
-        String? country,
-        String? district,
-        String? house,
-        String? landmark,
-        int? pincode,
-        String? postOffice,
-        String? state,
-        String? street,
-        String? subdistrict,
-        String? vtc,
-    }) => 
-        Address(
-            entity: entity ?? this.entity,
-            country: country ?? this.country,
-            district: district ?? this.district,
-            house: house ?? this.house,
-            landmark: landmark ?? this.landmark,
-            pincode: pincode ?? this.pincode,
-            postOffice: postOffice ?? this.postOffice,
-            state: state ?? this.state,
-            street: street ?? this.street,
-            subdistrict: subdistrict ?? this.subdistrict,
-            vtc: vtc ?? this.vtc,
-        );
+  Address copyWith({
+    String? entity,
+    String? country,
+    String? district,
+    String? house,
+    String? landmark,
+    int? pincode,
+    String? postOffice,
+    String? state,
+    String? street,
+    String? subdistrict,
+    String? vtc,
+  }) => Address(
+    entity: entity ?? this.entity,
+    country: country ?? this.country,
+    district: district ?? this.district,
+    house: house ?? this.house,
+    landmark: landmark ?? this.landmark,
+    pincode: pincode ?? this.pincode,
+    postOffice: postOffice ?? this.postOffice,
+    state: state ?? this.state,
+    street: street ?? this.street,
+    subdistrict: subdistrict ?? this.subdistrict,
+    vtc: vtc ?? this.vtc,
+  );
 
-    factory Address.fromJson(Map<String, dynamic> json) => Address(
-        entity: json["@entity"],
-        country: json["country"],
-        district: json["district"],
-        house: json["house"],
-        landmark: json["landmark"],
-        pincode: json["pincode"],
-        postOffice: json["post_office"],
-        state: json["state"],
-        street: json["street"],
-        subdistrict: json["subdistrict"],
-        vtc: json["vtc"],
-    );
+  factory Address.fromJson(Map<String, dynamic> json) => Address(
+    entity: json["@entity"],
+    country: json["country"],
+    district: json["district"],
+    house: json["house"],
+    landmark: json["landmark"],
+    pincode: json["pincode"],
+    postOffice: json["post_office"],
+    state: json["state"],
+    street: json["street"],
+    subdistrict: json["subdistrict"],
+    vtc: json["vtc"],
+  );
 
-    Map<String, dynamic> toJson() => {
-        "@entity": entity,
-        "country": country,
-        "district": district,
-        "house": house,
-        "landmark": landmark,
-        "pincode": pincode,
-        "post_office": postOffice,
-        "state": state,
-        "street": street,
-        "subdistrict": subdistrict,
-        "vtc": vtc,
-    };
+  Map<String, dynamic> toJson() => {
+    "@entity": entity,
+    "country": country,
+    "district": district,
+    "house": house,
+    "landmark": landmark,
+    "pincode": pincode,
+    "post_office": postOffice,
+    "state": state,
+    "street": street,
+    "subdistrict": subdistrict,
+    "vtc": vtc,
+  };
 }
-
-
-
-
-
-

@@ -35,7 +35,7 @@ class LoanAgreementModel {
 
   factory LoanAgreementModel.fromJson(Map<String, dynamic> json) =>
       LoanAgreementModel(
-        id: json["_id"] ,
+        id: json["_id"],
         documentName: json["documentName"],
         document: json["document"],
         estampRequired: json["estampRequired"],

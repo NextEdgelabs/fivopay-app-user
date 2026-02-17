@@ -104,11 +104,26 @@ class _OtpScreenState extends State<OtpScreen> {
     setState(() => _isLoading = true);
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.verifyOtp(widget.phoneNumber, _otpController.text);
-
-    if (!mounted) return;
+    var res = await authProvider.verifyOtp(
+      widget.phoneNumber,
+      _otpController.text,
+    );
 
     setState(() => _isLoading = false);
+    if (res['success'] != true) {
+      if (!mounted) return;
+
+      setState(() => _isLoading = false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(res['message'] ?? 'Failed to verify OTP'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
 
     if (authProvider.currentUser != null) {
       if (authProvider.currentUser!.isNew) {
