@@ -122,17 +122,12 @@ class NewAppColors extends ThemeExtension<NewAppColors> {
     famerStrokeGrey: Color(0xFF3D4A5F),
     famerStrokeOrange: Color(0xFFC4D9F7),
     buttonColorLight: Color(0xFF1F2D42),
-    textLight: Color(0xFF777777),
+    textLight: Color(0xFFC5C7CB),
   );
   static const light = NewAppColors(
     textLight: Color.fromARGB(255, 231, 231, 231),
     // Background & Surface Colors (Light Mode)
-    bgColors: Color.fromARGB(
-      255,
-      228,
-      228,
-      228,
-    ), // Very light blue-white background
+    bgColors: Color(0xFFF5F8FD), // Very light blue-white background
     specialCard: Color.fromARGB(255, 255, 255, 255), // Pure white card
     specialCardTwo: Color(0xFFE8F0FC), // Slightly darker blue card
     cardBackground: Color(0xFFF5F8FD), // Card background with blue tint

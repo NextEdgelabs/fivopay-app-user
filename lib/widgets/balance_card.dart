@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:janseva/utils/theme_extension.dart';
 import '../utils/constants.dart';
-import 'custom_button.dart';
 
 class BalanceCard extends StatelessWidget {
   final String title;
@@ -24,93 +22,125 @@ class BalanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingXL),
+      padding: const EdgeInsets.all(AppSizes.paddingL),
       decoration: BoxDecoration(
-        // Sky blue gradient from dark to light
-        // gradient: LinearGradient(
-        //   colors: [AppColors.primaryDark, AppColors.primary, AppColors.primaryLight],
-        //   begin: Alignment.topLeft,
-        //   end: Alignment.bottomRight,
-        // ),
-        color: context.colors.brandColor,
-
+        // Purple-blue gradient matching the UI image
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF3B82F6), // Blue
+            const Color(0xFF8B5CF6), // Purple
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-        // Subtle shadow for depth
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: AppColors.primary.withOpacity(0.2),
-        //     blurRadius: 16,
-        //     offset: const Offset(0, 4),
-        //   ),
-        // ],
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF8B5CF6).withOpacity(0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(AppSizes.paddingS),
-                decoration: BoxDecoration(
-                  color: context.colors.specialCard.withAlpha(50),
-                  borderRadius: BorderRadius.circular(AppSizes.radiusM),
-                ),
-                child: Icon(
-                  Icons.account_balance_wallet,
-                  color: context.colors.specialCard,
-                  size: AppSizes.iconSizeL,
-                ),
-              ),
-              const SizedBox(width: AppSizes.paddingS),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
-                    style: AppTextStyles.heading3.copyWith(
-                      color: context.colors.textLight,
-                      fontWeight: FontWeight.w500,
+                    title.toUpperCase(),
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.0,
                     ),
                   ),
+                  const SizedBox(height: AppSizes.paddingXS),
                   Text(
                     amountText,
-                    style: AppTextStyles.heading3.copyWith(
-                      color: context.colors.textLight,
-                      // fontSize: 32,
-                      // fontWeight: FontWeight.bold,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
                     ),
                   ),
                 ],
               ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.volume_up_outlined, // Sound icon matching the UI
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
             ],
           ),
-
-          const SizedBox(height: AppSizes.paddingM),
+          const SizedBox(height: AppSizes.paddingXL),
           Row(
             children: [
               Expanded(
-                child: CustomButton(
-                  onPressed: onPrimary,
-                  text: primaryText,
-                  backgroundColor: context.colors.specialCard,
-                  textColor: context.colors.brandColor,
-                  height: 46,
+                child: _buildActionButton(
+                  icon: Icons.add_circle_outline,
+                  label: primaryText,
+                  onTap: onPrimary,
                 ),
               ),
-              const SizedBox(width: AppSizes.paddingL),
+              const SizedBox(width: AppSizes.paddingM),
               Expanded(
-                child: CustomButton(
-                  onPressed: onSecondary,
-                  text: secondaryText,
-                  backgroundColor: context.colors.specialCard.withAlpha(120),
-                  textColor: context.colors.specialCard,
-                  height: 46,
+                child: _buildActionButton(
+                  icon: Icons.arrow_outward,
+                  label: secondaryText,
+                  onTap: onSecondary,
                 ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

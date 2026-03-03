@@ -20,7 +20,7 @@ class AppTheme {
       fontFamily: 'Poppins',
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.background,
-      extensions: const [NewAppColors.light],
+      extensions: [NewAppColors.light],
 
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.background,
