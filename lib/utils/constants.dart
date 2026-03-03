@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:janseva/main.dart';
 
 class AppColors {
-  // Primary Colors (Sky Blue - Main Theme)
-  static const Color primary = Color(0xFF0EA5E9); // sky-500 (vibrant sky blue)
+  // Primary Colors (Cyan Blue - Main Theme)
+  static const Color primary = Color(0xFF1EBDFF); // Bright cyan blue (brandColor)
   static const Color primaryLight = Color(
-    0xFF38BDF8,
-  ); // sky-400 (light sky blue)
-  static const Color primaryDark = Color(0xFF0284C7); // sky-600 (deep sky blue)
+    0xFF5AD8FF,
+  ); // Lighter cyan blue
+  static const Color primaryDark = Color(0xFF0099E6); // Darker cyan blue
 
-  // Secondary Colors (Lighter Sky Blue for accents)
-  static const Color secondary = Color(0xFF7DD3FC); // sky-300 (soft light blue)
+  // Secondary Colors (Purple for accents)
+  static const Color secondary = Color(0xFF5416D8); // Deep purple (gradientTwo)
   static const Color secondaryLight = Color(
-    0xFFBAE6FD,
-  ); // sky-200 (very light blue)
-  static const Color secondaryDark = Color(0xFF38BDF8); // sky-400 (medium blue)
+    0xFF7B3EF5,
+  ); // Lighter purple
+  static const Color secondaryDark = Color(0xFF4312B5); // Darker purple
 
   // Background Colors (Clean & Minimal)
   static const Color background = Color.fromARGB(
@@ -38,7 +38,7 @@ class AppColors {
   static const Color successLight = Color(0xFF34D399); // green-400
   static const Color warning = Color(0xFFF59E0B); // amber-500
   static const Color error = Color(0xFFEF4444); // red-500
-  static const Color info = Color(0xFF0EA5E9); // sky-500 (matches primary)
+  static const Color info = Color(0xFF1EBDFF); // Cyan blue (matches primary)
 
   // Border Colors (Subtle & Clean)
   static const Color border = Color(0xFFE5E7EB); // gray-200 (light gray border)

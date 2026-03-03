@@ -83,89 +83,89 @@ class NewAppColors extends ThemeExtension<NewAppColors> {
 
   static const dark = NewAppColors(
     // Background & Surface Colors (Dark Mode)
-    bgColors: Color(0xFF0F0A15), // Deep dark purple-black
-    specialCard: Color(0xFF1C1420), // Dark card with purple tint
-    specialCardTwo: Color(0xFF221828), // Slightly lighter card
-    cardBackground: Color(0xFF1A1522), // Card background with purple
-    navBar: Color(0xFF0D0812), // Darker navigation bar
-    popupBg: Color(0xFF1C1420), // Popup background
-    smallCardBg: Color(0xFF1F1625), // Small card background
-    searchFieldFill: Color(0xFF1D1723), // Search field fill
+    bgColors: Color(0xFF0A0F15), // Deep dark blue-black
+    specialCard: Color(0xFF141C24), // Dark card with blue tint
+    specialCardTwo: Color(0xFF1A2530), // Slightly lighter card
+    cardBackground: Color(0xFF151D26), // Card background with blue
+    navBar: Color(0xFF0C1218), // Darker navigation bar
+    popupBg: Color(0xFF141C24), // Popup background
+    smallCardBg: Color(0xFF1F2833), // Small card background
+    searchFieldFill: Color(0xFF1D252E), // Search field fill
     // Text Colors (Dark Mode)
-    heading: Color(0xFFF0E6F5), // Light purple-white for headings
-    subheading: Color(0xFFD4C5DC), // Soft purple-gray for subheadings
-    text: Color(0xFFC8B8D4), // Purple-tinted text
-    textSecondary: Color(0xFFB4A2C0), // Secondary text with purple
-    subtext: Color(0xFF9688A6), // Muted purple-gray
-    navBarText: Color(0xFFB8A6C4), // Nav bar text
-    buttonLabelText: Color(0xFFF5F0FA), // Button label text
-    disableButtonText: Color(0xFF8A7C98), // Disabled text
+    heading: Color(0xFFE6F3F5), // Light blue-white for headings
+    subheading: Color(0xFFC5DCE4), // Soft blue-gray for subheadings
+    text: Color(0xFFB8D4DC), // Blue-tinted text
+    textSecondary: Color(0xFFA2BCC8), // Secondary text with blue
+    subtext: Color(0xFF8899A6), // Muted blue-gray
+    navBarText: Color(0xFFA6C4D4), // Nav bar text
+    buttonLabelText: Color(0xFFF0F8FA), // Button label text
+    disableButtonText: Color(0xFF7C8A98), // Disabled text
     // Brand & Accent Colors
-    brandColor: Color(0xFFAD2DBA), // Primary brand purple (ARGB 255,173,45,186)
-    gradientOne: Color(0xFFAD2DBA), // Gradient start (brand)
-    gradientTwo: Color(0xFFC855D4), // Gradient end (lighter purple)
+    brandColor: Color(0xFF1EBDFF), // Primary brand cyan blue
+    gradientOne: Color(0xFF1EBDFF), // Gradient start (brand)
+    gradientTwo: Color(0xFF5416D8), // Gradient end (purple)
     // Interactive Elements
-    backIcon: Color(0xFF8A7298), // Back icon color
-    backIconBorder: Color(0xFF2D2235), // Back icon border
-    divider: Color(0xFF2B2133), // Divider lines
-    border: Color(0xFF3D2F47), // Border color
-    fieldBorder: Color(0xFF3A2E44), // Field border
-    selectedField: Color(0xFF2D1F3A), // Selected field background
-    disabled: Color(0xFF2A2232), // Disabled state
+    backIcon: Color(0xFF72A8B8), // Back icon color
+    backIconBorder: Color(0xFF22353D), // Back icon border
+    divider: Color(0xFF21333B), // Divider lines
+    border: Color(0xFF2F3D47), // Border color
+    fieldBorder: Color(0xFF2E3A44), // Field border
+    selectedField: Color(0xFF1F2F3A), // Selected field background
+    disabled: Color(0xFF2A3032), // Disabled state
     // Status & Alert Colors
     alert1: Color(0xFF4ADE80), // Success green
     alert2: Color(0xFFEF4444), // Error red
     alert3: Color(0xFFFBBC05), // Warning amber
-    alert4: Color(0xFF8B5CF6), // Info purple
+    alert4: Color(0xFF5416D8), // Info purple (secondary brand)
     call: Color(0xFF86EFAC), // Call green
     // Legacy/Special Colors
-    famerStrokeGrey: Color(0xFF3D3447),
-    famerStrokeOrange: Color(0xFFE8C4F7),
-    buttonColorLight: Color(0xFF2D1F3A),
-    textLight: Color(0xFF777777),
+    famerStrokeGrey: Color(0xFF344047),
+    famerStrokeOrange: Color(0xFFECF9FF),
+    buttonColorLight: Color(0xFF1F2F3A),
+    textLight: Color.fromARGB(255, 255, 255, 255),
   );
   static const light = NewAppColors(
     textLight: Color.fromARGB(255, 231, 231, 231),
     // Background & Surface Colors (Light Mode)
-    bgColors: Color(0xFFF6F6F6), // Very light purple-white background
-    specialCard: Color.fromARGB(255, 255, 255, 255), // Light purple card
-    specialCardTwo: Color(0xFFEAD9F2), // Slightly darker purple card
-    cardBackground: Color(0xFFF8F2FC), // Card background with purple tint
-    navBar: Color(0xFFFFFAFF), // Navigation bar
+    bgColors: Color(0xFFF6F8FA), // Very light blue-white background
+    specialCard: Color.fromARGB(255, 255, 255, 255), // Pure white card
+    specialCardTwo: Color(0xFFD9EDF7), // Slightly darker cyan card
+    cardBackground: Color(0xFFF2F8FC), // Card background with cyan tint
+    navBar: Color(0xFFFAFDFF), // Navigation bar
     popupBg: Color(0xFFFFFFFF), // Pure white popup
-    smallCardBg: Color(0xFFFBF7FD), // Small card background
-    searchFieldFill: Color(0xFFF5EFFA), // Search field fill
+    smallCardBg: Color(0xFFECF9FF), // Small card background
+    searchFieldFill: Color(0xFFEFF7FA), // Search field fill
     // Text Colors (Light Mode)
-    heading: Color(0xFF2D1F3A), // Deep purple-black for headings
-    subheading: Color(0xFF4A3558), // Dark purple for subheadings
+    heading: Color(0xFF1F2D3A), // Deep blue-black for headings
+    subheading: Color(0xFF354558), // Dark blue for subheadings
     text: Color.fromARGB(255, 0, 0, 0), // Dark Black text
-    textSecondary: Color(0xFF777777), // Secondary purple-gray text
-    subtext: Color(0xFF9D8FAA), // Muted purple text
-    navBarText: Color(0xFF7A6888), // Nav bar text
+    textSecondary: Color(0xFF777777), // Secondary gray text
+    subtext: Color(0xFF8F9DAA), // Muted blue text
+    navBarText: Color(0xFF688088), // Nav bar text
     buttonLabelText: Color(0xFFFFFFFF), // White button text
-    disableButtonText: Color(0xFFB8AABF), // Disabled text
+    disableButtonText: Color(0xFFAAB8BF), // Disabled text
     // Brand & Accent Colors
-    brandColor: Color(0xFFAD2DBA), // Primary brand purple (ARGB 255,173,45,186)
-    gradientOne: Color(0xFFAD2DBA), // Gradient start (brand)
-    gradientTwo: Color(0xFFC855D4), // Gradient end (lighter purple)
+    brandColor: Color(0xFF1EBDFF), // Primary brand cyan blue
+    gradientOne: Color(0xFF1EBDFF), // Gradient start (brand)
+    gradientTwo: Color(0xFF5416D8), // Gradient end (purple)
     // Interactive Elements
-    backIcon: Color(0xFF6B5278), // Back icon color
-    backIconBorder: Color(0xFFE8DDF0), // Back icon border
-    divider: Color(0xFFEBE0F2), // Divider lines
-    border: Color(0xFFDCDCDC), // Border color with purple
-    fieldBorder: Color(0xFFD6C3E3), // Field border
-    selectedField: Color(0xFFF2E6FA), // Selected field background
-    disabled: Color(0xFFF0E6F5), // Disabled state
+    backIcon: Color(0xFF526B78), // Back icon color
+    backIconBorder: Color(0xFFDDE8F0), // Back icon border
+    divider: Color(0xFFE0EBF2), // Divider lines
+    border: Color(0xFFDCDCDC), // Border color
+    fieldBorder: Color(0xFFC3D6E3), // Field border
+    selectedField: Color(0xFFE6F2FA), // Selected field background
+    disabled: Color(0xFFE6F0F5), // Disabled state
     // Status & Alert Colors
     alert1: Color(0xFF22C55E), // Success green
     alert2: Color(0xFFDC2626), // Error red
     alert3: Color(0xFFF59E0B), // Warning amber
-    alert4: Color(0xFF9333EA), // Info purple
+    alert4: Color(0xFF5416D8), // Info purple (secondary brand)
     call: Color(0xFF4ADE80), // Call green
     // Legacy/Special Colors
-    famerStrokeGrey: Color(0xFF9D8FAA),
-    famerStrokeOrange: Color(0xFFE8C4F7),
-    buttonColorLight: Color(0xFFF5EBFA),
+    famerStrokeGrey: Color(0xFF8F9DAA),
+    famerStrokeOrange: Color(0xFFECF9FF),
+    buttonColorLight: Color(0xFFEBF5FA),
   );
 
   @override

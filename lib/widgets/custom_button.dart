@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../services/common_utils.dart';
 import '../utils/constants.dart';
+import 'gradient_text.dart';
 
 enum ButtonVariant { filled, outlined }
 
@@ -12,6 +14,7 @@ class CustomButton extends StatelessWidget {
   final double? height;
   final IconData? icon;
   final ButtonVariant variant;
+  final bool useGradientText;
 
   const CustomButton({
     super.key,
@@ -23,25 +26,28 @@ class CustomButton extends StatelessWidget {
     this.height,
     this.icon,
     this.variant = ButtonVariant.filled,
+    this.useGradientText = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final isOutlined = variant == ButtonVariant.outlined;
     final primaryColor = backgroundColor ?? AppColors.primary;
-    
+
     return Container(
       height: height ?? AppSizes.buttonHeight,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        borderRadius: BorderRadius.circular(AppSizes.radiusL),
         // Minimal shadow for subtle depth (only for filled buttons)
-        boxShadow: isOutlined ? null : [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        // boxShadow: isOutlined
+        //     ? null
+        //     : [
+        //         BoxShadow(
+        //           color: AppColors.shadow,
+        //           blurRadius: 8,
+        //           offset: const Offset(0, 2),
+        //         ),
+        //       ],
       ),
       child: isOutlined
           ? OutlinedButton(
@@ -69,11 +75,11 @@ class CustomButton extends StatelessWidget {
             ),
     );
   }
-  
+
   Widget _buildButtonContent() {
     final isOutlined = variant == ButtonVariant.outlined;
     final primaryColor = backgroundColor ?? AppColors.primary;
-    
+
     return isLoading
         ? SizedBox(
             width: 20,
@@ -90,23 +96,31 @@ class CustomButton extends StatelessWidget {
             children: [
               if (icon != null) ...[
                 Icon(
-                  icon, 
+                  icon,
                   size: 20,
-                  color: isOutlined 
+                  color: isOutlined
                       ? (textColor ?? primaryColor)
                       : (textColor ?? Colors.white),
                 ),
                 const SizedBox(width: AppSizes.paddingS),
               ],
-              Text(
-                text,
-                style: AppTextStyles.button.copyWith(
-                  color: isOutlined 
-                      ? (textColor ?? primaryColor)
-                      : (textColor ?? Colors.white),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              useGradientText
+                  ? GradientText(
+                      text,
+                      style: AppTextStyles.button.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      gradient: brandlinearGradient,
+                    )
+                  : Text(
+                      text,
+                      style: AppTextStyles.button.copyWith(
+                        color: isOutlined
+                            ? (textColor ?? primaryColor)
+                            : (textColor ?? Colors.white),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
             ],
           );
   }

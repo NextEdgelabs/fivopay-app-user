@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/utils/theme_extension.dart';
+import 'package:janseva/widgets/gradient_button.dart';
 import '../utils/constants.dart';
 import 'custom_button.dart';
 
@@ -86,11 +87,13 @@ class BalanceCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: CustomButton(
-                  onPressed: onPrimary,
+                child: GradientButton(
+                  onTap: onPrimary,
                   text: primaryText,
-                  backgroundColor: context.colors.brandColor,
-                  textColor: context.colors.textLight,
+                  showIcon: false,
+
+                  // backgroundColor: context.colors.brandColor,
+                  // textColor: context.colors.textLight,
                   height: 46,
                 ),
               ),
@@ -100,8 +103,10 @@ class BalanceCard extends StatelessWidget {
                   onPressed: onSecondary,
                   text: secondaryText,
                   backgroundColor: context.colors.bgColors,
-                  textColor: context.colors.brandColor,
+                  // textColor: context.colors.brandColor,
                   height: 46,
+                  useGradientText: true,
+                  // variant: ButtonVariant.outlined,
                 ),
               ),
             ],
