@@ -31,21 +31,22 @@ class _EsignLoanScreenState extends State<EsignLoanScreen> {
     }
 
     // Show bottom sheet to collect signer details
-    final signer = await _showSignerDetailsBottomSheet();
+    // final signer = await _showSignerDetailsBottomSheet();
 
-    if (signer == null) return; // User cancelled
+    // if (signer == null) return; // User cancelled
 
     if (!mounted) return;
 
-    final provider = context.read<LoanProviderV2>();
+    // final provider = context.read<LoanProviderV2>();
 
     // Call the sign logic from provider with signer details
-    await provider.esignLoanDocuments(
-      signer: signer,
-      url: widget.args.loan.agreement?.document ?? "",
-      estampId: widget.args.loan.agreement?.estampId,
-      loanId: widget.args.loan.id,
-    );
+    // await provider.esignLoanDocuments(
+    //   signer: signer,
+    //   url: widget.args.loan.agreement?.document ?? "",
+    //   estampId: widget.args.loan.agreement?.estampId,
+    //   loanId: widget.args.loan.id,
+    // );
+    // cml7s3kop002u0t9le00v44e4
 
     if (!mounted) return;
 
@@ -59,10 +60,11 @@ class _EsignLoanScreenState extends State<EsignLoanScreen> {
     //   );
     //   return;
     // }
+    // && provider.esignurl!.isNotEmpty
 
     // If URL is available, open it in webview/browser
-    if (provider.esignurl != null && provider.esignurl!.isNotEmpty) {
-      await _openSigningUrl(provider.esignurl!);
+    if (widget.args.loan.signingUrl != null) {
+      await _openSigningUrl(widget.args.loan.signingUrl!);
     }
   }
 
@@ -156,8 +158,7 @@ class _EsignLoanScreenState extends State<EsignLoanScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                     PdfViewScreen(url: url),
+                                  builder: (context) => PdfViewScreen(url: url),
                                 ),
                               );
                             },

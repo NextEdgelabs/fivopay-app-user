@@ -38,21 +38,21 @@ class SmallStatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          iconPath != null
-              ? Image.asset(
-                  "assets/icons/$iconPath.png",
-                  fit: BoxFit.contain,
-                  width: 0.1 * AppSizes.dW,
-                  height: 0.1 * AppSizes.dW,
-                )
-              : Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: iconColor, size: 20),
-                ),
+          Container(
+            padding: const EdgeInsets.all(AppSizes.paddingS),
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: iconPath != null
+                ? Image.asset(
+                    "assets/icons/$iconPath.png",
+                    fit: BoxFit.contain,
+                    width: 0.08 * AppSizes.dW,
+                    height: 0.08 * AppSizes.dW,
+                  )
+                : Icon(icon, color: iconColor, size: 20),
+          ),
           const SizedBox(height: AppSizes.paddingM),
           Text(
             label.toUpperCase(),

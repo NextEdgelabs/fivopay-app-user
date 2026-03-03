@@ -20,7 +20,7 @@ class CustomBottomNavBar extends StatelessWidget {
     final isSelected = currentIndex == index;
     final color = isSelected
         ? context.colors.brandColor
-        : context.colors.textLight;
+        : context.colors.textSecondary;
 
     return GestureDetector(
       onTap: () => onTap(index),
@@ -60,47 +60,44 @@ class CustomBottomNavBar extends StatelessWidget {
           ),
         ],
       ),
-      child: Stack(
-        clipBehavior: Clip.none,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildNavItem(context, 0, Icons.home, 'Home'),
-              _buildNavItem(context, 1, Icons.bar_chart, 'Analytics'),
-              const SizedBox(width: 48), // Space for FAB
-              _buildNavItem(context, 3, Icons.credit_card, 'Cards'),
-              _buildNavItem(context, 4, Icons.person, 'Profile'),
-            ],
-          ),
-          Positioned(
-            top: -24,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: GestureDetector(
-                onTap: () => onTap(2),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: context.colors.brandColor,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: context.colors.brandColor.withOpacity(0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 32),
-                ),
-              ),
-            ),
-          ),
+          _buildNavItem(context, 0, Icons.home, 'Home'),
+          _buildNavItem(context, 1, Icons.bar_chart, 'History'),
+          // const SizedBox(width: 48), // Space for FAB
+          _buildNavItem(context, 3, Icons.credit_card, 'Reffer'),
+          _buildNavItem(context, 4, Icons.person, 'Profile'),
         ],
       ),
     );
   }
 }
+
+  // Positioned(
+  //           top: -24,
+  //           left: 0,
+  //           right: 0,
+  //           child: Center(
+  //             child: GestureDetector(
+  //               onTap: () => onTap(2),
+  //               child: Container(
+  //                 width: 56,
+  //                 height: 56,
+  //                 decoration: BoxDecoration(
+  //                   color: context.colors.brandColor,
+  //                   shape: BoxShape.circle,
+  //                   boxShadow: [
+  //                     BoxShadow(
+  //                       color: context.colors.brandColor.withOpacity(0.4),
+  //                       blurRadius: 12,
+  //                       offset: const Offset(0, 4),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 child: const Icon(Icons.add, color: Colors.white, size: 32),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+        

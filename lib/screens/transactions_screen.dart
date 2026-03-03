@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/modules/wallet_module/models/transaction_model.dart';
 import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
+import 'package:janseva/utils/theme_extension.dart';
+import 'package:janseva/widgets/transaction_list_item.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/constants.dart';
@@ -28,11 +31,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     final provider = Provider.of<WalletProvider>(context);
     final stats = provider.getTransactionStats();
 
-    List transactions = _selectedFilter == 'all'
+    List<Transaction> transactions = _selectedFilter == 'all'
         ? provider.transactions
         : provider.getTransactionsByType(_selectedFilter);
 
     return Scaffold(
+      backgroundColor: context.colors.bgColors,
       appBar: AppBar(title: const Text('Transactions')),
       body: SafeArea(
         child: Column(
@@ -93,12 +97,20 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       itemCount: transactions.length,
                       itemBuilder: (context, index) {
                         final t = transactions[index];
-                        return _buildTransactionCard(
-                          type: t.type,
-                          amount: t.amount,
-                          description: t.description,
-                          timestamp: t.timestamp,
+                        return TransactionListItem(
+                          name: t.description,
+                          timestamp: t.timestamp.toString(),
+                          amountText: t.amount.toStringAsFixed(2),
+                          isNegative: t.type == 'withdraw',
+                          showIcon: false,
                         );
+
+                        //  _buildTransactionCard(
+                        //   type: t.type,
+                        //   amount: t.amount,
+                        //   description: t.description,
+                        //   timestamp: t.timestamp,
+                        // );
                       },
                     ),
             ),

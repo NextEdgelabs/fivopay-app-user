@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:janseva/utils/theme_extension.dart';
+import '../services/common_utils.dart';
 import '../utils/constants.dart';
+import 'gradient_button.dart';
 
 class MembershipBanner extends StatelessWidget {
   final VoidCallback onBecomeMember;
@@ -48,10 +50,10 @@ class MembershipBanner extends StatelessWidget {
                   color: context.colors.famerStrokeOrange,
                   borderRadius: BorderRadius.circular(AppSizes.radiusM),
                 ),
-                child: Icon(
-                  Icons.card_membership,
-                  color: context.colors.brandColor,
-                  size: 32,
+                child: Image.asset(
+                  'assets/icons/becomemember.png',
+                  width: 32,
+                  height: 32,
                 ),
               ),
               InkWell(
@@ -105,40 +107,44 @@ class MembershipBanner extends StatelessWidget {
           const SizedBox(height: AppSizes.paddingXL),
 
           // CTA Button
-          SizedBox(
+          GradientButton(
+            onTap: onBecomeMember,
+            text: 'Join Now',
+            height: 50,
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: onBecomeMember,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: context.colors.brandColor,
-                foregroundColor: context.colors.subtext,
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppSizes.paddingS,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                ),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Join Now',
-                    style: AppTextStyles.button.copyWith(
-                      color: context.colors.textLight,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: AppSizes.paddingS),
-                  Icon(
-                    Icons.arrow_forward,
-                    size: 20,
-                    color: context.colors.textLight,
-                  ),
-                ],
-              ),
-            ),
+
+            // child: ElevatedButton(
+            //   onPressed: onBecomeMember,
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: context.colors.brandColor,
+            //     foregroundColor: context.colors.subtext,
+            //     padding: const EdgeInsets.symmetric(
+            //       vertical: AppSizes.paddingS,
+            //     ),
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(AppSizes.radiusL),
+            //     ),
+            //     elevation: 0,
+            //   ),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       Text(
+            //         'Join Now',
+            //         style: AppTextStyles.button.copyWith(
+            //           color: context.colors.textLight,
+            //           fontWeight: FontWeight.bold,
+            //         ),
+            //       ),
+            //       const SizedBox(width: AppSizes.paddingS),
+            //       Icon(
+            //         Icons.arrow_forward,
+            //         size: 20,
+            //         color: context.colors.textLight,
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ),
         ],
       ),

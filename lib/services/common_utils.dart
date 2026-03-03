@@ -1,6 +1,10 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:janseva/config/exceptions.dart';
+import 'package:janseva/utils/theme_extension.dart';
+
+import '../main.dart';
 
 Future<String> pdfToBase64(String url) async {
   try {
@@ -36,3 +40,9 @@ Future<String> pdfToBase64(String url) async {
     throw Failure(message: "Unable to fetch Document: ${e.toString()}");
   }
 }
+
+LinearGradient get brandlinearGradient => LinearGradient(
+  colors: [bContext.colors.gradientOne, bContext.colors.gradientTwo],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);

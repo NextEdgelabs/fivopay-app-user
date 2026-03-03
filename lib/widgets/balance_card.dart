@@ -73,18 +73,18 @@ class BalanceCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.volume_up_outlined, // Sound icon matching the UI
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.all(8),
+              //   decoration: BoxDecoration(
+              //     color: Colors.white.withOpacity(0.2),
+              //     shape: BoxShape.circle,
+              //   ),
+              //   child: const Icon(
+              //     Icons.volume_up_outlined, // Sound icon matching the UI
+              //     color: Colors.white,
+              //     size: 20,
+              //   ),
+              // ),
             ],
           ),
           const SizedBox(height: AppSizes.paddingXL),

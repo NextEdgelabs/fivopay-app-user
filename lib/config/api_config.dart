@@ -7,7 +7,7 @@ class ApiConfig {
   // static const String domain = 'http://192.168.1.75:4000';
   static const String domain = 'http://34.100.148.226:4000';
 
-  static const String razorpayKeyId = 'rzp_test_jbbgzqb7j4eUF2';
+  static const String razorpayKeyId = 'rzp_test_SBwik9QIBrqeIE';
 
   //Estamp+Esign
   static const String eStampBaseUrl = 'https://test.zoop.one/contract/estamp';

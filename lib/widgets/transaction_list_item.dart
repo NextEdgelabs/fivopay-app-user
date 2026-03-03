@@ -7,6 +7,7 @@ class TransactionListItem extends StatelessWidget {
   final String timestamp;
   final String amountText;
   final bool isNegative;
+  final bool? showIcon;
 
   const TransactionListItem({
     super.key,
@@ -14,6 +15,7 @@ class TransactionListItem extends StatelessWidget {
     required this.timestamp,
     required this.amountText,
     required this.isNegative,
+    this.showIcon = true,
   });
 
   @override
@@ -22,16 +24,18 @@ class TransactionListItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSizes.paddingS),
       child: Row(
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: context.colors.specialCardTwo,
-              shape: BoxShape.circle,
+          if (showIcon == true) ...[
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: context.colors.specialCardTwo,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.person, color: context.colors.textSecondary),
             ),
-            child: Icon(Icons.person, color: context.colors.textSecondary),
-          ),
-          const SizedBox(width: AppSizes.paddingM),
+            const SizedBox(width: AppSizes.paddingM),
+          ],
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -280,9 +280,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 icon: Icons.verified_user_outlined,
                                 label: 'KYC STATUS',
                                 value: isKycCompleted ? 'Completed' : 'Pending',
-                                iconColor: isKycCompleted
-                                    ? Colors.green
-                                    : Colors.orange,
+                                iconColor: context.colors.textSecondary,
+                                // isKycCompleted
+                                //     ? Colors.green
+                                //     : Colors.orange,
                                 valueColor: isKycCompleted
                                     ? Colors.green
                                     : Colors.deepOrange,
@@ -291,6 +292,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             const SizedBox(width: AppSizes.paddingM),
                             Expanded(
                               child: SmallStatCard(
+                                iconPath: "profile",
                                 icon: Icons.person_outline,
                                 label: 'MEMBER TYPE',
                                 value: user?.isMember == true

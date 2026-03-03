@@ -123,6 +123,13 @@ class NewAppColors extends ThemeExtension<NewAppColors> {
     famerStrokeOrange: Color(0xFFC4D9F7),
     buttonColorLight: Color(0xFF1F2D42),
     textLight: Color(0xFFC5C7CB),
+    // alert4: Color(0xFF5416D8), // Info purple (secondary brand)
+    // call: Color(0xFF86EFAC), // Call green
+    // // Legacy/Special Colors
+    // famerStrokeGrey: Color(0xFF344047),
+    // famerStrokeOrange: Color(0xFFECF9FF),
+    // buttonColorLight: Color(0xFF1F2F3A),
+    // textLight: Color.fromARGB(255, 255, 255, 255),
   );
   static const light = NewAppColors(
     textLight: Color.fromARGB(255, 231, 231, 231),

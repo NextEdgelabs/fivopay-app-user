@@ -19,11 +19,11 @@ class AppTheme {
       useMaterial3: true,
       fontFamily: 'Poppins',
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppColors.background,
+      scaffoldBackgroundColor: NewAppColors.light.bgColors,
       extensions: [NewAppColors.light],
 
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.background,
+        backgroundColor: NewAppColors.light.bgColors,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         centerTitle: true,
