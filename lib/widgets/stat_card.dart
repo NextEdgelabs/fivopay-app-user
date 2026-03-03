@@ -51,13 +51,14 @@ class StatCard extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: AppSizes.paddingXS),
             Align(
               alignment: Alignment.bottomRight,
               child: Image.asset(
                 "assets/icons/$icon.png",
                 fit: BoxFit.contain,
-                width: 0.18 * AppSizes.dW,
-                height: 0.18 * AppSizes.dW,
+                width: 0.15 * AppSizes.dW,
+                height: 0.15 * AppSizes.dW,
               ),
             ),
           ],

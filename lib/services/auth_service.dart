@@ -59,6 +59,7 @@ class AuthService {
       log(res.toString());
       var user = User.fromJson(res['result']);
 
+ 
       user.copyWith(isNew: false);
       return user;
     } catch (e) {

@@ -6,6 +6,8 @@ class ApiConfig {
 
   //   static const String domain = 'http://172.16.39.229:4000';
   static const String domain = 'http://34.100.148.226:4000';
+  //   static const String domain = 'http://192.168.1.75:4000';
+  // static const String domain = 'http://34.100.148.226:4000';
 
   static const String razorpayKeyId = 'rzp_test_SBwik9QIBrqeIE';
 
