@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:janseva/utils/theme_extension.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../modules/auth/provider/auth_provider.dart';
@@ -118,6 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               // Profile Header
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(AppSizes.paddingL),
                 decoration: BoxDecoration(
                   color: AppColors.cardBackground,
@@ -143,8 +146,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         // Sky blue gradient
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.primaryDark,
-                            AppColors.primaryLight,
+                            context.colors.gradientOne,
+                            context.colors.gradientTwo,
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -280,7 +283,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Membership Information
               if (user?.isMember == true) ...[
                 Container(
-                  padding: const EdgeInsets.all(AppSizes.paddingL),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSizes.paddingL,
+                    horizontal: AppSizes.paddingM,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.cardBackground,
                     borderRadius: BorderRadius.circular(AppSizes.radiusXL),
@@ -351,7 +357,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               // Actions
               Container(
-                padding: const EdgeInsets.all(AppSizes.paddingL),
+                padding: EdgeInsets.symmetric(
+                  vertical: AppSizes.paddingL,
+                  horizontal: AppSizes.paddingM,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.cardBackground,
                   borderRadius: BorderRadius.circular(AppSizes.radiusXL),
@@ -369,21 +378,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     const SectionHeader(title: 'Actions'),
                     const SizedBox(height: AppSizes.paddingM),
-                    _buildActionTile('Change Password', Icons.lock, () {
+                    _buildActionTile('Change Password', Iconsax.lock, () {
                       // TODO: Implement change password
                     }),
-                    _buildActionTile('Privacy Policy', Icons.privacy_tip, () {
+                    _buildActionTile('Privacy Policy', Iconsax.shield_tick, () {
                       // TODO: Implement privacy policy
                     }),
-                    _buildActionTile('Terms of Service', Icons.description, () {
+                    _buildActionTile('Terms of Service', Iconsax.document, () {
                       // TODO: Implement terms of service
                     }),
-                    _buildActionTile('Support', Icons.support_agent, () {
+                    _buildActionTile('Support', Iconsax.headphone, () {
                       // TODO: Implement support
                     }),
                     _buildActionTile(
                       'Logout',
-                      Icons.logout,
+                      Iconsax.logout,
                       _logout,
                       isDestructive: true,
                     ),

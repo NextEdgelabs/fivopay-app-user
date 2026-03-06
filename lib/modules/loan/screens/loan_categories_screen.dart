@@ -26,17 +26,17 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Loan Categories'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              context.read<LoanProvider>().fetchLoanCategories(refresh: true);
-            },
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
+      // appBar: AppBar(
+      //   title: const Text('Loan Categories'),
+      //   actions: [
+      //     IconButton(
+      //       onPressed: () {
+      //         context.read<LoanProvider>().fetchLoanCategories(refresh: true);
+      //       },
+      //       icon: const Icon(Icons.refresh),
+      //     ),
+      //   ],
+      // ),
       body: _buildBody(),
     );
   }
@@ -121,23 +121,17 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
     LoanProvider loanProvider,
   ) {
     final loanColor = LoanUtils.getLoanTypeColor(category.loanType);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
-          colors: [
-            Colors.white,
-            loanColor.withOpacity(0.05),
-          ],
+          colors: [Colors.white, loanColor.withOpacity(0.05)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        border: Border.all(
-          color: loanColor.withOpacity(0.3),
-          width: 2,
-        ),
+        border: Border.all(color: loanColor.withOpacity(0.3), width: 2),
         boxShadow: [
           BoxShadow(
             color: loanColor.withOpacity(0.15),
@@ -172,10 +166,7 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
                       ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            loanColor,
-                            loanColor.withOpacity(0.8),
-                          ],
+                          colors: [loanColor, loanColor.withOpacity(0.8)],
                         ),
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
@@ -210,7 +201,8 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
                     Row(
                       children: [
                         IconButton(
-                          onPressed: () => loanProvider.toggleFavorite(category),
+                          onPressed: () =>
+                              loanProvider.toggleFavorite(category),
                           icon: Icon(
                             loanProvider.isFavorite(category)
                                 ? Icons.favorite
@@ -236,10 +228,11 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
                             borderRadius: BorderRadius.circular(8),
                             boxShadow: [
                               BoxShadow(
-                                color: (category.status == 'active'
-                                        ? Colors.green
-                                        : Colors.grey)
-                                    .withOpacity(0.3),
+                                color:
+                                    (category.status == 'active'
+                                            ? Colors.green
+                                            : Colors.grey)
+                                        .withOpacity(0.3),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -294,7 +287,10 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
 
                 // Key details
                 _buildDetailRow('Amount Range', category.loanAmountRange),
-                _buildDetailRow('Interest Rate', category.formattedInterestRate),
+                _buildDetailRow(
+                  'Interest Rate',
+                  category.formattedInterestRate,
+                ),
                 _buildDetailRow('Tenure', category.formattedTenure),
                 _buildDetailRow(
                   'Processing Fee',
@@ -311,9 +307,9 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
                 if (category.features.isNotEmpty) ...[
                   Text(
                     'Features:',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -362,10 +358,7 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
                         label: const Text('View Details'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: loanColor,
-                          side: BorderSide(
-                            color: loanColor,
-                            width: 1.5,
-                          ),
+                          side: BorderSide(color: loanColor, width: 1.5),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -437,6 +430,4 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
       arguments: LoanDetailScreenArguments(loan: category),
     );
   }
-
-
 }

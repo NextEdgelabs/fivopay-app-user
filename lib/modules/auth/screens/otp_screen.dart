@@ -129,7 +129,7 @@ class _OtpScreenState extends State<OtpScreen> {
       if (authProvider.currentUser!.isNew) {
         pushReplacement(NamedRoutes.register);
       } else if (authProvider.currentUser!.kycStatus?.toLowerCase() ==
-          'pending') {
+          'notstarted') {
         push(NamedRoutes.kycScreen);
       } else {
         pushAndRemoveUntil(NamedRoutes.dashboard);

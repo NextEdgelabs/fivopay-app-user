@@ -5,6 +5,7 @@ import 'package:janseva/utils/theme_extension.dart';
 import 'package:janseva/widgets/transaction_list_item.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
+import '../services/common_utils.dart';
 import '../utils/constants.dart';
 import '../utils/date_utils.dart';
 import '../widgets/section_header.dart';
@@ -25,6 +26,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     'transfer': 'Transfers',
     'bonus': 'Bonuses',
   };
+
+  Future<void> _refreshTransactions() async {
+    final provider = Provider.of<WalletProvider>(context, listen: false);
+    await provider.fetchUserTransactions();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,42 +83,52 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             const SizedBox(height: AppSizes.paddingM),
             // Transaction List
             Expanded(
-              child: transactions.isEmpty
-                  ? Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(AppSizes.paddingL),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                          border: Border.all(color: AppColors.border),
+              child: RefreshIndicator(
+                onRefresh: _refreshTransactions,
+                child: transactions.isEmpty
+                    ? ListView(
+                        children: [
+                          Center(
+                            child: Container(
+                              margin: const EdgeInsets.all(AppSizes.paddingL),
+                              padding: const EdgeInsets.all(AppSizes.paddingL),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radiusL,
+                                ),
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: const Text('No transactions'),
+                            ),
+                          ),
+                        ],
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSizes.paddingL,
+                          vertical: AppSizes.paddingM,
                         ),
-                        child: const Text('No transactions'),
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSizes.paddingL,
-                        vertical: AppSizes.paddingM,
-                      ),
-                      itemCount: transactions.length,
-                      itemBuilder: (context, index) {
-                        final t = transactions[index];
-                        return TransactionListItem(
-                          name: t.description,
-                          timestamp: t.timestamp.toString(),
-                          amountText: t.amount.toStringAsFixed(2),
-                          isNegative: t.type == 'withdraw',
-                          showIcon: false,
-                        );
+                        itemCount: transactions.length,
+                        itemBuilder: (context, index) {
+                          final t = transactions[index];
+                          return TransactionListItem(
+                            name: t.description,
+                            timestamp: t.timestamp.toString(),
+                            amountText: t.amount.toStringAsFixed(2),
+                            isNegative: t.type == 'withdraw',
+                            showIcon: false,
+                          );
 
-                        //  _buildTransactionCard(
-                        //   type: t.type,
-                        //   amount: t.amount,
-                        //   description: t.description,
-                        //   timestamp: t.timestamp,
-                        // );
-                      },
-                    ),
+                          //  _buildTransactionCard(
+                          //   type: t.type,
+                          //   amount: t.amount,
+                          //   description: t.description,
+                          //   timestamp: t.timestamp,
+                          // );
+                        },
+                      ),
+              ),
             ),
           ],
         ),
@@ -120,20 +136,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
-  Widget _iconForType(String type) {
-    switch (type) {
-      case 'deposit':
-        return const Icon(Icons.arrow_downward, color: AppColors.success);
-      case 'withdraw':
-        return const Icon(Icons.arrow_upward, color: AppColors.error);
-      case 'transfer':
-        return const Icon(Icons.compare_arrows, color: AppColors.info);
-      case 'bonus':
-        return const Icon(Icons.card_giftcard, color: AppColors.secondary);
-      default:
-        return const Icon(Icons.swap_horiz);
-    }
-  }
+
 
   Widget _buildSummaryCard(Map<String, dynamic> stats, String balance) {
     return Container(
@@ -206,7 +209,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               color: accent.withOpacity(0.1),
               borderRadius: BorderRadius.circular(AppSizes.radiusM),
             ),
-            child: Center(child: _iconForType(type)),
+            child: Center(child: iconForType(type)),
           ),
           const SizedBox(width: AppSizes.paddingM),
           Expanded(

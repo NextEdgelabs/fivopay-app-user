@@ -76,7 +76,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: BoxDecoration(
                           // Sky blue gradient
                           gradient: LinearGradient(
-                            colors: [AppColors.primaryDark, AppColors.primaryLight],
+                            colors: [
+                              AppColors.primaryDark,
+                              AppColors.primaryLight,
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -165,39 +168,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: AppSizes.paddingL),
 
-                // Test Info
-                FormSectionCard(
-                  padding: const EdgeInsets.all(AppSizes.paddingM),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: AppColors.info,
-                            size: AppSizes.iconSizeS,
-                          ),
-                          const SizedBox(width: AppSizes.paddingS),
-                          Text(
-                            'Test Mode',
-                            style: AppTextStyles.body2.copyWith(
-                              color: AppColors.info,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSizes.paddingS),
-                      Text(
-                        'Use any phone number and OTP: 123456',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.info,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
+                // // Test Info
+                // FormSectionCard(
+                //   padding: const EdgeInsets.all(AppSizes.paddingM),
+                //   child: Column(
+                //     children: [
+                //       Row(
+                //         children: [
+                //           Icon(
+                //             Icons.info_outline,
+                //             color: AppColors.info,
+                //             size: AppSizes.iconSizeS,
+                //           ),
+                //           const SizedBox(width: AppSizes.paddingS),
+                //           Text(
+                //             'Test Mode',
+                //             style: AppTextStyles.body2.copyWith(
+                //               color: AppColors.info,
+                //               fontWeight: FontWeight.w600,
+                //             ),
+                //           ),
+                //         ],
+                //       ),
+                //       const SizedBox(height: AppSizes.paddingS),
+                //       Text(
+                //         'Use any phone number and OTP: 123456',
+                //         style: AppTextStyles.caption.copyWith(
+                //           color: AppColors.info,
+                //         ),
+                //         textAlign: TextAlign.center,
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           ),

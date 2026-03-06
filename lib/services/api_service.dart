@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:janseva/main.dart';
+import 'package:janseva/modules/auth/provider/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Base API service class that handles all HTTP requests
 class ApiService {
@@ -20,6 +23,11 @@ class ApiService {
       client.connectionTimeout = timeout;
 
       late HttpClientRequest request;
+
+      if (bContext.read<AuthProvider>().currentUser != null &&
+          accessToken == null) {
+        accessToken = bContext.read<AuthProvider>().appAccessToken;
+      }
 
       switch (method.toUpperCase()) {
         case 'POST':

@@ -52,6 +52,8 @@ dependencies:
   firebase_core: ^4.2.1
   file_picker: ^10.3.3
   webview_flutter_plus: ^0.4.19
+  iconsax: ^0.0.8
+  # syncfusion_flutter_pdfviewer: ^32.2.8
 
 dev_dependencies:
   flutter_test:

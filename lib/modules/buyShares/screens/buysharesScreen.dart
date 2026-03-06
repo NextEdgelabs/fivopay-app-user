@@ -18,7 +18,7 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
   final _formKey = GlobalKey<FormState>();
   // final _amountController = TextEditingController();
   final _quantityController = TextEditingController();
-  
+
   bool _buyByAmount = false; // true for amount, false for quantity
   int _calculatedShares = 0;
   double _calculatedAmount = 0.0;
@@ -28,11 +28,9 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
     super.initState();
     // _amountController.addListener(_onAmountChanged);
     _quantityController.addListener(_onQuantityChanged);
-    
+
     // Initialize share provider
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-  
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
   @override
@@ -86,23 +84,28 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
       // success = await shareProvider.buySharesByAmount(amount);
     } else {
       final quantity = int.parse(_quantityController.text);
-      success = await shareProvider.buySharesByQuantity(quantity, userProvider.currentUser!.id);
+      success = await shareProvider.buySharesByQuantity(
+        quantity,
+        userProvider.currentUser!.id,
+      );
     }
 
     if (success && mounted) {
       // Check if user now qualifies for membership
-      if (shareProvider.qualifiesForMembership() && 
+      if (shareProvider.qualifiesForMembership() &&
           userProvider.currentUser?.isMember != true) {
         // Update user to member
         final updatedUser = userProvider.currentUser!.copyWith(isMember: true);
         await userProvider.updateUser(updatedUser);
-        
+
         // Show congratulations dialog
         _showCongratulationsDialog();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Successfully purchased $_calculatedShares share(s)!'),
+            content: Text(
+              'Successfully purchased $_calculatedShares share(s)!',
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -178,10 +181,10 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Buy Shares'),
-        elevation: 0,
-      ),
+      // appBar: AppBar(
+      //   title: const Text('Buy Shares'),
+      //   elevation: 0,
+      // ),
       body: Consumer2<ShareProvider, UserProvider>(
         builder: (context, shareProvider, userProvider, child) {
           final user = userProvider.currentUser;
@@ -200,10 +203,7 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                       padding: const EdgeInsets.all(AppSizes.paddingXL),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0EA5E9),
-                            Color(0xFF0284C7),
-                          ],
+                          colors: [Color(0xFF0EA5E9), Color(0xFF0284C7)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -222,10 +222,14 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.all(AppSizes.paddingM),
+                                padding: const EdgeInsets.all(
+                                  AppSizes.paddingM,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                                  borderRadius: BorderRadius.circular(
+                                    AppSizes.radiusL,
+                                  ),
                                 ),
                                 child: const Icon(
                                   Icons.workspace_premium,
@@ -262,7 +266,9 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                             padding: const EdgeInsets.all(AppSizes.paddingM),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusL,
+                              ),
                               border: Border.all(
                                 color: Colors.white.withOpacity(0.3),
                               ),
@@ -271,7 +277,8 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Your Progress',
@@ -298,7 +305,9 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                                     ),
                                     decoration: BoxDecoration(
                                       color: Colors.white,
-                                      borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                                      borderRadius: BorderRadius.circular(
+                                        AppSizes.radiusM,
+                                      ),
                                     ),
                                     child: Text(
                                       '${shareProvider.sharesNeededForMembership} more',
@@ -313,12 +322,17 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                           ),
                           const SizedBox(height: AppSizes.paddingM),
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusM,
+                            ),
                             child: LinearProgressIndicator(
-                              value: shareProvider.totalSharesOwned / 
-                                     ShareProvider.SHARES_FOR_MEMBERSHIP,
+                              value:
+                                  shareProvider.totalSharesOwned /
+                                  ShareProvider.SHARES_FOR_MEMBERSHIP,
                               backgroundColor: Colors.white.withOpacity(0.3),
-                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                               minHeight: 8,
                             ),
                           ),
@@ -345,7 +359,9 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                               padding: const EdgeInsets.all(AppSizes.paddingM),
                               decoration: BoxDecoration(
                                 color: AppColors.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radiusL,
+                                ),
                               ),
                               child: const Icon(
                                 Icons.pie_chart,
@@ -378,7 +394,9 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                             Expanded(
                               child: _buildInfoItem(
                                 'Price per Share',
-                                shareProvider.formatCurrency(ShareProvider.SHARE_PRICE.toDouble()),
+                                shareProvider.formatCurrency(
+                                  ShareProvider.SHARE_PRICE.toDouble(),
+                                ),
                                 Icons.attach_money,
                               ),
                             ),
@@ -399,12 +417,9 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                   const SizedBox(height: AppSizes.sectionSpacing),
 
                   // Buy Mode Toggle
-                  Text(
-                    'Purchase Method',
-                    style: AppTextStyles.heading3,
-                  ),
+                  Text('Purchase Method', style: AppTextStyles.heading3),
                   const SizedBox(height: AppSizes.paddingM),
-                  
+
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.surface,
@@ -461,7 +476,9 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                                 color: !_buyByAmount
                                     ? AppColors.primary
                                     : Colors.transparent,
-                                borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radiusL,
+                                ),
                               ),
                               child: Column(
                                 children: [
@@ -525,35 +542,32 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                   //       return null;
                   //     },
                   //   ),
-                 
+
                   // ] else ...[
-                    Text(
-                      'Enter Quantity',
-                      style: AppTextStyles.body1.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  Text(
+                    'Enter Quantity',
+                    style: AppTextStyles.body1.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: AppSizes.paddingM),
-                    CustomTextField(
-                      controller: _quantityController,
-                      labelText: 'Number of Shares',
-                      hintText: '0',
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter quantity';
-                        }
-                        final quantity = int.tryParse(value);
-                        if (quantity == null || quantity <= 0) {
-                          return 'Please enter a valid quantity';
-                        }
-                        return null;
-                      },
-                    ),
-                  
+                  ),
+                  const SizedBox(height: AppSizes.paddingM),
+                  CustomTextField(
+                    controller: _quantityController,
+                    labelText: 'Number of Shares',
+                    hintText: '0',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter quantity';
+                      }
+                      final quantity = int.tryParse(value);
+                      if (quantity == null || quantity <= 0) {
+                        return 'Please enter a valid quantity';
+                      }
+                      return null;
+                    },
+                  ),
 
                   // Calculation Display
                   if (_calculatedShares > 0 || _calculatedAmount > 0) ...[
@@ -612,9 +626,7 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
 
                   // Buy Button
                   CustomButton(
-                    onPressed: shareProvider.isLoading
-                        ? null
-                        : _buyShares,
+                    onPressed: shareProvider.isLoading ? null : _buyShares,
                     text: shareProvider.isLoading
                         ? 'Processing...'
                         : 'Buy Shares',
@@ -698,27 +710,34 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                   // Purchase History
                   if (shareProvider.purchases.isNotEmpty) ...[
                     const SizedBox(height: AppSizes.sectionSpacing),
-                    Text(
-                      'Recent Purchases',
-                      style: AppTextStyles.heading3,
-                    ),
+                    Text('Recent Purchases', style: AppTextStyles.heading3),
                     const SizedBox(height: AppSizes.paddingM),
-                    ...shareProvider.getPurchaseHistory(limit: 3).map(
+                    ...shareProvider
+                        .getPurchaseHistory(limit: 3)
+                        .map(
                           (purchase) => Container(
-                            margin: const EdgeInsets.only(bottom: AppSizes.paddingM),
+                            margin: const EdgeInsets.only(
+                              bottom: AppSizes.paddingM,
+                            ),
                             padding: const EdgeInsets.all(AppSizes.paddingL),
                             decoration: BoxDecoration(
                               color: AppColors.cardBackground,
-                              borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusL,
+                              ),
                               border: Border.all(color: AppColors.border),
                             ),
                             child: Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.all(AppSizes.paddingS),
+                                  padding: const EdgeInsets.all(
+                                    AppSizes.paddingS,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.success.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                                    borderRadius: BorderRadius.circular(
+                                      AppSizes.radiusM,
+                                    ),
                                   ),
                                   child: const Icon(
                                     Icons.check_circle,
@@ -729,7 +748,8 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                                 const SizedBox(width: AppSizes.paddingM),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         '${purchase.quantity} Shares',
@@ -745,7 +765,9 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                                   ),
                                 ),
                                 Text(
-                                  shareProvider.formatCurrency(purchase.totalAmount!),
+                                  shareProvider.formatCurrency(
+                                    purchase.totalAmount!,
+                                  ),
                                   style: AppTextStyles.body1.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: AppColors.primary,
@@ -777,16 +799,11 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
         children: [
           Icon(icon, color: AppColors.primary, size: 20),
           const SizedBox(height: AppSizes.paddingS),
-          Text(
-            label,
-            style: AppTextStyles.caption,
-          ),
+          Text(label, style: AppTextStyles.caption),
           const SizedBox(height: 4),
           Text(
             value,
-            style: AppTextStyles.body1.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTextStyles.body1.copyWith(fontWeight: FontWeight.bold),
           ),
         ],
       ),

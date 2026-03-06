@@ -56,25 +56,31 @@ class WalletProvider with ChangeNotifier {
   //   _initializeRazorpay();
   // }
   WalletProvider() {
-  _initializeRazorpay();
-// loadWalletBalance();
+    _initializeRazorpay();
+    // loadWalletBalance();
   }
-  
+
   // Update user provider dependency
   void updateUserProvider(UserProvider provider) {
     userProvider = provider;
     _currentUser = provider.currentUser;
     notifyListeners();
   }
-  
+
   // Initialize wallet with user data
 
+  Future<void> fetchUserTransactions() async {
+    var authToken = bContext.read<AuthProvider>().appAccessToken ?? '';
+    var userId = bContext.read<UserProvider>().currentUser?.id ?? '';
+    _transactions = await WalletService.getTransactions(authToken, userId);
+    notifyListeners();
+  }
 
-Future<void> loadWalletBalance(String userId ) async {
-  var authToken = bContext.read<AuthProvider>().appAccessToken ?? '';
-  _balance = await WalletService.getWalletBalance(authToken , userId);
-  notifyListeners();
-}
+  Future<void> loadWalletBalance(String userId) async {
+    var authToken = bContext.read<AuthProvider>().appAccessToken ?? '';
+    _balance = await WalletService.getWalletBalance(authToken, userId);
+    notifyListeners();
+  }
 
   // Add money to wallet (deposit)
   Future<void> addMoney({

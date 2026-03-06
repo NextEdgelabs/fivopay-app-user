@@ -5,6 +5,7 @@ import 'package:janseva/config/exceptions.dart';
 import 'package:janseva/utils/theme_extension.dart';
 
 import '../main.dart';
+import '../utils/constants.dart';
 
 Future<String> pdfToBase64(String url) async {
   try {
@@ -46,3 +47,17 @@ LinearGradient get brandlinearGradient => LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
 );
+Widget iconForType(String type) {
+  switch (type) {
+    case 'deposit':
+      return const Icon(Icons.arrow_downward, color: AppColors.success);
+    case 'withdraw':
+      return const Icon(Icons.arrow_upward, color: AppColors.error);
+    case 'transfer':
+      return const Icon(Icons.compare_arrows, color: AppColors.info);
+    case 'bonus':
+      return const Icon(Icons.card_giftcard, color: AppColors.secondary);
+    default:
+      return const Icon(Icons.swap_horiz);
+  }
+}

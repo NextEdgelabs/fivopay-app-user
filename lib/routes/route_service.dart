@@ -9,6 +9,7 @@ import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/routes.dart';
 import 'package:janseva/screens/dashboard_screen.dart';
 import 'package:janseva/screens/kyc_screen.dart';
+import 'package:janseva/screens/transactions_screen.dart';
 
 import '../modules/loan/screens/loan_application_screen_v2.dart';
 import '../modules/loan/screens/loan_detail_screen.dart';
@@ -50,9 +51,17 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case NamedRoutes.depositScreen:
       return _getPageRoute(DepositScreen());
     case NamedRoutes.loanApplicationScreenv2:
-      return _getPageRoute(LoanApplicationScreenv2(
-        args: settings.arguments as LoanApplicationScreenV2Arguments,
-      ));
+      return _getPageRoute(
+        LoanApplicationScreenv2(
+          args: settings.arguments as LoanApplicationScreenV2Arguments,
+        ),
+      );
+    case NamedRoutes.transactionHistory:
+      return _getPageRoute(
+        TransactionsScreen(
+          // args: settings.arguments as LoanApplicationScreenV2Arguments,
+        ),
+      );
     default:
       return _getPageRoute(SplashScreen());
   }

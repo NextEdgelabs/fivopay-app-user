@@ -38,7 +38,7 @@ class LoanServices {
       ).replace(queryParameters: queryParams);
 
       // Make HTTP GET request
-      var res = await ApiService.get(uri.toString());
+      var res = await ApiService.get(uri.toString() );
       if (res['success']) {
         return LoanCategoriesResponse.fromJson(res);
       } else {

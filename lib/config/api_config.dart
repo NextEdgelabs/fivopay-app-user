@@ -4,7 +4,7 @@ class ApiConfig {
   // static const String baseUrl = 'https://api.sandbox.co.in';
   // static const String domain = 'https://api.fivopay.nextlabsonline.com';
 
-  // static const String domain = 'http://192.168.1.75:4000';
+  // static const String domain = 'http://192.168.1.82:4000';
   static const String domain = 'http://34.100.148.226:4000';
 
   static const String razorpayKeyId = 'rzp_test_SBwik9QIBrqeIE';
@@ -62,6 +62,7 @@ class ApiConfig {
   static const String createShareTransaction =
       '/api/v1/share-transaction/record-transaction';
 
+  static const String getWalletTransactions = '/api/v1/transaction/all';
   //upload
   static const String uploadFile =
       '/api/v1/file-upload/get-multiple-signed-urls';

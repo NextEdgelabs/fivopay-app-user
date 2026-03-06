@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:janseva/utils/theme_extension.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
@@ -63,11 +64,11 @@ class CustomBottomNavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(context, 0, Icons.home, 'Home'),
-          _buildNavItem(context, 1, Icons.bar_chart, 'History'),
+          _buildNavItem(context, 0, Iconsax.home4, 'Home'),
+          _buildNavItem(context, 1, Iconsax.chart_14, 'History'),
           // const SizedBox(width: 48), // Space for FAB
-          _buildNavItem(context, 3, Icons.credit_card, 'Reffer'),
-          _buildNavItem(context, 4, Icons.person, 'Profile'),
+          _buildNavItem(context, 3, Icons.share_outlined, 'Reffer'),
+          _buildNavItem(context, 4, Iconsax.user_octagon, 'Profile'),
         ],
       ),
     );

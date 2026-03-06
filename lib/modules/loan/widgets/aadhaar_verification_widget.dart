@@ -10,7 +10,7 @@ import '../../../widgets/custom_button.dart';
 
 class AadhaarVerificationWidget extends StatefulWidget {
   final String reason;
-  const AadhaarVerificationWidget({super.key , required this.reason });
+  const AadhaarVerificationWidget({super.key, required this.reason});
 
   @override
   State<AadhaarVerificationWidget> createState() =>
@@ -137,7 +137,7 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
       final response = await KycService.verifyAadhaarOtp(
         transactionId: _referenceId!,
         otp: otp,
-        userId: userId
+        userId: userId,
       );
 
       if (mounted) {
@@ -428,7 +428,10 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
                         const SizedBox(height: AppSizes.paddingM),
                         _buildDetailRow('Name', aadhaarDetails.name ?? ''),
                         const SizedBox(height: AppSizes.paddingS),
-                        _buildDetailRow('DOB', aadhaarDetails.dateOfBirth?? ''),
+                        _buildDetailRow(
+                          'DOB',
+                          aadhaarDetails.dateOfBirth ?? '',
+                        ),
                         const SizedBox(height: AppSizes.paddingS),
                         _buildDetailRow(
                           'Address',
