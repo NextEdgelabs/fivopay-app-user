@@ -100,36 +100,36 @@ class _CollectFromHomeScreenState extends State<CollectFromHomeScreen> {
             SizedBox(height: 24.dh),
 
             // Info Banner
-            Container(
-              padding: EdgeInsets.all(AppSizes.paddingL.dw),
-              decoration: BoxDecoration(
-                color: context.colors.alert3.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                border: Border.all(
-                  color: context.colors.alert3.withOpacity(0.3),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: context.colors.alert3,
-                    size: 20.dw,
-                  ),
-                  SizedBox(width: 12.dw),
-                  Expanded(
-                    child: Text(
-                      'Our representative will visit your home to collect cash. A service charge of ₹50 will apply.',
-                      style: AppTextStyles.body2.copyWith(
-                        color: context.colors.text,
-                        fontSize: 12.dw,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 24.dh),
+            // Container(
+            //   padding: EdgeInsets.all(AppSizes.paddingL.dw),
+            //   decoration: BoxDecoration(
+            //     color: context.colors.alert3.withOpacity(0.1),
+            //     borderRadius: BorderRadius.circular(AppSizes.radiusL),
+            //     border: Border.all(
+            //       color: context.colors.alert3.withOpacity(0.3),
+            //     ),
+            //   ),
+            //   child: Row(
+            //     children: [
+            //       Icon(
+            //         Icons.info_outline,
+            //         color: context.colors.alert3,
+            //         size: 20.dw,
+            //       ),
+            //       SizedBox(width: 12.dw),
+            //       Expanded(
+            //         child: Text(
+            //           'Our representative will visit your home to collect cash. A service charge of ₹50 will apply.',
+            //           style: AppTextStyles.body2.copyWith(
+            //             color: context.colors.text,
+            //             fontSize: 12.dw,
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // SizedBox(height: 24.dh),
 
             // Collection Address
             Text(

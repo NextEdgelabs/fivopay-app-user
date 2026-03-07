@@ -79,7 +79,7 @@ class _OnlineDepositScreenState extends State<OnlineDepositScreen> {
                   SizedBox(height: 12.dh),
                   _buildSummaryRow(
                     'Tenure',
-                    '${widget.product.maxTenureMonths} months',
+                    '${widget.product.lockInPeriodMonths} months',
                   ),
                 ],
               ),

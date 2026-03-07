@@ -91,8 +91,7 @@ class DepositProduct {
   final DateTime createdAt;
   final DateTime updatedAt;
   final int? v;
-  final int minTenureMonths;
-  final int maxTenureMonths;
+  final int lockInPeriodMonths;
 
   DepositProduct({
     required this.id,
@@ -108,8 +107,7 @@ class DepositProduct {
     required this.createdAt,
     required this.updatedAt,
     this.v,
-    required this.minTenureMonths,
-    required this.maxTenureMonths,
+    required this.lockInPeriodMonths,
   });
 
   // From JSON
@@ -132,8 +130,8 @@ class DepositProduct {
         json['updatedAt'] ?? DateTime.now().toIso8601String(),
       ),
       v: json['__v'],
-      minTenureMonths: json['minTenureMonths'] ?? 12,
-      maxTenureMonths: json['maxTenureMonths'] ?? 12,
+      lockInPeriodMonths:
+          int.tryParse(json['lockInPeriodMonths'].toString()) ?? 0,
     );
   }
 
@@ -171,8 +169,7 @@ class DepositProduct {
     DateTime? createdAt,
     DateTime? updatedAt,
     int? v,
-    int? minTenureMonths,
-    int? maxTenureMonths,
+    int? lockInPeriodMonths,
   }) {
     return DepositProduct(
       id: id ?? this.id,
@@ -188,8 +185,7 @@ class DepositProduct {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       v: v ?? this.v,
-      minTenureMonths: minTenureMonths ?? this.minTenureMonths,
-      maxTenureMonths: maxTenureMonths ?? this.maxTenureMonths,
+      lockInPeriodMonths: lockInPeriodMonths ?? this.lockInPeriodMonths,
     );
   }
 }

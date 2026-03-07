@@ -43,7 +43,7 @@ class _DepositProductsScreenState extends State<DepositProductsScreen> {
   // Calculate Maturity and Interest
   Map<String, double> _calculateReturns(DepositProduct product, double amount) {
     double interestRate = product.defaultInterestRate;
-    int tenureMonths = product.maxTenureMonths;
+    int tenureMonths = product.lockInPeriodMonths;
     // Simple Interest for example
     double interestEarned = (amount * interestRate * (tenureMonths / 12)) / 100;
     double maturityAmount = amount + interestEarned;
@@ -315,7 +315,7 @@ class _DepositProductsScreenState extends State<DepositProductsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${product.maxTenureMonths} Months',
+                  '${product.lockInPeriodMonths} Months',
                   style: AppTextStyles.heading3.copyWith(fontSize: 14.dw),
                 ),
                 Row(
