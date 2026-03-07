@@ -18,4 +18,13 @@ class NamedRoutes {
   static const String transactionHistory = '/transaction-history';
   static const String settings = '/settings';
   static const String loanApplicationScreenv2 = '/loan-application-screenv2';
+
+  static const String fixedDepositScreen = '/fixed-deposit-screen';
+
+  static const String selectDepositTypeHomeScreen =
+      '/select-deposit-type-home-screen';
+
+  static const String onlineDepositScreen = '/online-deposit-screen';
+  static const String branchDepositScreen = '/branch-deposit-screen';
+  static const String collectFromHomeScreen = '/collect-from-home-screen';
 }

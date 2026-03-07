@@ -11,9 +11,14 @@ import 'package:janseva/screens/dashboard_screen.dart';
 import 'package:janseva/screens/kyc_screen.dart';
 import 'package:janseva/screens/transactions_screen.dart';
 
+import '../modules/fd_rd/screens/select_depositType_home_screen.dart';
+import '../modules/fd_rd/screens/online_deposit_screen.dart';
+import '../modules/fd_rd/screens/branch_deposit_screen.dart';
+import '../modules/fd_rd/screens/collect_from_home_screen.dart';
 import '../modules/loan/screens/loan_application_screen_v2.dart';
 import '../modules/loan/screens/loan_detail_screen.dart';
 import '../modules/wallet_module/screens/deposit_screen.dart';
+import '../screens/fixed_deposit_screen.dart';
 import '../screens/splash_screen.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
@@ -60,6 +65,40 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return _getPageRoute(
         TransactionsScreen(
           // args: settings.arguments as LoanApplicationScreenV2Arguments,
+        ),
+      );
+    case NamedRoutes.fixedDepositScreen:
+      return _getPageRoute(FixedDepositScreen());
+    case NamedRoutes.selectDepositTypeHomeScreen:
+      return _getPageRoute(SelectDepositTypeHomeScreen());
+    case NamedRoutes.onlineDepositScreen:
+      final args = settings.arguments as Map<String, dynamic>;
+      return _getPageRoute(
+        OnlineDepositScreen(
+          category: args['category'],
+          product: args['product'],
+          amount: args['amount'],
+          fdName: args['fdName'],
+        ),
+      );
+    case NamedRoutes.branchDepositScreen:
+      final args = settings.arguments as Map<String, dynamic>;
+      return _getPageRoute(
+        BranchDepositScreen(
+          category: args['category'],
+          product: args['product'],
+          amount: args['amount'],
+          fdName: args['fdName'],
+        ),
+      );
+    case NamedRoutes.collectFromHomeScreen:
+      final args = settings.arguments as Map<String, dynamic>;
+      return _getPageRoute(
+        CollectFromHomeScreen(
+          category: args['category'],
+          product: args['product'],
+          amount: args['amount'],
+          fdName: args['fdName'],
         ),
       );
     default:

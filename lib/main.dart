@@ -10,6 +10,7 @@ import 'modules/auth/provider/auth_provider.dart';
 import 'modules/loan/providers/loan_provider.dart';
 import 'providers/user_provider.dart';
 import 'providers/referral_provider.dart';
+import 'modules/fd_rd/deposit_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/tts_service.dart';
 import 'utils/theme.dart';
@@ -17,11 +18,9 @@ import 'utils/constants.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 BuildContext get bContext => navigatorKey.currentContext!;
-void main() async{
-   WidgetsFlutterBinding.ensureInitialized();
-   await Firebase.initializeApp(
-   options: DefaultFirebaseOptions.currentPlatform,
- );
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await TTSService.init();
   runApp(const JanSevaApp());
 }
@@ -47,6 +46,7 @@ class JanSevaApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => LoanProvider()),
         ChangeNotifierProvider(create: (_) => LoanProviderV2()),
+        ChangeNotifierProvider(create: (_) => DepositProvider()),
         ChangeNotifierProxyProvider<UserProvider, ShareProvider>(
           create: (_) => ShareProvider(),
           update: (_, userProvider, shareProvider) =>

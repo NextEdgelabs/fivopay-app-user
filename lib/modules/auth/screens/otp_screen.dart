@@ -1,20 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
-import 'package:janseva/screens/registration_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../provider/auth_provider.dart';
-import '../../../providers/user_provider.dart';
-import '../../../providers/referral_provider.dart';
-import '../../../providers/transaction_provider.dart';
 import '../../../utils/constants.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../components/components.dart';
-import '../../../screens/dashboard_screen.dart';
-import '../../../screens/kyc_screen.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;

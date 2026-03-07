@@ -7,6 +7,7 @@ import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
 import 'package:janseva/modules/wallet_module/screens/withdraw_screen.dart';
+import 'package:janseva/screens/fixed_deposit_screen.dart';
 import 'package:janseva/utils/app_color_extension.dart';
 import 'package:janseva/utils/theme_extension.dart';
 
@@ -139,7 +140,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       case 0:
         return _buildBankTab(transactionProvider);
       case 1:
-        return _buildFixedDepositTab();
+        return FixedDepositScreen();
       case 2:
         return BuySharesScreen();
       case 3:
@@ -346,14 +347,16 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildTopTabItem(int index, String title) {
+  Widget _buildTopTabItem(int index, String title, {VoidCallback? onTap}) {
     final isSelected = _topTabIndex == index;
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _topTabIndex = index;
-        });
-      },
+      onTap:
+          onTap ??
+          () {
+            setState(() {
+              _topTabIndex = index;
+            });
+          },
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -458,7 +461,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                 child: Row(
                   children: [
                     _buildTopTabItem(0, 'Bank'),
-                    _buildTopTabItem(1, 'Fixed Deposit'),
+                    _buildTopTabItem(
+                      1,
+                      'Fixed Deposit',
+                      onTap: () {
+                        push(NamedRoutes.selectDepositTypeHomeScreen);
+                      },
+                    ),
                     _buildTopTabItem(2, 'Buy Shares'),
                     _buildTopTabItem(3, "Apply Loan"),
                   ],
