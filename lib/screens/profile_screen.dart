@@ -106,13 +106,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
-          if (!_isEditing)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                setState(() => _isEditing = true);
-              },
-            ),
+          // if (!_isEditing)
+          //   IconButton(
+          //     icon: const Icon(Icons.edit),
+          //     onPressed: () {
+          //       setState(() => _isEditing = true);
+          //     },
+          //   ),
         ],
       ),
       body: SafeArea(

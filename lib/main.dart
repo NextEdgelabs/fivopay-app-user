@@ -11,6 +11,7 @@ import 'modules/loan/providers/loan_provider.dart';
 import 'providers/user_provider.dart';
 import 'providers/referral_provider.dart';
 import 'modules/fd_rd/deposit_provider.dart';
+import 'providers/notification_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/tts_service.dart';
 import 'utils/theme.dart';
@@ -47,6 +48,7 @@ class JanSevaApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LoanProvider()),
         ChangeNotifierProvider(create: (_) => LoanProviderV2()),
         ChangeNotifierProvider(create: (_) => DepositProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProxyProvider<UserProvider, ShareProvider>(
           create: (_) => ShareProvider(),
           update: (_, userProvider, shareProvider) =>

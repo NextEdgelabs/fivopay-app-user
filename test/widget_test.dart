@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:janseva/main.dart';
+import 'package:janseva/screens/splash_screen.dart';
 
 void main() {
   testWidgets('JanSeva app smoke test', (WidgetTester tester) async {

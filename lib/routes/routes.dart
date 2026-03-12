@@ -33,4 +33,5 @@ class NamedRoutes {
   static const String privacyPolicy = '/privacy-policy';
   static const String termsOfService = '/terms-of-service';
   static const String support = '/support';
+  static const String notificationScreen = '/notification-screen';
 }
