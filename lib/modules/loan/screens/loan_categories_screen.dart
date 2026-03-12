@@ -3,7 +3,9 @@ import 'package:janseva/modules/loan/utils/loan_utils.dart';
 import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
+import 'package:janseva/utils/theme_extension.dart';
 import 'package:provider/provider.dart';
+import '../../auth/provider/auth_provider.dart';
 import '../models/models.dart';
 import '../providers/loan_provider.dart';
 
@@ -120,14 +122,17 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
     LoanCategory category,
     LoanProvider loanProvider,
   ) {
-    final loanColor = LoanUtils.getLoanTypeColor(category.loanType);
+    final loanColor = context.colors.brandColor;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
-          colors: [Colors.white, loanColor.withOpacity(0.05)],
+          colors: [
+            context.colors.gradientOne,
+            context.colors.gradientOne.withOpacity(0.05),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -279,7 +284,7 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
                   category.description,
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.white),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -288,7 +293,9 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
                 // Key details
                 _buildDetailRow('Amount Range', category.loanAmountRange),
                 _buildDetailRow(
-                  'Interest Rate',
+                  context.read<AuthProvider>().isEthicalBanking
+                      ? 'Profit Rate'
+                      : 'Interest Rate',
                   category.formattedInterestRate,
                 ),
                 _buildDetailRow('Tenure', category.formattedTenure),
@@ -404,13 +411,14 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
             label,
             style: Theme.of(
               context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+            ).textTheme.bodyMedium?.copyWith(color: Colors.white),
           ),
           Text(
             value,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: Colors.white70,
+            ),
           ),
         ],
       ),

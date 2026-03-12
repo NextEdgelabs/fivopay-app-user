@@ -21,13 +21,13 @@ class UserProvider extends ChangeNotifier {
   Future<void> initializeUser() async {
     // Prevent multiple simultaneous initializations
     if (_isLoading) return;
-    
+
     _setLoading(true);
     try {
-      final user = await AuthService.getCurrentUser();
-      if (user != null) {
-        _currentUser = user;
-      }
+      // final user = await AuthService.getCurrentUser();
+      // if (user != null) {
+      //   _currentUser = user;
+      // }
       final accessToken = await SfService.getString(SfService.accesstoken);
       _accessToken = accessToken;
       notifyListeners();
@@ -36,7 +36,7 @@ class UserProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
-    
+   
     return;
   }
 

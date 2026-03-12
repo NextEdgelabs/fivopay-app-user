@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:janseva/modules/buyShares/widgets/info_section.dart';
+import 'package:janseva/utils/theme_extension.dart';
+import 'package:janseva/widgets/gradient_icon.dart';
+import 'package:janseva/widgets/gradient_text.dart';
 import 'package:provider/provider.dart';
 import '../../../models/bank_account.dart';
 import '../provider/wallet_provider.dart';
@@ -236,10 +241,13 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(AppSizes.paddingL),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primary, AppColors.secondary],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                      gradient: LinearGradient(
+                        colors: [
+                          context.colors.gradientOne,
+                          context.colors.gradientTwo,
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
                       borderRadius: BorderRadius.circular(AppSizes.radiusXL),
                     ),
@@ -267,7 +275,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                   const SizedBox(height: AppSizes.paddingXL),
 
                   // Amount Section
-                  Text('Withdrawal Amount', style: AppTextStyles.heading3),
+                  Text('Withdrawal Amount', style: AppTextStyles.body1),
                   const SizedBox(height: AppSizes.paddingM),
 
                   CustomTextField(
@@ -275,6 +283,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                     labelText: 'Enter Amount',
                     hintText: '₹0.00',
                     keyboardType: TextInputType.number,
+
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                         RegExp(r'^\d+\.?\d{0,2}'),
@@ -302,12 +311,28 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                     const SizedBox(height: AppSizes.paddingM),
                     Container(
                       padding: const EdgeInsets.all(AppSizes.paddingM),
+
                       decoration: BoxDecoration(
-                        color: AppColors.info.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                        color: context.colors.brandColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(AppSizes.radiusXL),
                         border: Border.all(
-                          color: AppColors.info.withOpacity(0.3),
+                          color: context.colors.gradientOne.withOpacity(0.6),
+                          width: 1,
                         ),
+
+                        // color: context.colors.gradientTwo.withOpacity(0.1),
+                        // gradient: LinearGradient(
+                        //   colors: [
+                        //     // context.colors.gradientOne.withOpacity(0.1),
+
+                        //   ],
+                        //   begin: Alignment.topLeft,
+                        //   end: Alignment.bottomRight,
+                        // ),
+                        // color: AppColors.info.withOpacity(0.1),
+                        // borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                        // border: Border.all(
+                        //   color: context.colors.gradientOne.withOpacity(0.3),
                       ),
                       child: Column(
                         children: [
@@ -316,29 +341,44 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                             children: [
                               Text(
                                 'Withdrawal Amount:',
-                                style: AppTextStyles.body2,
+                                style: AppTextStyles.body2.copyWith(
+                                  color: context.colors.brandColor,
+                                ),
                               ),
                               Text(
                                 walletProvider.formatCurrency(
                                   double.parse(_amountController.text),
                                 ),
+                                style: AppTextStyles.body2.copyWith(
+                                  color: context.colors.brandColor,
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: AppSizes.paddingS),
+                          const SizedBox(height: AppSizes.paddingXS),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'Processing Fee:',
-                                style: AppTextStyles.body2,
+                                style: AppTextStyles.body2.copyWith(
+                                  color: context.colors.brandColor,
+                                ),
                               ),
                               Text(
                                 walletProvider.formatCurrency(_withdrawalFee),
+                                style: AppTextStyles.body2.copyWith(
+                                  color: context.colors.brandColor,
+                                ),
                               ),
                             ],
                           ),
-                          const Divider(),
+                          const SizedBox(height: AppSizes.paddingXS),
+                          Divider(
+                            height: 2,
+                            color: context.colors.brandColor.withOpacity(0.5),
+                          ),
+                          const SizedBox(height: AppSizes.paddingXS),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -346,12 +386,14 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                                 'Total Deduction:',
                                 style: AppTextStyles.body1.copyWith(
                                   fontWeight: FontWeight.bold,
+                                  color: context.colors.brandColor,
                                 ),
                               ),
                               Text(
                                 walletProvider.formatCurrency(_totalDeduction),
                                 style: AppTextStyles.body1.copyWith(
                                   fontWeight: FontWeight.bold,
+                                  color: context.colors.brandColor,
                                 ),
                               ),
                             ],
@@ -367,18 +409,24 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Select Bank Account',
-                        style: AppTextStyles.heading3,
-                      ),
+                      Text('Select Bank Account', style: AppTextStyles.body1),
                       TextButton.icon(
                         onPressed: () {
                           setState(() {
                             _showAddBankForm = !_showAddBankForm;
                           });
                         },
-                        icon: Icon(_showAddBankForm ? Icons.close : Icons.add),
-                        label: Text(_showAddBankForm ? 'Cancel' : 'Add Bank'),
+                        // icon: GradientIcon(
+                        //   icon: _showAddBankForm ? Icons.close : Icons.add,
+                        //   size: 20,
+                        //   gradientColors: [
+                        //     context.colors.gradientOne,
+                        //     context.colors.gradientTwo,
+                        //   ],
+                        // ),
+                        label: GradientText(
+                          _showAddBankForm ? 'X Cancel' : '+ Add Bank Account',
+                        ),
                       ),
                     ],
                   ),
@@ -483,7 +531,11 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                             children: [
                               Expanded(
                                 child: RadioListTile<String>(
-                                  title: const Text('Savings'),
+                                  title: const Text(
+                                    'Savings',
+
+                                    style: AppTextStyles.body2,
+                                  ),
                                   value: 'savings',
                                   groupValue: _selectedAccountType,
                                   onChanged: (value) {
@@ -495,7 +547,10 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                               ),
                               Expanded(
                                 child: RadioListTile<String>(
-                                  title: const Text('Current'),
+                                  title: const Text(
+                                    'Current',
+                                    style: AppTextStyles.body2,
+                                  ),
                                   value: 'current',
                                   groupValue: _selectedAccountType,
                                   onChanged: (value) {
@@ -510,8 +565,11 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
                           const SizedBox(height: AppSizes.paddingL),
                           CustomButton(
+                            variant: ButtonVariant.outlined,
                             onPressed: _addBankAccount,
                             text: 'Add Bank Account',
+                            useGradientBorder: true,
+                            useGradientText: true,
                           ),
                         ],
                       ),
@@ -558,7 +616,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                             AppSizes.paddingM,
                           ),
                           tileColor: _selectedBank == bank
-                              ? AppColors.primary.withOpacity(0.1)
+                              ? context.colors.brandColor.withOpacity(0.1)
                               : AppColors.cardBackground,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
@@ -566,7 +624,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                             ),
                             side: BorderSide(
                               color: _selectedBank == bank
-                                  ? AppColors.primary
+                                  ? context.colors.brandColor
                                   : AppColors.border,
                             ),
                           ),
@@ -577,29 +635,48 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                     Container(
                       padding: const EdgeInsets.all(AppSizes.paddingXL),
                       decoration: BoxDecoration(
-                        color: AppColors.cardBackground,
+                        color: AppColors.surface,
                         borderRadius: BorderRadius.circular(AppSizes.radiusXL),
                         border: Border.all(color: AppColors.border),
                       ),
                       child: Column(
                         children: [
-                          Icon(
-                            Icons.account_balance,
-                            size: 48,
-                            color: AppColors.textSecondary,
+                          Container(
+                            decoration: BoxDecoration(
+                              color: context.colors.gradientOne.withOpacity(
+                                0.2,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusM,
+                              ),
+
+                              // shape: BoxShape.circle,
+                            ),
+
+                            padding: EdgeInsets.all(AppSizes.paddingS),
+                            child: GradientIcon(
+                              icon: Iconsax.bank,
+                              size: 38,
+                              // color: AppColors.textSecondary,
+                              gradientColors: [
+                                context.colors.gradientOne,
+                                context.colors.gradientTwo,
+                              ],
+                            ),
                           ),
                           const SizedBox(height: AppSizes.paddingM),
                           Text(
                             'No Bank Accounts Added',
                             style: AppTextStyles.heading3,
                           ),
-                          const SizedBox(height: AppSizes.paddingS),
+                          const SizedBox(height: AppSizes.paddingXS),
                           Text(
                             'Add a bank account to withdraw money',
                             style: AppTextStyles.body2,
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppSizes.paddingL),
+
                           CustomButton(
                             onPressed: () {
                               setState(() {
@@ -608,6 +685,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                             },
                             text: 'Add Bank Account',
                             variant: ButtonVariant.outlined,
+                            useGradientBorder: true,
+                            useGradientText: true,
                           ),
                         ],
                       ),
@@ -636,53 +715,23 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                         : _withdrawMoney,
                     text: _isLoading ? 'Processing...' : 'Withdraw Money',
                     isLoading: _isLoading,
+                    backgroundColor: context.colors.gradientTwo,
+                    disabledColor: context.colors.gradientTwo.withOpacity(0.5),
                   ),
 
                   const SizedBox(height: AppSizes.paddingL),
 
                   // Info Card
-                  Container(
-                    padding: const EdgeInsets.all(AppSizes.paddingL),
-                    decoration: BoxDecoration(
-                      color: AppColors.info.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                      border: Border.all(
-                        color: AppColors.info.withOpacity(0.3),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: AppColors.info,
-                              size: 20,
-                            ),
-                            const SizedBox(width: AppSizes.paddingS),
-                            Text(
-                              'Withdrawal Information',
-                              style: AppTextStyles.body1.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.info,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: AppSizes.paddingM),
-                        Text(
-                          '• Withdrawals are processed within 1-2 business days\n'
-                          '• Minimum withdrawal: ₹100\n'
-                          '• Maximum withdrawal: ₹50,000 per day\n'
-                          '• Processing fee applies for all withdrawals\n'
-                          '• Ensure bank details are correct before submitting',
-                          style: AppTextStyles.body2.copyWith(
-                            color: AppColors.info,
-                          ),
-                        ),
-                      ],
-                    ),
+                  InfoSection(
+                    title: 'Withdrawal Information',
+                    points: [
+                      'Withdrawals are processed within 1-2 business days',
+
+                      'Minimum withdrawal: ₹100'
+                          'Maximum withdrawal: ₹50,000 per day'
+                          'Processing fee applies for all withdrawals'
+                          'Ensure bank details are correct before submitting',
+                    ],
                   ),
                 ],
               ),

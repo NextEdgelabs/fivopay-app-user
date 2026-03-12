@@ -45,25 +45,25 @@ class UserInfoCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (isPro)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.paddingS,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: context.colors.brandColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    'PRO',
-                    style: TextStyle(
-                      color: context.colors.brandColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
+              // if (isPro)
+              //   Container(
+              //     padding: const EdgeInsets.symmetric(
+              //       horizontal: AppSizes.paddingS,
+              //       vertical: 4,
+              //     ),
+              //     decoration: BoxDecoration(
+              //       color: context.colors.brandColor.withOpacity(0.1),
+              //       borderRadius: BorderRadius.circular(20),
+              //     ),
+              //     child: Text(
+              //       'PRO',
+              //       style: TextStyle(
+              //         color: context.colors.brandColor,
+              //         fontWeight: FontWeight.bold,
+              //         fontSize: 12,
+              //       ),
+              //     ),
+              //   ),
             ],
           ),
           const SizedBox(height: AppSizes.paddingM),

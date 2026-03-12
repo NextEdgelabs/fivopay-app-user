@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/utils/theme_extension.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
@@ -9,6 +10,7 @@ import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../modules/auth/screens/login_screen.dart';
 import '../widgets/section_header.dart';
+import '../routes/routes.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -378,17 +380,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     const SectionHeader(title: 'Actions'),
                     const SizedBox(height: AppSizes.paddingM),
-                    _buildActionTile('Change Password', Iconsax.lock, () {
-                      // TODO: Implement change password
-                    }),
+
                     _buildActionTile('Privacy Policy', Iconsax.shield_tick, () {
-                      // TODO: Implement privacy policy
+                      push(NamedRoutes.privacyPolicy);
                     }),
                     _buildActionTile('Terms of Service', Iconsax.document, () {
-                      // TODO: Implement terms of service
+                      push(NamedRoutes.termsOfService);
                     }),
                     _buildActionTile('Support', Iconsax.headphone, () {
-                      // TODO: Implement support
+                      push(NamedRoutes.support);
                     }),
                     _buildActionTile(
                       'Logout',

@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/main.dart';
+import 'package:janseva/modules/fd_rd/deposit_provider.dart';
 import 'package:janseva/modules/fd_rd/model/deposit_category_model.dart';
+import 'package:janseva/modules/fd_rd/model/deposit_enum.dart';
 import 'package:janseva/modules/fd_rd/model/deposit_product_model.dart';
+import 'package:janseva/modules/fd_rd/model/pickup_address_model.dart';
+import 'package:janseva/routes/navigator.dart';
+import 'package:janseva/routes/routes.dart';
 import 'package:janseva/utils/app_size.dart';
 import 'package:janseva/utils/constants.dart';
 import 'package:janseva/utils/theme_extension.dart';
 import 'package:janseva/widgets/gradient_button.dart';
+import 'package:provider/provider.dart';
+
+import '../../../services/common_utils.dart';
 
 class CollectFromHomeScreen extends StatefulWidget {
   final DepositCategory category;
@@ -28,23 +37,27 @@ class _CollectFromHomeScreenState extends State<CollectFromHomeScreen> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _landmarkController = TextEditingController();
   final TextEditingController _pincodeController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
+  // final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
   DateTime? _selectedDate;
-  String? _selectedTimeSlot;
+  // String? _selectedTimeSlot;
 
-  final List<String> _timeSlots = [
-    '10:00 AM - 12:00 PM',
-    '12:00 PM - 2:00 PM',
-    '2:00 PM - 4:00 PM',
-    '4:00 PM - 6:00 PM',
-  ];
+  // final List<String> _timeSlots = [
+  //   '10:00 AM - 12:00 PM',
+  //   '12:00 PM - 2:00 PM',
+  //   '2:00 PM - 4:00 PM',
+  //   '4:00 PM - 6:00 PM',
+  // ];
 
   @override
   void dispose() {
     _addressController.dispose();
     _landmarkController.dispose();
     _pincodeController.dispose();
-    _phoneController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
+    // _phoneController.dispose();
     super.dispose();
   }
 
@@ -158,13 +171,18 @@ class _CollectFromHomeScreenState extends State<CollectFromHomeScreen> {
             ),
             SizedBox(height: 12.dh),
             _buildTextField(
-              controller: _phoneController,
-              label: 'Contact Number',
-              hint: '+91 98765 43210',
-              keyboardType: TextInputType.phone,
+              controller: _cityController,
+              label: 'City',
+              hint: 'Enter your city',
+              keyboardType: TextInputType.text,
             ),
             SizedBox(height: 24.dh),
-
+            _buildTextField(
+              controller: _stateController,
+              label: 'State',
+              hint: 'Enter your state',
+            ),
+            SizedBox(height: 24.dh),
             // Preferred Date
             Text(
               'Preferred Collection Date',
@@ -216,76 +234,76 @@ class _CollectFromHomeScreenState extends State<CollectFromHomeScreen> {
             ),
             SizedBox(height: 24.dh),
 
-            // Preferred Time Slot
-            Text(
-              'Preferred Time Slot',
-              style: AppTextStyles.heading3.copyWith(fontSize: 16.dw),
-            ),
-            SizedBox(height: 12.dh),
-            ...List.generate(_timeSlots.length, (index) {
-              final slot = _timeSlots[index];
-              final isSelected = _selectedTimeSlot == slot;
-              return Padding(
-                padding: EdgeInsets.only(bottom: 8.dh),
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      _selectedTimeSlot = slot;
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(AppSizes.radiusM),
-                  child: Container(
-                    padding: EdgeInsets.all(AppSizes.paddingL.dw),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? context.colors.brandColor.withOpacity(0.1)
-                          : context.colors.bgColors,
-                      borderRadius: BorderRadius.circular(AppSizes.radiusM),
-                      border: Border.all(
-                        color: isSelected
-                            ? context.colors.brandColor
-                            : context.colors.border,
-                        width: isSelected ? 2 : 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.access_time,
-                              color: isSelected
-                                  ? context.colors.brandColor
-                                  : context.colors.textSecondary,
-                              size: 20.dw,
-                            ),
-                            SizedBox(width: 12.dw),
-                            Text(
-                              slot,
-                              style: AppTextStyles.body1.copyWith(
-                                color: isSelected
-                                    ? context.colors.brandColor
-                                    : context.colors.text,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (isSelected)
-                          Icon(
-                            Icons.check_circle,
-                            color: context.colors.brandColor,
-                            size: 20.dw,
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
+            // // Preferred Time Slot
+            // Text(
+            //   'Preferred Time Slot',
+            //   style: AppTextStyles.heading3.copyWith(fontSize: 16.dw),
+            // ),
+            // SizedBox(height: 12.dh),
+            // ...List.generate(_timeSlots.length, (index) {
+            //   final slot = _timeSlots[index];
+            //   final isSelected = _selectedTimeSlot == slot;
+            //   return Padding(
+            //     padding: EdgeInsets.only(bottom: 8.dh),
+            //     child: InkWell(
+            //       onTap: () {
+            //         setState(() {
+            //           _selectedTimeSlot = slot;
+            //         });
+            //       },
+            //       borderRadius: BorderRadius.circular(AppSizes.radiusM),
+            //       child: Container(
+            //         padding: EdgeInsets.all(AppSizes.paddingL.dw),
+            //         decoration: BoxDecoration(
+            //           color: isSelected
+            //               ? context.colors.brandColor.withOpacity(0.1)
+            //               : context.colors.bgColors,
+            //           borderRadius: BorderRadius.circular(AppSizes.radiusM),
+            //           border: Border.all(
+            //             color: isSelected
+            //                 ? context.colors.brandColor
+            //                 : context.colors.border,
+            //             width: isSelected ? 2 : 1,
+            //           ),
+            //         ),
+            //         child: Row(
+            //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //           children: [
+            //             Row(
+            //               children: [
+            //                 Icon(
+            //                   Icons.access_time,
+            //                   color: isSelected
+            //                       ? context.colors.brandColor
+            //                       : context.colors.textSecondary,
+            //                   size: 20.dw,
+            //                 ),
+            //                 SizedBox(width: 12.dw),
+            //                 Text(
+            //                   slot,
+            //                   style: AppTextStyles.body1.copyWith(
+            //                     color: isSelected
+            //                         ? context.colors.brandColor
+            //                         : context.colors.text,
+            //                     fontWeight: isSelected
+            //                         ? FontWeight.w600
+            //                         : FontWeight.normal,
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //             if (isSelected)
+            //               Icon(
+            //                 Icons.check_circle,
+            //                 color: context.colors.brandColor,
+            //                 size: 20.dw,
+            //               ),
+            //           ],
+            //         ),
+            //       ),
+            //     ),
+            //   );
+            // }),
           ],
         ),
       ),
@@ -294,15 +312,35 @@ class _CollectFromHomeScreenState extends State<CollectFromHomeScreen> {
           padding: EdgeInsets.all(AppSizes.paddingL.dw),
           child: GradientButton(
             onTap: _isFormValid()
-                ? () {
+                ? () async {
+                    var res = await context
+                        .read<DepositProvider>()
+                        .createTermDeposit(
+                          paymentMethod: PaymentMethod.agentPickup,
+                          // categoryId: widget.category.categoryId,
+                          productId: widget.product.id,
+                          amount: widget.amount,
+                          description: widget.fdName,
+                          pickupAddress: PickupAddress(
+                            addressLine1: _addressController.text,
+                            pincode: _pincodeController.text,
+                            landmark: _landmarkController.text,
+                            city: _cityController.text,
+                            state: _stateController.text,
+                            // phone: _phoneController.text,
+                          ),
+                          preferredDate: _selectedDate!,
+                        );
+                    if (res != null) {
+                      if (context.mounted) {
+                        pushAndRemoveUntil(NamedRoutes.dashboard);
+                        showSnackbar(
+                          'Term deposit created successfully!',
+                          bContext.colors.alert1,
+                        );
+                      }
+                    }
                     // TODO: Schedule home collection
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Home collection scheduled successfully!',
-                        ),
-                      ),
-                    );
                   }
                 : null,
             text: 'Schedule Collection',
@@ -390,8 +428,10 @@ class _CollectFromHomeScreenState extends State<CollectFromHomeScreen> {
   bool _isFormValid() {
     return _addressController.text.isNotEmpty &&
         _pincodeController.text.isNotEmpty &&
-        _phoneController.text.isNotEmpty &&
-        _selectedDate != null &&
-        _selectedTimeSlot != null;
+        // _phoneController.text.isNotEmpty &&
+        _cityController.text.isNotEmpty &&
+        _stateController.text.isNotEmpty &&
+        _selectedDate != null;
+    // _selectedTimeSlot != null;
   }
 }

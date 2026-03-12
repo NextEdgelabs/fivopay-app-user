@@ -1,3 +1,5 @@
+import 'package:janseva/models/organization.dart';
+
 import 'fixed_deposit.dart';
 import 'loan_application.dart';
 
@@ -42,6 +44,7 @@ class User {
   final double? totalLoans;
   final bool isShareHolder;
   final int totalSharePurchased;
+  final Organization? organization;
 
   User({
     this.memberId,
@@ -80,7 +83,7 @@ class User {
     this.isNew = false,
     required this.isShareHolder,
     required this.totalSharePurchased,
-
+    this.organization,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -90,7 +93,7 @@ class User {
       id: json['id'] ?? json["_id"] ?? '',
       phoneNumber: json['phoneNumber'] ?? json["phone"] ?? '',
       name: json['name'] ?? json["fullName"],
-          isShareHolder: json['isShareHolder'] ?? false,
+      isShareHolder: json['isShareHolder'] ?? false,
       totalSharePurchased: json['totalSharesPurchased'] ?? 0,
       email: json['email'],
       dateOfBirth: json['dateOfBirth'],
@@ -98,7 +101,7 @@ class User {
       address: json['address'] ?? json["addressLine1"],
       city: json['city'],
       state: json['state'],
-      pincode: json['pincode'],
+      pincode: json['postalCode'] ?? json['pincode'],
       nomineeName: json['nomineeName'],
       nomineeRelation: json['nomineeRelation'],
       nomineePhone: json['nomineePhone'],
@@ -133,7 +136,11 @@ class User {
       totalDeposits: json['totalDeposits']?.toDouble(),
       totalLoans: json['totalLoans']?.toDouble(),
       isNew: json['memberId'] == null ? true : false,
-  
+      organization: json['organisationId'] != null
+          ? (json['organisationId'] is String
+                ? Organization.fromJson({'id': json['organisationId']})
+                : Organization.fromJson(json['organisationId']))
+          : null,
     );
   }
 
@@ -152,7 +159,7 @@ class User {
       'address': address,
       'city': city,
       'state': state,
-      'pincode': pincode,
+      'postalCode': pincode,
       'nomineeName': nomineeName,
       'nomineeRelation': nomineeRelation,
       'nomineePhone': nomineePhone,
@@ -174,7 +181,7 @@ class User {
       // 'loanApplications': loanApplications?.map((la) => la.toJson()).toList(),
       'totalDeposits': totalDeposits,
       'totalLoans': totalLoans,
-   
+      'organisationId': organization?.toJson(),
     };
   }
 
@@ -211,8 +218,9 @@ class User {
     double? totalDeposits,
     double? totalLoans,
     bool? isNew,
-    bool ?isShareHolder,
-    int ?totalSharePurchased,
+    bool? isShareHolder,
+    int? totalSharePurchased,
+    Organization? organization,
   }) {
     return User(
       memberId: memberId,
@@ -249,6 +257,7 @@ class User {
       totalLoans: totalLoans ?? this.totalLoans,
       isNew: isNew ?? this.isNew,
       isShareHolder: isShareHolder ?? this.isShareHolder,
+      organization: organization ?? this.organization,
       totalSharePurchased: totalSharePurchased ?? this.totalSharePurchased,
     );
   }

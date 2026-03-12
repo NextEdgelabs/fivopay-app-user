@@ -28,14 +28,21 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
   String? _errorMessage;
   String? _referenceId;
   late String userId;
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    final loanProvider = context.read<LoanProvider>();
-    userId = context.read<UserProvider>().currentUser!.id;
-    if (loanProvider.relativeAadhaar != null) {
-      _aadhaarController.text = loanProvider.relativeAadhaar!;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      final loanProvider = Provider.of<LoanProvider>(context, listen: false);
+      userId = Provider.of<UserProvider>(
+        context,
+        listen: false,
+      ).currentUser!.id;
+      if (loanProvider.relativeAadhaar != null) {
+        _aadhaarController.text = loanProvider.relativeAadhaar!;
+      }
     }
   }
 
@@ -62,6 +69,7 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
     }
 
     // Get ScaffoldMessenger reference before async operation
+    if (!mounted) return;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     setState(() {
@@ -76,35 +84,35 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
         userId: userId,
       );
 
-      if (mounted) {
-        setState(() {
-          _referenceId = response.transactionId;
-          _showOTPField = true;
-          _isRequestingOtp = false;
-        });
+      if (!mounted) return;
 
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            content: Text('OTP sent to registered mobile number ✓'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
+      setState(() {
+        _referenceId = response.transactionId;
+        _showOTPField = true;
+        _isRequestingOtp = false;
+      });
+
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(
+          content: Text('OTP sent to registered mobile number ✓'),
+          backgroundColor: AppColors.success,
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isRequestingOtp = false;
-          _errorMessage = e.toString().replaceAll('KycApiException: ', '');
-        });
+      if (!mounted) return;
 
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text('Failed to send OTP: $_errorMessage'),
-            backgroundColor: AppColors.error,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
+      setState(() {
+        _isRequestingOtp = false;
+        _errorMessage = e.toString().replaceAll('KycApiException: ', '');
+      });
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Failed to send OTP: $_errorMessage'),
+          backgroundColor: AppColors.error,
+          duration: const Duration(seconds: 4),
+        ),
+      );
     }
   }
 
@@ -125,8 +133,11 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
       return;
     }
 
-    // Get ScaffoldMessenger reference before async operation
+    // Get all references BEFORE any async operations
+    if (!mounted) return;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final loanProvider = Provider.of<LoanProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     setState(() {
       _errorMessage = null;
@@ -138,34 +149,35 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
         transactionId: _referenceId!,
         otp: otp,
         userId: userId,
+        aadhaarNumber: _aadhaarController.text.trim(),
+        updateData: false,
       );
 
-      if (mounted) {
-        setState(() {
-          _isVerifying = false;
-        });
+      if (!mounted) return;
 
-        if (response.isSuccess && response.isValid) {
-          // Update loan provider with verified Aadhaar - check if mounted first
-          final loanProvider = context.read<LoanProvider>();
-          await loanProvider.setAadhaarVerified(
-            _aadhaarController.text.trim(),
-            response,
+      setState(() {
+        _isVerifying = false;
+      });
+
+      if (response.isSuccess && response.isValid) {
+        // Update loan provider with verified Aadhaar
+        await loanProvider.setAadhaarVerified(
+          _aadhaarController.text.trim(),
+          response,
+        );
+
+        // Update user profile with Aadhaar details
+        if (response.data != null && mounted) {
+          userProvider.updateFromAadhaarVerification(
+            name: response.data!.name ?? '',
+            aadhaarNumber: _aadhaarController.text.trim(),
+            dateOfBirth: response.data!.dateOfBirth,
+            gender: response.data!.gender,
+            address: response.data!.fullAddress,
           );
+        }
 
-          // Update user profile with Aadhaar details
-          if (response.data != null && mounted) {
-            final userProvider = context.read<UserProvider>();
-            userProvider.updateFromAadhaarVerification(
-              // aadhaarData: response.data!,
-              name: response.data!.name ?? '',
-              aadhaarNumber: _aadhaarController.text.trim(),
-              dateOfBirth: response.data!.dateOfBirth,
-              gender: response.data!.gender,
-              address: response.data!.fullAddress,
-            );
-          }
-
+        if (mounted) {
           scaffoldMessenger.showSnackBar(
             const SnackBar(
               content: Text('Aadhaar verified successfully! ✓'),
@@ -177,7 +189,9 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
             _showOTPField = false;
             _otpController.clear();
           });
-        } else {
+        }
+      } else {
+        if (mounted) {
           setState(() {
             _errorMessage = 'Aadhaar verification failed. Please try again.';
           });

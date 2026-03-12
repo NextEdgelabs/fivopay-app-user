@@ -10,6 +10,7 @@ import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../components/components.dart';
+import 'pan_confirmation_screen.dart';
 import 'waiting_for_approval_screen.dart';
 import '../services/auth_service.dart';
 
@@ -131,15 +132,30 @@ class _KycScreenState extends State<KycScreen> {
         panNumber: pan,
         name: name,
         dateOfBirth: dob,
-        userId:  userId!
+        userId: userId!,
       );
 
       setState(() {
         _panVerificationResponse = response;
         _isPanVerifying = false;
       });
-
-      if (response.isSuccess && response.data.status == 'valid') {
+      final result = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PanConfirmationScreen(
+            verificationResponse: response,
+            enteredName: name,
+            onConfirm: () {
+              Navigator.pop(context, true);
+            },
+            onRetry: () {
+              Navigator.pop(context, false);
+            },
+          ),
+        ),
+      );
+      //response.isSuccess && response.data.status == 'valid'
+      if (result == true) {
         // Save PAN data locally and to server
         await SfService.saveJson(SfService.panKey, response.data.toJson());
 
@@ -317,9 +333,9 @@ class _KycScreenState extends State<KycScreen> {
     try {
       final response = await KycService.requestAadhaarOtp(
         userId: context.read<UserProvider>().currentUser!.id,
-        
+
         aadhaarNumber: aadhaar,
-        reason: "Loan Kyc Verification"
+        reason: "Loan Kyc Verification",
       );
 
       setState(() {
@@ -380,9 +396,11 @@ class _KycScreenState extends State<KycScreen> {
 
     try {
       final response = await KycService.verifyAadhaarOtp(
-         userId: context.read<UserProvider>().currentUser!.id,
+        userId: context.read<UserProvider>().currentUser!.id,
         transactionId: _aadhaarReferenceId!,
         otp: otp,
+        aadhaarNumber: _aadharController.text.trim(),
+        updateData: true,
       );
 
       if (response.isSuccess && response.isValid) {

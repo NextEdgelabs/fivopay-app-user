@@ -102,8 +102,9 @@ class NewAppColors extends ThemeExtension<NewAppColors> {
     disableButtonText: Color(0xFF7C8CA8), // Disabled text
     // Brand & Accent Colors
     brandColor: Color(0xFF3D7AFF), // Primary brand blue (lighter for dark mode)
-    gradientOne: Color(0xFF2A64D9), // Gradient start (primary blue)
-    gradientTwo: Color(0xFF5B96FF), // Gradient end (lighter blue)
+    gradientOne: Color(0xFF3B82F6), // Blue
+    // Gradient start (primary blue)
+    gradientTwo: Color(0xFF8B5CF6), // Gradient end (lighter blue)
     // Interactive Elements
     backIcon: Color(0xFF6B8AAE), // Back icon color
     backIconBorder: Color(0xFF1F2A3D), // Back icon border
@@ -153,8 +154,9 @@ class NewAppColors extends ThemeExtension<NewAppColors> {
     disableButtonText: Color(0xFFAAB8CC), // Disabled text
     // Brand & Accent Colors
     brandColor: Color(0xFF2A64D9), // Primary brand blue
-    gradientOne: Color(0xFF2A64D9), // Gradient start (brand)
-    gradientTwo: Color(0xFF5B96FF), // Gradient end (lighter blue)
+    gradientOne: Color(0xFF3B82F6), // Blue
+    // Gradient start (primary blue)
+    gradientTwo: Color(0xFF8B5CF6), // Gradient end (lighter blue)
     // Interactive Elements
     backIcon: Color(0xFF526B8A), // Back icon color
     backIconBorder: Color(0xFFDDE8F5), // Back icon border

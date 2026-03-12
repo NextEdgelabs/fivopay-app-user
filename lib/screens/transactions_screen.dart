@@ -114,10 +114,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           final t = transactions[index];
                           return TransactionListItem(
                             name: t.description,
-                            timestamp: t.timestamp.toString(),
+                            timestamp: t.timestamp,
                             amountText: t.amount.toStringAsFixed(2),
                             isNegative: t.type == 'withdraw',
                             showIcon: false,
+                            status: t.status,
                           );
 
                           //  _buildTransactionCard(

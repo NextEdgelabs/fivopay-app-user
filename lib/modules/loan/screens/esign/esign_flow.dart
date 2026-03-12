@@ -7,6 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../providers/user_provider.dart';
+import '../../../../screens/document_viewer_screen.dart';
+import '../../../../services/common_utils.dart';
+import '../../../auth/provider/auth_provider.dart';
 
 class EsignLoanScreen extends StatefulWidget {
   final EsignLoanArguments args;
@@ -158,9 +161,21 @@ class _EsignLoanScreenState extends State<EsignLoanScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PdfViewScreen(url: url),
+                                  builder: (context) => DocumentViewerScreen(
+                                    url: url,
+                                    documentName:
+                                        loan.agreement?.documentName ??
+                                        'Document',
+                                    isPdf: isPdfDocument(url),
+                                  ),
                                 ),
                               );
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //     builder: (context) => PdfViewScreen(url: url),
+                              //   ),
+                              // );
                             },
                             child: Card(
                               elevation: 2,
@@ -248,7 +263,7 @@ class _EsignLoanScreenState extends State<EsignLoanScreen> {
                               ),
                               _TermItem(
                                 text:
-                                    'I agree to the interest rate and repayment terms',
+                                    "I agree to the ${context.read<AuthProvider>().isEthicalBanking ? 'Profit Rate' : 'Interest Rate'} and repayment terms",
                               ),
                               _TermItem(
                                 text:

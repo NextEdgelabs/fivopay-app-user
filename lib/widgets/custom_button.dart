@@ -15,6 +15,9 @@ class CustomButton extends StatelessWidget {
   final IconData? icon;
   final ButtonVariant variant;
   final bool useGradientText;
+  final bool useGradientBorder;
+  final Gradient? gradientBorder;
+  final Color? disabledColor;
 
   const CustomButton({
     super.key,
@@ -27,12 +30,41 @@ class CustomButton extends StatelessWidget {
     this.icon,
     this.variant = ButtonVariant.filled,
     this.useGradientText = false,
+    this.useGradientBorder = false,
+    this.gradientBorder,
+    this.disabledColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final isOutlined = variant == ButtonVariant.outlined;
     final primaryColor = backgroundColor ?? AppColors.primary;
+
+    // If outlined variant with gradient border
+    if (isOutlined && useGradientBorder) {
+      return Container(
+        height: height ?? AppSizes.buttonHeight,
+        decoration: BoxDecoration(
+          gradient: gradientBorder ?? brandlinearGradient,
+          borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        ),
+        child: Container(
+          margin: const EdgeInsets.all(2), // Border width
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppSizes.radiusM - 1),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: isLoading ? null : onPressed,
+              borderRadius: BorderRadius.circular(AppSizes.radiusM - 1),
+              child: Center(child: _buildButtonContent()),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Container(
       height: height ?? AppSizes.buttonHeight,
@@ -66,6 +98,7 @@ class CustomButton extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: textColor ?? Colors.white,
+                disabledBackgroundColor: disabledColor,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppSizes.radiusM),

@@ -196,7 +196,9 @@ class LoanProduct {
     maxTenureMonths: json["maxTenureMonths"] ?? 0,
     repaymentFrequency: json["repaymentFrequency"] ?? '',
     status: json["status"] ?? '',
-    loanCategory: json["category"] != null
+    loanCategory: json["category"] is String
+        ? null
+        : json["category"] != null
         ? LoanCategory.fromJson(json["category"])
         : LoanCategory.fromJson({}),
     eligibilityCriteria: json["eligibilityCriteria"] != null

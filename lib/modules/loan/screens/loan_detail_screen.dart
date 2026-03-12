@@ -5,6 +5,7 @@ import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
 import 'package:provider/provider.dart';
+import '../../auth/provider/auth_provider.dart';
 import '../models/models.dart';
 import '../providers/loan_provider.dart';
 import 'loan_application_screen.dart';
@@ -57,7 +58,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
       backgroundColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
       flexibleSpace: FlexibleSpaceBar(
         title: Padding(
-          padding: const EdgeInsets.only(top: 20 , left: 20, right: 20),
+          padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
           child: Text(
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -75,7 +76,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
               end: Alignment.bottomCenter,
               colors: [
                 LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
-                LoanUtils.getLoanTypeColor(widget.args.loan.loanType).withOpacity(0.8),
+                LoanUtils.getLoanTypeColor(
+                  widget.args.loan.loanType,
+                ).withOpacity(0.8),
               ],
             ),
           ),
@@ -167,7 +170,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
                     const SizedBox(width: 16),
                     Expanded(
                       child: _buildSummaryItem(
-                        'Interest Rate',
+                        context.read<AuthProvider>().isEthicalBanking
+                            ? 'Profit Rate'
+                            : 'Interest Rate',
                         widget.args.loan.formattedInterestRate,
                         Icons.percent,
                         Colors.blue,
@@ -320,7 +325,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
               widget.args.loan.formattedMaxAmount,
             ),
             _buildDetailRow(
-              'Interest Rate',
+              context.read<AuthProvider>().isEthicalBanking
+                  ? 'Profit Rate'
+                  : 'Interest Rate',
               widget.args.loan.formattedInterestRate,
             ),
             _buildDetailRow(
@@ -375,7 +382,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
                         Icon(
                           Icons.description,
                           size: 20,
-                          color: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
+                          color: LoanUtils.getLoanTypeColor(
+                            widget.args.loan.loanType,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -413,7 +422,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
+                        color: LoanUtils.getLoanTypeColor(
+                          widget.args.loan.loanType,
+                        ),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -547,7 +558,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
               icon: const Icon(Icons.calculate),
               label: const Text('Calculate EMI'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
+                foregroundColor: LoanUtils.getLoanTypeColor(
+                  widget.args.loan.loanType,
+                ),
                 side: BorderSide(
                   color: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
                 ),
@@ -563,7 +576,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
               icon: const Icon(Icons.send),
               label: const Text('Apply Now'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
+                backgroundColor: LoanUtils.getLoanTypeColor(
+                  widget.args.loan.loanType,
+                ),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -576,7 +591,6 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
       ),
     );
   }
-
 
   void _shareLoadDetails() {
     // Implement share functionality

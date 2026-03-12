@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/modules/auth/provider/auth_provider.dart';
 import 'package:janseva/modules/fd_rd/deposit_provider.dart';
 import 'package:janseva/modules/fd_rd/model/deposit_category_model.dart';
 import 'package:janseva/routes/routes.dart';
@@ -378,7 +379,9 @@ class _DepositProductsScreenState extends State<DepositProductsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Intrest Earned',
+                        context.read<AuthProvider>().isEthicalBanking
+                            ? 'Profit Earned'
+                            : 'Interest Earned',
                         style: AppTextStyles.caption.copyWith(
                           color: context.colors.textSecondary,
                         ),
@@ -468,29 +471,29 @@ class _DepositProductsScreenState extends State<DepositProductsScreen> {
               ),
               SizedBox(height: 12.dh),
 
-              // Branch Deposit Option
-              _buildMethodOption(
-                context: context,
-                icon: Icons.location_on,
-                title: 'Branch Deposit',
-                subtitle: 'Visit our branch and deposit in person',
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(
-                    context,
-                    NamedRoutes.branchDepositScreen,
-                    arguments: {
-                      'category': widget.category,
-                      'product': _selectedProduct,
-                      'amount': double.tryParse(_amountController.text) ?? 0,
-                      'fdName': _fdNameController.text,
-                    },
-                  );
-                },
-              ),
-              SizedBox(height: 12.dh),
+              // // Branch Deposit Option
+              // _buildMethodOption(
+              //   context: context,
+              //   icon: Icons.location_on,
+              //   title: 'Branch Deposit',
+              //   subtitle: 'Visit our branch and deposit in person',
+              //   onTap: () {
+              //     Navigator.pop(context);
+              //     Navigator.pushNamed(
+              //       context,
+              //       NamedRoutes.branchDepositScreen,
+              //       arguments: {
+              //         'category': widget.category,
+              //         'product': _selectedProduct,
+              //         'amount': double.tryParse(_amountController.text) ?? 0,
+              //         'fdName': _fdNameController.text,
+              //       },
+              //     );
+              //   },
+              // ),
+              // SizedBox(height: 12.dh),
 
-              // Collect from Home Option
+              // // Collect from Home Option
               _buildMethodOption(
                 context: context,
                 icon: Icons.home,

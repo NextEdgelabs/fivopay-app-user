@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:janseva/main.dart';
 import 'package:janseva/modules/buyShares/screens/buysharesScreen.dart';
 import 'package:janseva/modules/loan/screens/loan_product_screen.dart';
@@ -140,7 +141,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       case 0:
         return _buildBankTab(transactionProvider);
       case 1:
-        return FixedDepositScreen();
+        return SizedBox.shrink();
       case 2:
         return BuySharesScreen();
       case 3:
@@ -265,10 +266,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                           final t = transactions[index];
                           return TransactionListItem(
                             name: t.description,
-                            timestamp: t.timestamp.toString(),
+                            timestamp: t.timestamp,
                             amountText: t.amount.toStringAsFixed(2),
                             isNegative: t.type == 'withdraw',
                             showIcon: false,
+                            status: t.status,
                           );
                         },
                       ),
@@ -401,10 +403,25 @@ class _DashboardScreenState extends State<DashboardScreen>
       appBar: AppBar(
         title: Row(
           children: [
-            const CircleAvatar(
-              radius: 18,
-              backgroundImage: AssetImage("assets/icons/avatars.jpg"),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: context.colors.brandColor,
+                shape: BoxShape.circle,
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(AppSizes.paddingXS),
+                child: Icon(
+                  Iconsax.user_octagon,
+                  color: Colors.white,
+                  size: 26,
+                ),
+              ),
             ),
+            // CircleAvatar(
+            //         backgroundColor: contet,
+            //         radius: 18,
+            //         child: Icon(Iconsax.user_octagon, color: Colors.white),
+            //       ),
             const SizedBox(width: AppSizes.paddingM),
             Text(
               'FIVOPAY',

@@ -35,7 +35,9 @@ lib/modules/loan/
 - ✅ **Favorites Management**: Toggle, check, and persist favorite loans
 - ✅ **Application Data**: Store and manage loan application data
 - ✅ **EMI Calculator**: Built-in EMI calculation with math formulas
-- ✅ **Search & Filter**: Advanced filtering by type, amount, interest rate, tenure
+- ✅ **Search & Filter**: Advanced filtering by type, amount,   context.read<AuthProvider>().isEthicalBanking
+                        ? 'Profit Rate'
+                        : 'Interest Rate', tenure
 - ✅ **Data Refresh**: Pull-to-refresh and manual refresh capabilities
 
 **Advanced Methods:**

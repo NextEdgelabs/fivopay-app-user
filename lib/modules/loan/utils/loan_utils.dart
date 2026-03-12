@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/main.dart';
+import 'package:janseva/utils/theme_extension.dart';
 
 class LoanUtils {
   static Color getLoanTypeColor(String loanType) {
-    // Generate a consistent "random" color based on the loan type string
-    final hash = loanType.toLowerCase().hashCode;
-    final random = hash.abs();
-    
-    // Generate RGB values with good saturation and brightness
-    final hue = (random % 360).toDouble();
-    final saturation = 0.6 + ((random >> 8) % 30) / 100; // 0.6-0.9
-    final lightness = 0.45 + ((random >> 16) % 20) / 100; // 0.45-0.65
-    
-    return HSLColor.fromAHSL(1.0, hue, saturation, lightness).toColor();
+    // // Generate a consistent "random" color based on the loan type string
+    // final hash = loanType.toLowerCase().hashCode;
+    // final random = hash.abs();
+
+    // // Generate RGB values with good saturation and brightness
+    // final hue = (random % 360).toDouble();
+    // final saturation = 0.6 + ((random >> 8) % 30) / 100; // 0.6-0.9
+    // final lightness = 0.45 + ((random >> 16) % 20) / 100; // 0.45-0.65
+
+    // return HSLColor.fromAHSL(1.0, hue, saturation, lightness).toColor();
+
+    return bContext.colors.brandColor;
   }
 
   static IconData getLoanTypeIcon(String loanType) {

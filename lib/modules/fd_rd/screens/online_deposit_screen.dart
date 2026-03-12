@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/modules/fd_rd/deposit_provider.dart';
 import 'package:janseva/modules/fd_rd/model/deposit_category_model.dart';
+import 'package:janseva/modules/fd_rd/model/deposit_enum.dart';
 import 'package:janseva/modules/fd_rd/model/deposit_product_model.dart';
+import 'package:janseva/modules/wallet_module/provider/razorpay_service.dart';
+import 'package:janseva/routes/navigator.dart';
+import 'package:janseva/routes/routes.dart';
+import 'package:janseva/services/common_utils.dart';
 import 'package:janseva/utils/app_size.dart';
 import 'package:janseva/utils/constants.dart';
 import 'package:janseva/utils/theme_extension.dart';
 import 'package:janseva/widgets/gradient_button.dart';
+import 'package:provider/provider.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+
+import '../../auth/provider/auth_provider.dart';
 
 class OnlineDepositScreen extends StatefulWidget {
   final DepositCategory category;
@@ -73,7 +83,9 @@ class _OnlineDepositScreenState extends State<OnlineDepositScreen> {
                   ),
                   SizedBox(height: 12.dh),
                   _buildSummaryRow(
-                    'Interest Rate',
+                    context.read<AuthProvider>().isEthicalBanking
+                        ? 'Profit Rate'
+                        : 'Interest Rate',
                     '${widget.product.defaultInterestRate.toStringAsFixed(2)}% p.a',
                   ),
                   SizedBox(height: 12.dh),
@@ -86,87 +98,87 @@ class _OnlineDepositScreenState extends State<OnlineDepositScreen> {
             ),
             SizedBox(height: 24.dh),
 
-            // Payment Instructions
-            Text(
-              'Payment Instructions',
-              style: AppTextStyles.heading3.copyWith(fontSize: 16.dw),
-            ),
-            SizedBox(height: 12.dh),
-            Container(
-              padding: EdgeInsets.all(AppSizes.paddingL.dw),
-              decoration: BoxDecoration(
-                color: context.colors.bgColors,
-                borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                border: Border.all(color: context.colors.border),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildInstructionStep(
-                    '1',
-                    'Use online banking or UPI to transfer funds',
-                  ),
-                  SizedBox(height: 12.dh),
-                  _buildInstructionStep(
-                    '2',
-                    'Upload payment proof/transaction screenshot',
-                  ),
-                  SizedBox(height: 12.dh),
-                  _buildInstructionStep(
-                    '3',
-                    'Your deposit will be activated after verification',
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 24.dh),
+            // // Payment Instructions
+            // Text(
+            //   'Payment Instructions',
+            //   style: AppTextStyles.heading3.copyWith(fontSize: 16.dw),
+            // ),
+            // SizedBox(height: 12.dh),
+            // Container(
+            //   padding: EdgeInsets.all(AppSizes.paddingL.dw),
+            //   decoration: BoxDecoration(
+            //     color: context.colors.bgColors,
+            //     borderRadius: BorderRadius.circular(AppSizes.radiusL),
+            //     border: Border.all(color: context.colors.border),
+            //   ),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       _buildInstructionStep(
+            //         '1',
+            //         'Use online banking or UPI to transfer funds',
+            //       ),
+            //       SizedBox(height: 12.dh),
+            //       _buildInstructionStep(
+            //         '2',
+            //         'Upload payment proof/transaction screenshot',
+            //       ),
+            //       SizedBox(height: 12.dh),
+            //       _buildInstructionStep(
+            //         '3',
+            //         'Your deposit will be activated after verification',
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // SizedBox(height: 24.dh),
 
-            // Bank Details Card
-            Container(
-              padding: EdgeInsets.all(AppSizes.paddingL.dw),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    context.colors.brandColor.withOpacity(0.1),
-                    context.colors.gradientTwo.withOpacity(0.1),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                border: Border.all(
-                  color: context.colors.brandColor.withOpacity(0.3),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.account_balance,
-                        color: context.colors.brandColor,
-                        size: 20.dw,
-                      ),
-                      SizedBox(width: 8.dw),
-                      Text(
-                        'Bank Account Details',
-                        style: AppTextStyles.heading3.copyWith(
-                          fontSize: 16.dw,
-                          color: context.colors.brandColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16.dh),
-                  _buildBankDetail('Bank Name', 'JanSeva Co-operative Bank'),
-                  SizedBox(height: 8.dh),
-                  _buildBankDetail('Account Number', '1234567890123456'),
-                  SizedBox(height: 8.dh),
-                  _buildBankDetail('IFSC Code', 'JSEV0001234'),
-                  SizedBox(height: 8.dh),
-                  _buildBankDetail('Account Holder', 'JanSeva Deposits'),
-                ],
-              ),
-            ),
+            // // Bank Details Card
+            // Container(
+            //   padding: EdgeInsets.all(AppSizes.paddingL.dw),
+            //   decoration: BoxDecoration(
+            //     gradient: LinearGradient(
+            //       colors: [
+            //         context.colors.brandColor.withOpacity(0.1),
+            //         context.colors.gradientTwo.withOpacity(0.1),
+            //       ],
+            //     ),
+            //     borderRadius: BorderRadius.circular(AppSizes.radiusL),
+            //     border: Border.all(
+            //       color: context.colors.brandColor.withOpacity(0.3),
+            //     ),
+            //   ),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       Row(
+            //         children: [
+            //           Icon(
+            //             Icons.account_balance,
+            //             color: context.colors.brandColor,
+            //             size: 20.dw,
+            //           ),
+            //           SizedBox(width: 8.dw),
+            //           Text(
+            //             'Bank Account Details',
+            //             style: AppTextStyles.heading3.copyWith(
+            //               fontSize: 16.dw,
+            //               color: context.colors.brandColor,
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //       SizedBox(height: 16.dh),
+            //       _buildBankDetail('Bank Name', 'JanSeva Co-operative Bank'),
+            //       SizedBox(height: 8.dh),
+            //       _buildBankDetail('Account Number', '1234567890123456'),
+            //       SizedBox(height: 8.dh),
+            //       _buildBankDetail('IFSC Code', 'JSEV0001234'),
+            //       SizedBox(height: 8.dh),
+            //       _buildBankDetail('Account Holder', 'JanSeva Deposits'),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -174,15 +186,30 @@ class _OnlineDepositScreenState extends State<OnlineDepositScreen> {
         child: Padding(
           padding: EdgeInsets.all(AppSizes.paddingL.dw),
           child: GradientButton(
-            onTap: () {
-              // TODO: Implement payment proof upload
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Payment proof upload coming soon...'),
-                ),
+            onTap: () async {
+              var res = await context.read<DepositProvider>().createTermDeposit(
+                productId: widget.product.id,
+                amount: widget.amount,
+                description: widget.fdName,
+                paymentMethod: PaymentMethod.razorpay,
               );
+              if (res != null) {
+                RazorpayService.openCheckoutWithModel(
+                  razorpayOrder: res.order,
+                  onPaymentSuccess: (_) {
+                    showSnackbar("Payment successful!", context.colors.alert1);
+                    pushAndRemoveUntil(
+                      NamedRoutes.dashboard,
+                    ); // Return to previous screen with success
+                  },
+                  onPaymentError: (_) {
+                    pushAndRemoveUntil(NamedRoutes.dashboard);
+                    showSnackbar("Payment failed!");
+                  },
+                );
+              }
             },
-            text: 'Upload Payment Proof',
+            text: 'Proceed To Pay',
           ),
         ),
       ),

@@ -239,7 +239,11 @@ class LoanProviderV2 extends ChangeNotifier {
     }
   }
 
-  Future<void> verifyAdhaar(String otp, String userId) async {
+  Future<void> verifyAdhaar(
+    String otp,
+    String userId,
+    String aadhaarNumber,
+  ) async {
     try {
       _error = '';
       _isAdhaarLoading = true;
@@ -249,6 +253,8 @@ class LoanProviderV2 extends ChangeNotifier {
         otp: otp,
         transactionId: _transacrtionId!,
         userId: userId,
+        aadhaarNumber: aadhaarNumber,
+        updateData: false,
       );
 
       if (!res.isSuccess) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/modules/loan/providers/loan_provider.dart';
 import 'package:provider/provider.dart';
+import '../../auth/provider/auth_provider.dart';
 import '../models/models.dart';
 import '../utils/loan_utils.dart';
 
@@ -47,7 +48,9 @@ class LoanCategoryDisplayCard extends StatelessWidget {
             const SizedBox(height: 16),
             buildDetailRow(
               context,
-              'Interest Rate',
+              context.read<AuthProvider>().isEthicalBanking
+                  ? 'Profit Rate'
+                  : 'Interest Rate',
               loanCategory.formattedInterestRate,
             ),
             buildDetailRow(
@@ -116,7 +119,9 @@ class LoanProductDisplayCard extends StatelessWidget {
             const SizedBox(height: 16),
             buildDetailRow(
               context,
-              'Interest Rate',
+              context.read<AuthProvider>().isEthicalBanking
+                  ? 'Profit Rate'
+                  : 'Interest Rate',
               product.formattedInterestRate,
             ),
             buildDetailRow(

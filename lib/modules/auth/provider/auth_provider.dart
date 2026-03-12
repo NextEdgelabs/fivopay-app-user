@@ -26,6 +26,8 @@ class AuthProvider extends ChangeNotifier {
   String? kycaccessToken;
   String? apiversion;
 
+  bool isEthicalBanking = true;
+
   AuthProvider() {
     initKyc();
   }
@@ -44,6 +46,9 @@ class AuthProvider extends ChangeNotifier {
       final user = await AuthService.getCurrentUser();
       if (user != null) {
         _currentUser = user;
+        isEthicalBanking =
+            user.organization?.bankingMode != 'Conventional Banking';
+        notifyListeners();
       }
       final accessToken = await SfService.getString(SfService.accesstoken);
       if (accessToken != null) {
@@ -102,7 +107,6 @@ class AuthProvider extends ChangeNotifier {
 
       if (result['success']) {
         //TEMP INIT
-    
 
         if (result["result"]['user'] == null) {
           _currentUser = User(

@@ -26,14 +26,18 @@ lib/modules/loan/
 ### LoanCategory
 Main model representing a loan category with all details:
 - Basic info: id, name, description, type
-- Financial details: amount range, interest rate, tenure
+- Financial details: amount range,   context.read<AuthProvider>().isEthicalBanking
+                        ? 'Profit Rate'
+                        : 'Interest Rate', tenure
 - Fees: processing, prepayment, late payment charges
 - Eligibility criteria and required documents
 - Features and terms & conditions
 
 **Helper Properties:**
 - `formattedMinAmount` / `formattedMaxAmount`: Formatted currency strings
-- `formattedInterestRate`: Interest rate with % symbol
+- `formattedInterestRate`:   context.read<AuthProvider>().isEthicalBanking
+                        ? 'Profit Rate'
+                        : 'Interest Rate' with % symbol
 - `formattedTenure`: Tenure range in months
 - `loanAmountRange`: Complete amount range string
 

@@ -18,8 +18,12 @@ import '../modules/fd_rd/screens/collect_from_home_screen.dart';
 import '../modules/loan/screens/loan_application_screen_v2.dart';
 import '../modules/loan/screens/loan_detail_screen.dart';
 import '../modules/wallet_module/screens/deposit_screen.dart';
-import '../screens/fixed_deposit_screen.dart';
 import '../screens/splash_screen.dart';
+import '../screens/deposit_detail_screen.dart';
+import '../screens/loan_application_detail_screen.dart';
+import '../screens/privacy_policy_screen.dart';
+import '../screens/terms_of_service_screen.dart';
+import '../screens/support_screen.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
@@ -67,8 +71,9 @@ Route<dynamic> generateRoute(RouteSettings settings) {
           // args: settings.arguments as LoanApplicationScreenV2Arguments,
         ),
       );
-    case NamedRoutes.fixedDepositScreen:
-      return _getPageRoute(FixedDepositScreen());
+    // case NamedRoutes.fixedDepositScreen:
+    //   return _getPageRoute(FixedDepositScreen());
+
     case NamedRoutes.selectDepositTypeHomeScreen:
       return _getPageRoute(SelectDepositTypeHomeScreen());
     case NamedRoutes.onlineDepositScreen:
@@ -81,16 +86,16 @@ Route<dynamic> generateRoute(RouteSettings settings) {
           fdName: args['fdName'],
         ),
       );
-    case NamedRoutes.branchDepositScreen:
-      final args = settings.arguments as Map<String, dynamic>;
-      return _getPageRoute(
-        BranchDepositScreen(
-          category: args['category'],
-          product: args['product'],
-          amount: args['amount'],
-          fdName: args['fdName'],
-        ),
-      );
+    // case NamedRoutes.branchDepositScreen:
+    //   final args = settings.arguments as Map<String, dynamic>;
+    //   return _getPageRoute(
+    //     BranchDepositScreen(
+    //       category: args['category'],
+    //       product: args['product'],
+    //       amount: args['amount'],
+    //       fdName: args['fdName'],
+    //     ),
+    //   );
     case NamedRoutes.collectFromHomeScreen:
       final args = settings.arguments as Map<String, dynamic>;
       return _getPageRoute(
@@ -101,6 +106,18 @@ Route<dynamic> generateRoute(RouteSettings settings) {
           fdName: args['fdName'],
         ),
       );
+    case NamedRoutes.depositDetailScreen:
+      final args = settings.arguments as DepositDetailScreenArguments;
+      return _getPageRoute(DepositDetailScreen(deposit: args.deposit));
+    case NamedRoutes.loanApplicationDetailScreen:
+      final args = settings.arguments as LoanApplicationDetailScreenArguments;
+      return _getPageRoute(LoanApplicationDetailScreen(loan: args.loan));
+    case NamedRoutes.privacyPolicy:
+      return _getPageRoute(PrivacyPolicyScreen());
+    case NamedRoutes.termsOfService:
+      return _getPageRoute(TermsOfServiceScreen());
+    case NamedRoutes.support:
+      return _getPageRoute(SupportScreen());
     default:
       return _getPageRoute(SplashScreen());
   }

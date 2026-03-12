@@ -24,10 +24,22 @@ class AadharVerifyArguments {
   final int stepNumber;
   final Color themeColor;
 
-  AadharVerifyArguments({required this.stepNumber , required this.themeColor});
+  AadharVerifyArguments({required this.stepNumber, required this.themeColor});
 }
 
-class LoanApplicationScreenV2Arguments{
+class LoanApplicationScreenV2Arguments {
   final LoanProduct loan;
   LoanApplicationScreenV2Arguments({required this.loan});
+}
+
+class DepositDetailScreenArguments {
+  final dynamic deposit;
+
+  DepositDetailScreenArguments({required this.deposit});
+}
+
+class LoanApplicationDetailScreenArguments {
+  final LoanApplicationData loan;
+
+  LoanApplicationDetailScreenArguments({required this.loan});
 }

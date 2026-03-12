@@ -21,7 +21,9 @@ class PanConfirmationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final panData = verificationResponse.data;
-    final isSuccess = verificationResponse.isSuccess;
+    final isSuccess =
+        verificationResponse.data.nameMatch &&
+        verificationResponse.data.dobMatch;
 
     return Scaffold(
       appBar: AppBar(
@@ -58,7 +60,7 @@ class PanConfirmationScreen extends StatelessWidget {
 
               // Status Message
               Text(
-                panData.statusMessage,
+                isSuccess ? panData.statusMessage : 'PAN verification failed.',
                 style: AppTextStyles.heading2.copyWith(
                   color: isSuccess ? AppColors.success : AppColors.error,
                   fontWeight: FontWeight.bold,
@@ -102,10 +104,7 @@ class PanConfirmationScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Verification Details',
-                      style: AppTextStyles.heading3,
-                    ),
+                    Text('Verification Details', style: AppTextStyles.heading3),
                     const SizedBox(height: AppSizes.paddingL),
 
                     // PAN Number
@@ -125,8 +124,12 @@ class PanConfirmationScreen extends StatelessWidget {
                           : Icons.cancel,
                       label: 'Status',
                       value: panData.status.toUpperCase(),
-                      iconColor: isSuccess ? AppColors.success : AppColors.error,
-                      valueColor: isSuccess ? AppColors.success : AppColors.error,
+                      iconColor: panData.status == 'valid'
+                          ? AppColors.success
+                          : AppColors.error,
+                      valueColor: panData.status == 'valid'
+                          ? AppColors.success
+                          : AppColors.error,
                     ),
 
                     const Divider(height: AppSizes.paddingXL),
@@ -138,10 +141,26 @@ class PanConfirmationScreen extends StatelessWidget {
                           : Icons.cancel,
                       label: 'Name Match',
                       value: panData.nameMatch ? 'Verified' : 'Not Matched',
-                      iconColor:
-                          panData.nameMatch ? AppColors.success : AppColors.warning,
-                      valueColor:
-                          panData.nameMatch ? AppColors.success : AppColors.warning,
+                      iconColor: panData.nameMatch
+                          ? AppColors.success
+                          : AppColors.warning,
+                      valueColor: panData.nameMatch
+                          ? AppColors.success
+                          : AppColors.warning,
+                    ),
+                    const Divider(height: AppSizes.paddingXL),
+                    _buildDetailRow(
+                      icon: panData.dobMatch
+                          ? Icons.check_circle
+                          : Icons.cancel,
+                      label: 'Dob Match',
+                      value: panData.dobMatch ? 'Verified' : 'Not Matched',
+                      iconColor: panData.dobMatch
+                          ? AppColors.success
+                          : AppColors.warning,
+                      valueColor: panData.dobMatch
+                          ? AppColors.success
+                          : AppColors.warning,
                     ),
 
                     const Divider(height: AppSizes.paddingXL),
@@ -162,9 +181,7 @@ class PanConfirmationScreen extends StatelessWidget {
                           ? Icons.link
                           : Icons.link_off,
                       label: 'Aadhaar Seeding',
-                      value: panData.isAadhaarSeeded
-                          ? 'Linked'
-                          : 'Not Linked',
+                      value: panData.isAadhaarSeeded ? 'Linked' : 'Not Linked',
                       iconColor: panData.isAadhaarSeeded
                           ? AppColors.success
                           : AppColors.textSecondary,
@@ -216,18 +233,12 @@ class PanConfirmationScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.info.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(AppSizes.radiusM),
-                    border: Border.all(
-                      color: AppColors.info.withOpacity(0.2),
-                    ),
+                    border: Border.all(color: AppColors.info.withOpacity(0.2)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: AppColors.info,
-                        size: 20,
-                      ),
+                      Icon(Icons.info_outline, color: AppColors.info, size: 20),
                       const SizedBox(width: AppSizes.paddingM),
                       Expanded(
                         child: Text(

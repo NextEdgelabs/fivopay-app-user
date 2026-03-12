@@ -59,7 +59,6 @@ class AuthService {
       log(res.toString());
       var user = User.fromJson(res['result']);
 
- 
       user.copyWith(isNew: false);
       return user;
     } catch (e) {
@@ -110,9 +109,18 @@ class AuthService {
   static Future<User?> getCurrentUser() async {
     try {
       var userData = await SfService.getJson(SfService.userKey);
-      if (userData != null) {
-        return User.fromJson(userData);
+      String userId = userData?['id'] ?? '';
+      if (userData != null && userId.isNotEmpty) {
+        var res = await ApiService.get(
+          '${ApiConfig.domain}/api/v1/user/get-user-by-id/$userId',
+        );
+        if (res['success'] == true) {
+          var user = User.fromJson(res['data']);
+          _saveUserData(user.toJson());
+          return user;
+        }
       }
+
       return null;
     } catch (e) {
       print('Error getting current user: $e');

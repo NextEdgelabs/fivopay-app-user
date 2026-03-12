@@ -94,6 +94,8 @@ class KycService {
     required String transactionId,
     required String otp,
     required String userId,
+    required String aadhaarNumber,
+    required bool? updateData,
   }) async {
     try {
       final url = '${ApiConfig.domain}${ApiConfig.aadhaarVerifyPath}';
@@ -102,6 +104,8 @@ class KycService {
         'userId': userId,
         'transactionId': transactionId,
         'otp': otp,
+        'aadharNumber': aadhaarNumber,
+        'updateAddress': updateData ?? false,
       };
 
       // print('🔍 [KYC] Aadhaar OTP Verification:');

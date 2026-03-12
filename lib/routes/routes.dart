@@ -25,6 +25,12 @@ class NamedRoutes {
       '/select-deposit-type-home-screen';
 
   static const String onlineDepositScreen = '/online-deposit-screen';
-  static const String branchDepositScreen = '/branch-deposit-screen';
+  // static const String branchDepositScreen = '/branch-deposit-screen';
   static const String collectFromHomeScreen = '/collect-from-home-screen';
+  static const String depositDetailScreen = '/deposit-detail-screen';
+  static const String loanApplicationDetailScreen =
+      '/loan-application-detail-screen';
+  static const String privacyPolicy = '/privacy-policy';
+  static const String termsOfService = '/terms-of-service';
+  static const String support = '/support';
 }

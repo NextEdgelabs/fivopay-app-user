@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/modules/fd_rd/deposit_provider.dart';
 import 'package:janseva/modules/loan/models/loan_application_response.dart';
 import 'package:janseva/modules/loan/providers/loan_provider.dart';
 import 'package:janseva/modules/loan/screens/esign/view_pdf.dart';
@@ -6,10 +7,14 @@ import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
 import 'package:provider/provider.dart';
+import '../modules/auth/provider/auth_provider.dart';
+import '../modules/fd_rd/model/term_deposit_model.dart';
 import '../providers/user_provider.dart';
 import '../models/fixed_deposit.dart';
+import '../services/common_utils.dart';
 import '../utils/constants.dart';
 import '../components/components.dart';
+import 'document_viewer_screen.dart';
 
 class ApplicationsScreen extends StatefulWidget {
   const ApplicationsScreen({super.key});
@@ -23,7 +28,14 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = context.read<UserProvider>();
+      final userId = userProvider.currentUser?.id;
+
       context.read<LoanProvider>().getmmyLoanApplications();
+
+      if (userId != null) {
+        context.read<DepositProvider>().fetchUserTermDeposits(userId);
+      }
     });
   }
 
@@ -43,8 +55,8 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
           ),
         ],
       ),
-      body: Consumer2<UserProvider, LoanProvider>(
-        builder: (context, userProvider, loanProvider, child) {
+      body: Consumer3<UserProvider, LoanProvider, DepositProvider>(
+        builder: (context, userProvider, loanProvider, depositProvider, child) {
           final user = userProvider.currentUser;
           if (user == null) {
             return const Center(
@@ -52,8 +64,9 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
             );
           }
 
-          final fixedDeposits = user.fixedDeposits ?? [];
+          final fixedDeposits = depositProvider.myTermDeposits;
           final loanApplications = loanProvider.myLoanApplications;
+          // final depositApplications = ;
 
           final filteredApplications = _getFilteredApplications(
             fixedDeposits,
@@ -64,6 +77,11 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
             onRefresh: () async {
               await userProvider.initializeUser();
               await loanProvider.getmmyLoanApplications();
+
+              final userId = userProvider.currentUser?.id;
+              if (userId != null) {
+                await depositProvider.refreshDeposits(userId);
+              }
             },
             child: filteredApplications.isEmpty
                 ? const EmptyState(
@@ -71,19 +89,39 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                     title: 'No Applications Found',
                     subtitle: 'You have not applied for any FD or Loan yet.',
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(AppSizes.paddingL),
-                    itemCount: filteredApplications.length,
-                    itemBuilder: (context, index) {
-                      final application = filteredApplications[index];
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: application is FixedDeposit
-                            ? _buildFDCard(application)
-                            : _buildLoanCard(application),
-                      );
-                      // return const SizedBox.shrink();
+                : NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      if (!depositProvider.isLoadingMoreDeposits &&
+                          depositProvider.hasMoreDeposits &&
+                          scrollInfo.metrics.pixels ==
+                              scrollInfo.metrics.maxScrollExtent) {
+                        depositProvider.loadMoreDeposits(user.id);
+                      }
+                      return false;
                     },
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(AppSizes.paddingL),
+                      itemCount:
+                          filteredApplications.length +
+                          (depositProvider.isLoadingMoreDeposits ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        // Show loading indicator at the bottom when loading more
+                        if (index == filteredApplications.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+
+                        final application = filteredApplications[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: application is DepositAccountModel
+                              ? _buildFDCard(application)
+                              : _buildLoanCard(application),
+                        );
+                      },
+                    ),
                   ),
           );
         },
@@ -92,7 +130,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
   }
 
   List<dynamic> _getFilteredApplications(
-    List<FixedDeposit> fixedDeposits,
+    List<DepositAccountModel> fixedDeposits,
     List<LoanApplicationData> loanApplications,
   ) {
     List<dynamic> allApplications = [];
@@ -131,26 +169,24 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
 
   // Removed legacy empty state in favor of shared EmptyState component
 
-  Widget _buildFDCard(FixedDeposit fd) {
+  Widget _buildFDCard(DepositAccountModel fd) {
     return Card(
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          // Handle tap
+          push(
+            NamedRoutes.depositDetailScreen,
+            arguments: DepositDetailScreenArguments(deposit: fd),
+          );
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: Colors.white,
-            border: Border.all(
-              color: Colors.grey.shade200,
-              width: 1,
-            ),
+            border: Border.all(color: Colors.grey.shade200, width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,7 +233,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'ID: ${fd.id}',
+                            'Account: ${fd.accountNumber ?? fd.depositId ?? 'N/A'}',
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 12,
@@ -210,7 +246,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                   ],
                 ),
               ),
-              
+
               // Content
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -239,7 +275,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                             ),
                           ),
                           Text(
-                            '₹${fd.amount.toStringAsFixed(2)}',
+                            '₹${(fd.depositAmount ?? 0).toStringAsFixed(2)}',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -249,9 +285,9 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 12),
-                    
+
                     // Grid of info
                     Row(
                       children: [
@@ -259,68 +295,72 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                           child: _buildInfoCard(
                             icon: Icons.calendar_today_outlined,
                             label: 'Tenure',
-                            value: '${fd.tenureMonths} months',
+                            value:
+                                '${fd.productId?.lockInPeriodMonths ?? 0} months',
                             color: const Color(0xFF475569),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: _buildInfoCard(
-                            icon: Icons.trending_up_outlined,
-                            label: 'Expected Profit',
-                            value: '₹${fd.expectedProfit.toStringAsFixed(0)}',
-                            color: const Color(0xFF059669),
+                            icon: Icons.calendar_month_outlined,
+                            label: 'Opened On',
+                            value: _formatDate(fd.createdAt!).trim(),
+                            color: const Color(0xFF0891B2),
+                            // fullWidth: true,
                           ),
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     Row(
                       children: [
                         Expanded(
                           child: _buildInfoCard(
-                            icon: Icons.payment_outlined,
-                            label: 'Method',
-                            value: _getDepositMethodText(fd.depositMethod),
+                            icon: Icons.percent_outlined,
+                            label: context.read<AuthProvider>().isEthicalBanking
+                                ? 'Profit Rate'
+                                : 'Interest Rate',
+                            value:
+                                '${(fd.interestRate ?? 0).toStringAsFixed(2)}%',
                             color: const Color(0xFF7C3AED),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: _buildInfoCard(
-                            icon: Icons.event_available_outlined,
-                            label: 'Maturity',
-                            value: _formatDate(fd.maturityDate),
+                            icon: Icons.account_balance_wallet_outlined,
+                            label: 'Current Balance',
+                            value:
+                                '₹${(fd.currentBalance ?? 0).toStringAsFixed(0)}',
                             color: const Color(0xFFDC2626),
                           ),
                         ),
                       ],
                     ),
-                    
-                    if (fd.depositMethod == 'cash_collection' &&
-                        fd.collectionDate != null) ...[
-                      const SizedBox(height: 8),
-                      _buildInfoCard(
-                        icon: Icons.schedule_outlined,
-                        label: 'Collection Date',
-                        value: _formatDate(fd.collectionDate!),
-                        color: const Color(0xFF0891B2),
-                        fullWidth: true,
-                      ),
-                    ],
-                    
-                    if (fd.depositMethod == 'branch' && fd.branchName != null) ...[
-                      const SizedBox(height: 8),
-                      _buildInfoCard(
-                        icon: Icons.location_on_outlined,
-                        label: 'Branch',
-                        value: fd.branchName!,
-                        color: const Color(0xFFEA580C),
-                        fullWidth: true,
-                      ),
-                    ],
+
+                    // if (fd.branchId?.branchName != null) ...[
+                    //   const SizedBox(height: 8),
+                    //   _buildInfoCard(
+                    //     icon: Icons.location_on_outlined,
+                    //     label: 'Branch',
+                    //     value: fd.branchId!.branchName!,
+                    //     color: const Color(0xFFEA580C),
+                    //     fullWidth: true,
+                    //   ),
+                    // ],
+                    // if (fd.createdAt != null) ...[
+                    //   const SizedBox(height: 8),
+                    //   _buildInfoCard(
+                    //     icon: Icons.calendar_month_outlined,
+                    //     label: 'Opened On',
+                    //     value: _formatDate(fd.createdAt!),
+                    //     color: const Color(0xFF0891B2),
+                    //     fullWidth: true,
+                    //   ),
+                    // ],
                   ],
                 ),
               ),
@@ -335,22 +375,20 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     return Card(
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          // Handle tap
+          push(
+            NamedRoutes.loanApplicationDetailScreen,
+            arguments: LoanApplicationDetailScreenArguments(loan: loan),
+          );
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: Colors.white,
-            border: Border.all(
-              color: Colors.grey.shade200,
-              width: 1,
-            ),
+            border: Border.all(color: Colors.grey.shade200, width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,7 +448,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                   ],
                 ),
               ),
-              
+
               // Content
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -449,9 +487,9 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 12),
-                    
+
                     // Grid of info
                     Row(
                       children: [
@@ -468,17 +506,25 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                           child: _buildInfoCard(
                             icon: Icons.draw_outlined,
                             label: 'Signed At',
-                            value: loan.esignStatus?.result?.document?.signedAt != null
-                                ? _formatDate(loan.esignStatus!.result!.document!.signedAt)
+                            value:
+                                loan.esignStatus?.result?.document?.signedAt !=
+                                    null
+                                ? _formatDate(
+                                    loan
+                                        .esignStatus!
+                                        .result!
+                                        .document!
+                                        .signedAt,
+                                  )
                                 : 'Not signed',
                             color: const Color(0xFF059669),
                           ),
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 12),
-                    
+
                     // Action buttons
                     if (loan.esignStatus != null)
                       SizedBox(
@@ -488,11 +534,36 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => PdfViewScreen(
-                                  url: loan.esignStatus!.result!.document!.signedUrl,
+                                builder: (context) => DocumentViewerScreen(
+                                  url: loan
+                                      .esignStatus!
+                                      .result!
+                                      .document!
+                                      .signedUrl,
+                                  documentName:
+                                      loan.esignStatus!.result!.document!.info,
+                                  isPdf: isPdfDocument(
+                                    loan
+                                        .esignStatus!
+                                        .result!
+                                        .document!
+                                        .signedUrl,
+                                  ),
                                 ),
                               ),
                             );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => PdfViewScreen(
+                            //       url: loan
+                            //           .esignStatus!
+                            //           .result!
+                            //           .document!
+                            //           .signedUrl,
+                            //     ),
+                            //   ),
+                            // );
                           },
                           icon: const Icon(Icons.visibility_outlined, size: 18),
                           label: const Text('View Details'),
@@ -552,16 +623,17 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
       ),
       child: Column(
-        crossAxisAlignment: fullWidth ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        crossAxisAlignment: fullWidth
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
         children: [
           Row(
-            mainAxisAlignment: fullWidth ? MainAxisAlignment.start : MainAxisAlignment.center,
+            mainAxisAlignment: fullWidth
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
             children: [
               Icon(icon, size: 16, color: color),
               const SizedBox(width: 4),
@@ -630,19 +702,6 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
       color: backgroundColor,
       textColor: textColor,
     );
-  }
-
-  String _getDepositMethodText(String method) {
-    switch (method) {
-      case 'online':
-        return 'Online';
-      case 'cash_collection':
-        return 'Cash Collection';
-      case 'branch':
-        return 'Branch';
-      default:
-        return method;
-    }
   }
 
   String _formatDate(DateTime date) {

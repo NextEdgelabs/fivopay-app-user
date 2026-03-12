@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../auth/provider/auth_provider.dart';
 import '../models/models.dart';
 import '../providers/loan_provider.dart';
 import '../utils/loan_utils.dart';
@@ -53,7 +54,11 @@ class LoanApplicationEMICalculatorCard extends StatelessWidget {
                   final tenure = int.tryParse(tenureController.text) ?? 0;
 
                   if (amount > 0 && tenure > 0) {
-                    // Use selected product's interest rate if available, else fallback to category rate
+                    // Use selected product's
+                    context.read<AuthProvider>().isEthicalBanking
+                        ? 'Profit Rate'
+                        : 'Interest Rate';
+                    // if available, else fallback to category rate
                     final interestRate =
                         loanProvider.selectedProduct?.interestRate ??
                         loanCategory.interestRate;

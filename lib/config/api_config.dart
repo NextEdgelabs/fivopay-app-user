@@ -5,9 +5,9 @@ class ApiConfig {
   static const String domain = 'https://api.fivopay.nextlabsonline.com';
 
   //   static const String domain = 'http://192.168.1.82:4000';
-  //   static const String domain = 'http://34.100.148.226:4000';
+  // static const String domain = 'http://172.16.41.235:4000';
 
-  static const String razorpayKeyId = 'rzp_test_SBwik9QIBrqeIE';
+  static const String razorpayKeyId = 'rzp_test_SD95mhHelp36TT';
 
   //Estamp+Esign
   static const String eStampBaseUrl = 'https://test.zoop.one/contract/estamp';
@@ -47,8 +47,9 @@ class ApiConfig {
   static const String getWalletBalance = '/api/v1/deposit/get-user-balance';
 
   //FD/Rd
-  static const String createFd = '/api/v1/fixed-deposit/create-fixed-deposit';
+  static const String createTermDeposit = '/api/v1/deposit/create-term-deposit';
   static const String getFdDetails = '/api/v1/fixed-deposit/get-fixed-deposit';
+  static const String getAllDeposits = '/api/v1/deposit/account/get-all';
   static const String getFdProducts =
       '/api/v1/deposit/product/get-by-category'; // FD RD SAVINGS CURRENT
   static const String getDepostCategoryByType =
