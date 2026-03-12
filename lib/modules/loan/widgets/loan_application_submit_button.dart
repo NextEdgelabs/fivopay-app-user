@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/loan_provider.dart';
-import '../utils/loan_utils.dart';
+import '../../../utils/constants.dart';
+import '../../../utils/app_color_extension.dart';
 
 class LoanApplicationSubmitButton extends StatelessWidget {
   final bool agreeToTerms;
@@ -39,12 +40,14 @@ class LoanApplicationSubmitButton extends StatelessWidget {
               loanProvider.isApplying ? 'Submitting...' : 'Submit Application',
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: LoanUtils.getLoanTypeColor(loanType),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: context.appColors.brandColor,
+              foregroundColor: context.appColors.buttonLabelText,
+              elevation: 0,
+              minimumSize: const Size(double.infinity, AppSizes.buttonHeight),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppSizes.radiusS),
               ),
+              textStyle: AppTextStyles.button,
             ),
           ),
         );

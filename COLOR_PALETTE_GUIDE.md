@@ -101,10 +101,10 @@ import 'package:your_app/utils/app_color_extension.dart';
 @override
 Widget build(BuildContext context) {
   return Container(
-    color: context.appColors.cardBackground,
+    color: context.colors.cardBackground,
     child: Text(
       'Hello',
-      style: TextStyle(color: context.appColors.heading),
+      style: TextStyle(color: context.colors.heading),
     ),
   );
 }
@@ -114,7 +114,7 @@ Widget build(BuildContext context) {
 ```dart
 Container(
   decoration: BoxDecoration(
-    gradient: context.appColors.brandLinearGradient,
+    gradient: context.colors.brandLinearGradient,
     borderRadius: BorderRadius.circular(12),
   ),
   child: YourWidget(),
@@ -124,14 +124,14 @@ Container(
 ### Using Color Variations
 ```dart
 // Get lighter/darker brand color
-Color lightBrand = context.appColors.brandColorLight;
-Color darkBrand = context.appColors.brandColorDark;
+Color lightBrand = context.colors.brandColorLight;
+Color darkBrand = context.colors.brandColorDark;
 
 // Brand color with opacity
-Color transparentBrand = context.appColors.brandColorWithOpacity(0.5);
+Color transparentBrand = context.colors.brandColorWithOpacity(0.5);
 
 // Status colors with opacity
-Color successLight = context.appColors.successWithOpacity(0.2);
+Color successLight = context.colors.successWithOpacity(0.2);
 ```
 
 ### Using Color Helper
@@ -139,18 +139,18 @@ Color successLight = context.appColors.successWithOpacity(0.2);
 import 'package:your_app/utils/app_color_extension.dart';
 
 // Lighten/Darken colors
-Color lighter = AppColorHelper.lighten(context.appColors.brandColor, 0.2);
-Color darker = AppColorHelper.darken(context.appColors.brandColor, 0.3);
+Color lighter = AppColorHelper.lighten(context.colors.brandColor, 0.2);
+Color darker = AppColorHelper.darken(context.colors.brandColor, 0.3);
 
 // Mix colors
 Color mixed = AppColorHelper.mix(
-  context.appColors.brandColor,
+  context.colors.brandColor,
   Colors.white,
   0.5,
 );
 
 // Hex conversion
-String hex = AppColorHelper.toHex(context.appColors.brandColor);
+String hex = AppColorHelper.toHex(context.colors.brandColor);
 Color fromHex = AppColorHelper.fromHex('#AD2DBA');
 ```
 

@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../models/models.dart';
 import '../providers/loan_provider.dart';
+import '../../../utils/constants.dart';
+import '../../../utils/app_color_extension.dart';
 
 class LoanCategoriesScreen extends StatefulWidget {
   const LoanCategoriesScreen({Key? key}) : super(key: key);
@@ -86,7 +88,7 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
         return RefreshIndicator(
           onRefresh: () => loanProvider.fetchLoanCategories(refresh: true),
           child: ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSizes.paddingL),
             itemCount:
                 loanProvider.loanCategories.length +
                 (loanProvider.hasMoreData ? 1 : 0),
@@ -94,12 +96,7 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
               if (index == loanProvider.loanCategories.length) {
                 // Load more indicator
                 if (loanProvider.isLoading) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
+                  return const Center(child: CircularProgressIndicator());
                 } else {
                   // Load more data
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -122,305 +119,123 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
     LoanCategory category,
     LoanProvider loanProvider,
   ) {
-    final loanColor = context.colors.brandColor;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: [
-            context.colors.gradientOne,
-            context.colors.gradientOne.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(color: loanColor.withOpacity(0.3), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: loanColor.withOpacity(0.15),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: AppSizes.paddingM),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusL),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _navigateToLoanDetail(category),
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header with loan type and status
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [loanColor, loanColor.withOpacity(0.8)],
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: loanColor.withOpacity(0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            LoanUtils.getLoanTypeIcon(category.loanType),
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            category.loanType.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
+      child: InkWell(
+        onTap: () => _navigateToLoanDetail(category),
+        borderRadius: BorderRadius.circular(AppSizes.radiusL),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSizes.radiusL),
+            color: context.appColors.specialCard,
+            border: Border.all(color: context.appColors.border, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: context.appColors.shadowWithOpacity(0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Row: Icon + Favorite
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppSizes.paddingS),
+                    decoration: BoxDecoration(
+                      color: context.appColors.brandColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(AppSizes.radiusS),
                     ),
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () =>
-                              loanProvider.toggleFavorite(category),
-                          icon: Icon(
-                            loanProvider.isFavorite(category)
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: loanProvider.isFavorite(category)
-                                ? Colors.red
-                                : Colors.grey,
-                            size: 22,
-                          ),
-                          constraints: const BoxConstraints(),
-                          padding: EdgeInsets.zero,
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: category.status == 'active'
-                                ? Colors.green
-                                : Colors.grey,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color:
-                                    (category.status == 'active'
-                                            ? Colors.green
-                                            : Colors.grey)
-                                        .withOpacity(0.3),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            category.status.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: loanColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Icon(
-                            Icons.arrow_forward_ios,
-                            size: 14,
-                            color: loanColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Category name and description
-                Text(
-                  category.categoryName,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  category.description,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.white),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 16),
-
-                // Key details
-                _buildDetailRow('Amount Range', category.loanAmountRange),
-                _buildDetailRow(
-                  context.read<AuthProvider>().isEthicalBanking
-                      ? 'Profit Rate'
-                      : 'Interest Rate',
-                  category.formattedInterestRate,
-                ),
-                _buildDetailRow('Tenure', category.formattedTenure),
-                _buildDetailRow(
-                  'Processing Fee',
-                  category.processingFee.formattedFee,
-                ),
-                _buildDetailRow(
-                  'Min Credit Score',
-                  category.eligibilityCriteria.formattedCreditScore,
-                ),
-
-                const SizedBox(height: 16),
-
-                // Features
-                if (category.features.isNotEmpty) ...[
-                  Text(
-                    'Features:',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    child: Icon(
+                      LoanUtils.getLoanTypeIcon(category.loanType),
+                      color: context.appColors.brandColor,
+                      size: AppSizes.iconSizeL,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children:
-                        category.features
-                            .take(3) // Show only first 3 features
-                            .map(
-                              (feature) => Chip(
-                                label: Text(
-                                  feature,
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                backgroundColor: loanColor.withOpacity(0.1),
-                                side: BorderSide(
-                                  color: loanColor.withOpacity(0.3),
-                                ),
-                              ),
-                            )
-                            .toList()
-                          ..addAll(
-                            category.features.length > 3
-                                ? [
-                                    Chip(
-                                      label: Text(
-                                        '+${category.features.length - 3} more',
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                      backgroundColor: Colors.grey[200],
-                                    ),
-                                  ]
-                                : [],
-                          ),
+                  IconButton(
+                    onPressed: () => loanProvider.toggleFavorite(category),
+                    icon: Icon(
+                      loanProvider.isFavorite(category)
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: loanProvider.isFavorite(category)
+                          ? context.appColors.alert2
+                          : context.appColors.textSecondary,
+                      size: AppSizes.iconSizeM,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
-                  const SizedBox(height: 12),
                 ],
-
-                // Action buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => _navigateToLoanDetail(category),
-                        icon: const Icon(Icons.visibility_outlined, size: 16),
-                        label: const Text('View Details'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: loanColor,
-                          side: BorderSide(color: loanColor, width: 1.5),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _navigateToLoanApplication(category),
-                        icon: const Icon(Icons.send, size: 16),
-                        label: const Text('Apply Now'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: loanColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          elevation: 3,
-                          shadowColor: loanColor.withOpacity(0.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+              ),
+              const SizedBox(height: AppSizes.paddingS),
+              // Category Name
+              Text(
+                category.categoryName,
+                style: AppTextStyles.heading3.copyWith(
+                  color: context.appColors.heading,
+                  fontSize: 16, // slightly smaller for grid
                 ),
-              ],
-            ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: AppSizes.paddingM),
+              // Interest Rate
+              Text(
+                '${context.read<AuthProvider>().isEthicalBanking ? "Profit" : "Interest"}: ${category.formattedInterestRate}',
+                style: AppTextStyles.caption.copyWith(
+                  color: context.appColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              // Amount Range
+              Text(
+                category.loanAmountRange,
+                style: AppTextStyles.body2.copyWith(
+                  color: context.appColors.brandColor,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: AppSizes.paddingS),
+
+              // Apply Now Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => _navigateToLoanApplication(category),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: context.appColors.brandColor,
+                    foregroundColor: context.appColors.buttonLabelText,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    minimumSize: const Size(
+                      double.infinity,
+                      44,
+                    ), // standard button for list
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSizes.radiusS),
+                    ),
+                  ),
+                  child: const Text(
+                    'Apply Now',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.white),
-          ),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Colors.white70,
-            ),
-          ),
-        ],
       ),
     );
   }

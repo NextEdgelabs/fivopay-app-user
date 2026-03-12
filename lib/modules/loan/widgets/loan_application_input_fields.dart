@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../utils/constants.dart';
+import '../../../utils/app_color_extension.dart';
 
 class LoanApplicationInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -33,25 +35,49 @@ class LoanApplicationInputField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+          style: AppTextStyles.body2.copyWith(
+            fontWeight: FontWeight.w600,
+            color: context.appColors.heading,
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSizes.paddingS),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
           validator: validator,
           onChanged: onChanged,
+          style: AppTextStyles.body1.copyWith(color: context.appColors.text),
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: AppTextStyles.body1.copyWith(
+              color: context.appColors.textSecondary,
+            ),
             prefixText: prefix,
             suffixText: suffix,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            filled: true,
+            fillColor: context.appColors.selectedField.withOpacity(0.5),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.paddingM,
+              vertical: AppSizes.paddingM,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusS),
+              borderSide: BorderSide(
+                color: context.appColors.fieldBorder.withOpacity(0.5),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusS),
+              borderSide: BorderSide(color: context.appColors.fieldBorder),
+            ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppSizes.radiusS),
               borderSide: BorderSide(color: focusColor, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusS),
+              borderSide: BorderSide(color: context.appColors.alert2),
             ),
           ),
         ),
@@ -83,19 +109,44 @@ class LoanApplicationDropdownField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+          style: AppTextStyles.body2.copyWith(
+            fontWeight: FontWeight.w600,
+            color: context.appColors.heading,
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSizes.paddingS),
         DropdownButtonFormField<String>(
           value: value,
           onChanged: onChanged,
+          style: AppTextStyles.body1.copyWith(color: context.appColors.text),
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            color: context.appColors.textSecondary,
+          ),
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            filled: true,
+            fillColor: context.appColors.selectedField.withOpacity(0.5),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.paddingM,
+              vertical: AppSizes.paddingM,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusS),
+              borderSide: BorderSide(
+                color: context.appColors.fieldBorder.withOpacity(0.5),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusS),
+              borderSide: BorderSide(color: context.appColors.fieldBorder),
+            ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppSizes.radiusS),
               borderSide: BorderSide(color: focusColor, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusS),
+              borderSide: BorderSide(color: context.appColors.alert2),
             ),
           ),
           items: items.map((item) {

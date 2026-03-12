@@ -6,6 +6,8 @@ import 'package:janseva/modules/loan/screens/esign/view_pdf.dart';
 import 'package:janseva/routes/arguments.dart';
 import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
+import 'package:janseva/utils/app_color_extension.dart';
+import 'package:janseva/utils/theme_extension.dart';
 import 'package:provider/provider.dart';
 import '../modules/auth/provider/auth_provider.dart';
 import '../modules/fd_rd/model/term_deposit_model.dart';
@@ -14,6 +16,7 @@ import '../models/fixed_deposit.dart';
 import '../services/common_utils.dart';
 import '../utils/constants.dart';
 import '../components/components.dart';
+import '../utils/app_color_extension.dart';
 import 'document_viewer_screen.dart';
 
 class ApplicationsScreen extends StatefulWidget {
@@ -184,82 +187,86 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
         borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.white,
-            border: Border.all(color: Colors.grey.shade200, width: 1),
+            borderRadius: BorderRadius.circular(AppSizes.radiusM),
+            color: context.colors.specialCard,
+            border: Border.all(color: context.colors.border, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: context.colors.shadowWithOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header with professional design
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSizes.paddingM),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: context.colors.specialCardTwo,
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
+                    topLeft: Radius.circular(AppSizes.radiusM),
+                    topRight: Radius.circular(AppSizes.radiusM),
                   ),
                   border: Border(
-                    bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                    bottom: BorderSide(color: context.colors.border, width: 1),
                   ),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(AppSizes.paddingS),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E3A8A),
-                        borderRadius: BorderRadius.circular(8),
+                        color: context.colors.brandColor,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusS),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.account_balance,
-                        color: Colors.white,
-                        size: 20,
+                        color: context.colors.buttonLabelText,
+                        size: AppSizes.iconSizeS,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSizes.paddingS),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Fixed Deposit',
-                            style: TextStyle(
-                              color: Color(0xFF1F2937),
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                            style: AppTextStyles.heading3.copyWith(
+                              color: context.colors.heading,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             'Account: ${fd.accountNumber ?? fd.depositId ?? 'N/A'}',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12,
+                            style: AppTextStyles.caption.copyWith(
+                              color: context.colors.textSecondary,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    _buildStatusChip(fd.status),
+                    _buildStatusBadge(fd.status, context),
                   ],
                 ),
               ),
 
               // Content
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSizes.paddingM),
                 child: Column(
                   children: [
                     // Amount highlight
                     Container(
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(AppSizes.paddingM),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF0F9FF),
-                        borderRadius: BorderRadius.circular(8),
+                        color: context.colors.selectedField,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusS),
                         border: Border.all(
-                          color: const Color(0xFFBAE6FD),
+                          color: context.colors.fieldBorder,
                           width: 1,
                         ),
                       ),
@@ -268,25 +275,22 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                         children: [
                           Text(
                             'Deposit Amount',
-                            style: TextStyle(
-                              fontSize: 13,
+                            style: AppTextStyles.body2.copyWith(
                               fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade700,
+                              color: context.colors.textSecondary,
                             ),
                           ),
                           Text(
                             '₹${(fd.depositAmount ?? 0).toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF1E3A8A),
+                            style: AppTextStyles.heading2.copyWith(
+                              color: context.colors.brandColor,
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSizes.paddingM),
 
                     // Grid of info
                     Row(
@@ -297,23 +301,20 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                             label: 'Tenure',
                             value:
                                 '${fd.productId?.lockInPeriodMonths ?? 0} months',
-                            color: const Color(0xFF475569),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSizes.paddingS),
                         Expanded(
                           child: _buildInfoCard(
                             icon: Icons.calendar_month_outlined,
                             label: 'Opened On',
                             value: _formatDate(fd.createdAt!).trim(),
-                            color: const Color(0xFF0891B2),
-                            // fullWidth: true,
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSizes.paddingS),
 
                     Row(
                       children: [
@@ -325,42 +326,19 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                                 : 'Interest Rate',
                             value:
                                 '${(fd.interestRate ?? 0).toStringAsFixed(2)}%',
-                            color: const Color(0xFF7C3AED),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSizes.paddingS),
                         Expanded(
                           child: _buildInfoCard(
                             icon: Icons.account_balance_wallet_outlined,
                             label: 'Current Balance',
                             value:
                                 '₹${(fd.currentBalance ?? 0).toStringAsFixed(0)}',
-                            color: const Color(0xFFDC2626),
                           ),
                         ),
                       ],
                     ),
-
-                    // if (fd.branchId?.branchName != null) ...[
-                    //   const SizedBox(height: 8),
-                    //   _buildInfoCard(
-                    //     icon: Icons.location_on_outlined,
-                    //     label: 'Branch',
-                    //     value: fd.branchId!.branchName!,
-                    //     color: const Color(0xFFEA580C),
-                    //     fullWidth: true,
-                    //   ),
-                    // ],
-                    // if (fd.createdAt != null) ...[
-                    //   const SizedBox(height: 8),
-                    //   _buildInfoCard(
-                    //     icon: Icons.calendar_month_outlined,
-                    //     label: 'Opened On',
-                    //     value: _formatDate(fd.createdAt!),
-                    //     color: const Color(0xFF0891B2),
-                    //     fullWidth: true,
-                    //   ),
-                    // ],
                   ],
                 ),
               ),
@@ -386,82 +364,86 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
         borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.white,
-            border: Border.all(color: Colors.grey.shade200, width: 1),
+            borderRadius: BorderRadius.circular(AppSizes.radiusM),
+            color: context.colors.specialCard,
+            border: Border.all(color: context.colors.border, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: context.colors.shadowWithOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header with professional design
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSizes.paddingM),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: context.colors.specialCardTwo,
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
+                    topLeft: Radius.circular(AppSizes.radiusM),
+                    topRight: Radius.circular(AppSizes.radiusM),
                   ),
                   border: Border(
-                    bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                    bottom: BorderSide(color: context.colors.border, width: 1),
                   ),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(AppSizes.paddingS),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF7C3AED),
-                        borderRadius: BorderRadius.circular(8),
+                        gradient: context.colors.brandLinearGradient,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusS),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.receipt_long,
-                        color: Colors.white,
-                        size: 20,
+                        color: context.colors.buttonLabelText,
+                        size: AppSizes.iconSizeS,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSizes.paddingS),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Loan Application',
-                            style: TextStyle(
-                              color: Color(0xFF1F2937),
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                            style: AppTextStyles.heading3.copyWith(
+                              color: context.colors.heading,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             'ID: ${loan.id}',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12,
+                            style: AppTextStyles.caption.copyWith(
+                              color: context.colors.textSecondary,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    _buildStatusChip(loan.approvalStatus),
+                    _buildStatusBadge(loan.approvalStatus, context),
                   ],
                 ),
               ),
 
               // Content
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSizes.paddingM),
                 child: Column(
                   children: [
                     // Amount highlight
                     Container(
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(AppSizes.paddingM),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFAF5FF),
-                        borderRadius: BorderRadius.circular(8),
+                        color: context.colors.selectedField,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusS),
                         border: Border.all(
-                          color: const Color(0xFFE9D5FF),
+                          color: context.colors.fieldBorder,
                           width: 1,
                         ),
                       ),
@@ -470,25 +452,22 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                         children: [
                           Text(
                             'Loan Amount',
-                            style: TextStyle(
-                              fontSize: 13,
+                            style: AppTextStyles.body2.copyWith(
                               fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade700,
+                              color: context.colors.textSecondary,
                             ),
                           ),
                           Text(
                             '₹${loan.amount.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF7C3AED),
+                            style: AppTextStyles.heading2.copyWith(
+                              color: context.colors.brandColor,
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSizes.paddingM),
 
                     // Grid of info
                     Row(
@@ -498,10 +477,9 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                             icon: Icons.calendar_today_outlined,
                             label: 'Applied Date',
                             value: _formatDate(loan.createdAt),
-                            color: const Color(0xFF475569),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSizes.paddingS),
                         Expanded(
                           child: _buildInfoCard(
                             icon: Icons.draw_outlined,
@@ -517,13 +495,12 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                                         .signedAt,
                                   )
                                 : 'Not signed',
-                            color: const Color(0xFF059669),
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSizes.paddingM),
 
                     // Action buttons
                     if (loan.esignStatus != null)
@@ -552,28 +529,23 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                                 ),
                               ),
                             );
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => PdfViewScreen(
-                            //       url: loan
-                            //           .esignStatus!
-                            //           .result!
-                            //           .document!
-                            //           .signedUrl,
-                            //     ),
-                            //   ),
-                            // );
                           },
-                          icon: const Icon(Icons.visibility_outlined, size: 18),
+                          icon: Icon(
+                            Icons.visibility_outlined,
+                            size: AppSizes.iconSizeS,
+                          ),
                           label: const Text('View Details'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1E3A8A),
-                            foregroundColor: Colors.white,
+                            backgroundColor: context.colors.brandColor,
+                            foregroundColor: context.colors.buttonLabelText,
                             elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSizes.paddingM,
+                            ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusS,
+                              ),
                             ),
                           ),
                         ),
@@ -588,15 +560,22 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                               arguments: EsignLoanArguments(loan: loan),
                             );
                           },
-                          icon: const Icon(Icons.draw_outlined, size: 18),
+                          icon: Icon(
+                            Icons.draw_outlined,
+                            size: AppSizes.iconSizeS,
+                          ),
                           label: const Text('Sign Agreement'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFEA580C),
-                            foregroundColor: Colors.white,
+                            backgroundColor: context.colors.alert3,
+                            foregroundColor: context.colors.buttonLabelText,
                             elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSizes.paddingM,
+                            ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusS,
+                              ),
                             ),
                           ),
                         ),
@@ -615,15 +594,14 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     required IconData icon,
     required String label,
     required String value,
-    required Color color,
     bool fullWidth = false,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSizes.paddingS),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        color: context.appColors.cardBackground,
+        borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        border: Border.all(color: context.appColors.border, width: 1),
       ),
       child: Column(
         crossAxisAlignment: fullWidth
@@ -635,28 +613,29 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                 ? MainAxisAlignment.start
                 : MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 16, color: color),
-              const SizedBox(width: 4),
+              Icon(
+                icon,
+                size: AppSizes.iconSizeS,
+                color: context.appColors.textSecondary,
+              ),
+              const SizedBox(width: AppSizes.paddingXS),
               Flexible(
                 child: Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
+                  style: AppTextStyles.caption.copyWith(
+                    color: context.appColors.textSecondary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSizes.paddingXS),
           Text(
             value,
-            style: TextStyle(
-              fontSize: fullWidth ? 13 : 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+            style: AppTextStyles.body2.copyWith(
+              fontWeight: FontWeight.w600,
+              color: context.appColors.text,
             ),
             textAlign: fullWidth ? TextAlign.left : TextAlign.center,
             maxLines: 2,
@@ -667,40 +646,52 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     );
   }
 
-  Widget _buildStatusChip(String status) {
+  Widget _buildStatusBadge(String status, BuildContext context) {
     Color backgroundColor;
     Color textColor;
 
     switch (status.toLowerCase()) {
       case 'active':
-        backgroundColor = AppColors.success;
-        textColor = Colors.white;
+      case 'approved':
+      case 'success':
+        backgroundColor = context.appColors.alert1.withOpacity(0.1);
+        textColor = context.appColors.alert1;
         break;
       case 'pending':
-        backgroundColor = AppColors.warning;
-        textColor = Colors.white;
-        break;
-      case 'approved':
-        backgroundColor = AppColors.success;
-        textColor = Colors.white;
+        backgroundColor = context.appColors.alert3.withOpacity(0.1);
+        textColor = context.appColors.alert3;
         break;
       case 'rejected':
-        backgroundColor = AppColors.error;
-        textColor = Colors.white;
+      case 'failed':
+        backgroundColor = context.appColors.alert2.withOpacity(0.1);
+        textColor = context.appColors.alert2;
         break;
       case 'matured':
-        backgroundColor = AppColors.info;
-        textColor = Colors.white;
+      case 'info':
+        backgroundColor = context.appColors.alert4.withOpacity(0.1);
+        textColor = context.appColors.alert4;
         break;
       default:
-        backgroundColor = AppColors.textLight;
-        textColor = Colors.white;
+        backgroundColor = context.appColors.disabled;
+        textColor = context.appColors.textSecondary;
     }
 
-    return ChipBadge(
-      text: status.toUpperCase(),
-      color: backgroundColor,
-      textColor: textColor,
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.paddingS,
+        vertical: AppSizes.paddingXS,
+      ),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(AppSizes.radiusS),
+      ),
+      child: Text(
+        status.toUpperCase(),
+        style: AppTextStyles.caption.copyWith(
+          color: textColor,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 

@@ -46,9 +46,10 @@ class LoanApplicationLoanDetailsWidget extends StatelessWidget {
 
                 // Loan category card
                 // LoanCategoryDisplayCard(loanCategory: loanCategory),
-                LoanProductDisplayCard(
-                  product: context.watch<LoanProvider>().selectedProduct!,
-                ),
+                if (context.watch<LoanProvider>().selectedProduct != null)
+                  LoanProductDisplayCard(
+                    product: context.watch<LoanProvider>().selectedProduct!,
+                  ),
                 const SizedBox(height: 24),
 
                 // Show any validation errors from provider

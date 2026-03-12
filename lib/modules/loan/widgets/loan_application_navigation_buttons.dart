@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/loan_provider.dart';
+import '../../../utils/constants.dart';
+import '../../../utils/app_color_extension.dart';
 
 class LoanApplicationNavigationButtons extends StatelessWidget {
   final int currentStep;
@@ -108,14 +110,23 @@ class LoanApplicationNavigationButtons extends StatelessWidget {
                       child: OutlinedButton(
                         onPressed: onPrevious,
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: BorderSide(color: primaryColor),
-                          foregroundColor: primaryColor,
+                          minimumSize: const Size(
+                            double.infinity,
+                            AppSizes.buttonHeight,
+                          ),
+                          side: BorderSide(color: context.appColors.brandColor),
+                          foregroundColor: context.appColors.brandColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusS,
+                            ),
+                          ),
+                          textStyle: AppTextStyles.button,
                         ),
                         child: const Text('Previous'),
                       ),
                     ),
-                  if (currentStep > 0) const SizedBox(width: 16),
+                  if (currentStep > 0) const SizedBox(width: AppSizes.paddingM),
                   if (currentStep < totalSteps - 1)
                     Expanded(
                       flex: currentStep > 0 ? 1 : 2,
@@ -123,21 +134,33 @@ class LoanApplicationNavigationButtons extends StatelessWidget {
                         onPressed: onNext,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: isCurrentStepValid
-                              ? primaryColor
-                              : Colors.grey,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                              ? context.appColors.brandColor
+                              : context.appColors.disabled,
+                          foregroundColor: isCurrentStepValid
+                              ? context.appColors.buttonLabelText
+                              : context.appColors.textSecondary,
+                          elevation: 0,
+                          minimumSize: const Size(
+                            double.infinity,
+                            AppSizes.buttonHeight,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusS,
+                            ),
+                          ),
+                          textStyle: AppTextStyles.button,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(isCurrentStepValid ? 'Next' : 'Complete Step'),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSizes.paddingXS),
                             Icon(
                               isCurrentStepValid
                                   ? Icons.arrow_forward
                                   : Icons.warning_amber_rounded,
-                              size: 16,
+                              size: AppSizes.iconSizeS,
                             ),
                           ],
                         ),
