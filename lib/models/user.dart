@@ -28,6 +28,8 @@ class User {
   final bool isMember;
   final bool isActive;
   final bool isNew;
+  final bool panVerificationStatus;
+  final bool aadhaarVerificationStatus;
 
   // KYC Fields
   final String? kycStatus; // pending, in_progress, completed, rejected
@@ -84,6 +86,8 @@ class User {
     required this.isShareHolder,
     required this.totalSharePurchased,
     this.organization,
+    this.panVerificationStatus = false,
+    this.aadhaarVerificationStatus = false,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -123,6 +127,8 @@ class User {
       kycCompletedAt: json['kycCompletedAt'] != null
           ? DateTime.parse(json['kycCompletedAt'])
           : null,
+      panVerificationStatus: json['panVerificationStatus'] ?? false,
+      aadhaarVerificationStatus: json['aadharVerificationStatus'] ?? false,
       fixedDeposits: json['fixedDeposits'] != null
           ? (json['fixedDeposits'] as List)
                 .map((fd) => FixedDeposit.fromJson(fd))
@@ -182,6 +188,8 @@ class User {
       'totalDeposits': totalDeposits,
       'totalLoans': totalLoans,
       'organisationId': organization?.toJson(),
+      'panVerificationStatus': panVerificationStatus,
+      'aadharVerificationStatus': aadhaarVerificationStatus,
     };
   }
 
@@ -221,6 +229,10 @@ class User {
     bool? isShareHolder,
     int? totalSharePurchased,
     Organization? organization,
+    bool? panVerificationStatus,
+    bool? aadhaarVerificationStatus,
+    String? country,
+    // String? ,
   }) {
     return User(
       memberId: memberId,

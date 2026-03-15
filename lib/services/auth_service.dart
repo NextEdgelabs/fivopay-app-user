@@ -50,7 +50,9 @@ class AuthService {
     }
   }
 
-  static Future<User?> createprofile(CreateProfileParams userdata) async {
+  static Future<Map<String, dynamic>?> createprofile(
+    CreateProfileParams userdata,
+  ) async {
     try {
       var res = await ApiService.post(
         '${ApiConfig.domain}${ApiConfig.createProfile}',
@@ -60,7 +62,7 @@ class AuthService {
       var user = User.fromJson(res['result']);
 
       user.copyWith(isNew: false);
-      return user;
+      return {'user': user, 'appAccessToken': res['accessToken']};
     } catch (e) {
       throw ApiException('Error creating profile');
     }

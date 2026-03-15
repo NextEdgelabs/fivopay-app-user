@@ -151,7 +151,9 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     // Filter by status
     if (_selectedStatus != 'all') {
       allApplications = allApplications.where((app) {
-        if (app is FixedDeposit) {
+        if (app is DepositAccountModel) {
+          return app.status == _selectedStatus;
+        } else if (app is FixedDeposit) {
           return app.status == _selectedStatus;
         } else if (app is LoanApplicationData) {
           return app.approvalStatus == _selectedStatus;
@@ -162,8 +164,16 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
 
     // Sort by date (newest first)
     allApplications.sort((a, b) {
-      DateTime dateA = a is FixedDeposit ? a.startDate : a.createdAt;
-      DateTime dateB = b is FixedDeposit ? b.startDate : b.createdAt;
+      DateTime dateA = a is DepositAccountModel
+          ? (a.createdAt ?? DateTime.now())
+          : a is FixedDeposit
+          ? a.startDate
+          : a.createdAt;
+      DateTime dateB = b is DepositAccountModel
+          ? (b.createdAt ?? DateTime.now())
+          : b is FixedDeposit
+          ? b.startDate
+          : b.createdAt;
       return dateB.compareTo(dateA);
     });
 
@@ -241,7 +251,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Account: ${fd.accountNumber ?? fd.depositId ?? 'N/A'}',
+                            'Account: ${fd.accountNumber ?? fd.depositId ?? fd.transactionId ?? 'N/A'}',
                             style: AppTextStyles.caption.copyWith(
                               color: context.colors.textSecondary,
                             ),
@@ -657,6 +667,10 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
         backgroundColor = context.appColors.alert1.withOpacity(0.1);
         textColor = context.appColors.alert1;
         break;
+      case 'pickup_scheduled':
+      // backgroundColor = context.appColors.alert1.withOpacity(0.1);
+      // textColor = context.appColors.alert1;
+      // break;
       case 'pending':
         backgroundColor = context.appColors.alert3.withOpacity(0.1);
         textColor = context.appColors.alert3;
@@ -686,7 +700,9 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
         borderRadius: BorderRadius.circular(AppSizes.radiusS),
       ),
       child: Text(
-        status.toUpperCase(),
+        status == 'pickup_scheduled'
+            ? 'PICKUP SCHEDULED'
+            : status.toUpperCase(),
         style: AppTextStyles.caption.copyWith(
           color: textColor,
           fontWeight: FontWeight.w600,

@@ -51,12 +51,16 @@ class ApiService {
       }
       // Set headers
       request.headers.set(HttpHeaders.contentTypeHeader, "application/json");
+      request.headers.set("appId", appId); // Default appId header
+
       if (accessToken != null && accessToken.isNotEmpty) {
         request.headers.set(
           HttpHeaders.authorizationHeader,
           "Bearer $accessToken",
         );
       }
+
+      // request.headers.set("AppId", "69aaae77dea6cdb5da391b6d");
 
       // Add body for non-GET requests
       if (method.toUpperCase() != 'GET' && body.isNotEmpty) {
@@ -86,6 +90,8 @@ class ApiService {
       var request = http.MultipartRequest(method.toUpperCase(), Uri.parse(url));
 
       // Set headers
+      request.headers['appId'] = appId; // Default appId header
+
       if (accessToken != null && accessToken.isNotEmpty) {
         request.headers['Authorization'] = 'Bearer $accessToken';
       }

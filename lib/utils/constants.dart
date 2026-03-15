@@ -136,6 +136,8 @@ class AppSizes {
   static const double sectionSpacing = 24.0; // Space between sections
 }
 
+
+
 class AppStrings {
   // App Info
   static const String appName = 'JanSeva';

@@ -3,9 +3,9 @@ class ApiConfig {
   // KYC Base URL
   // static const String baseUrl = 'https://api.sandbox.co.in';
   static const String domain = 'https://api.fivopay.nextlabsonline.com';
-
+  //
   //   static const String domain = 'http://192.168.1.82:4000';
-  // static const String domain = 'http://172.16.41.235:4000';
+  // static const String domain = 'http://localhost:4000';
 
   static const String razorpayKeyId = 'rzp_test_SD95mhHelp36TT';
 
@@ -54,6 +54,8 @@ class ApiConfig {
       '/api/v1/deposit/product/get-by-category'; // FD RD SAVINGS CURRENT
   static const String getDepostCategoryByType =
       "/api/v1/deposit/category/get-by-type";
+  static const String getUserTransactions =
+      "/api/v1/deposit/get-user-transactions";
 
   //customers
   static const String getAllCustomers = '/api/v1/customer/get-all-customers';

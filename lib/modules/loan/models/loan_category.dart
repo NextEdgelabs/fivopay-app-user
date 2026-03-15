@@ -51,16 +51,19 @@ class LoanCategory {
       maxLoanAmount: json['maxLoanAmount'] != null
           ? (json['maxLoanAmount'] as num).toDouble()
           : 0,
-      interestRate: (json['interestRate'] ?? 0).toDouble(),
+      interestRate: (json['interestRate'] ?? json['defaultInterestRate'] ?? 0)
+          .toDouble(),
       minTenureMonths: json['minTenureMonths'] ?? 0,
       maxTenureMonths: json['maxTenureMonths'] ?? 0,
       status: json['status'] ?? '',
       eligibilityCriteria: EligibilityCriteria.fromJson(
-        json['eligibilityCriteria'] ??json['defaultEligibilityCriteria'] ?? {},
+        json['eligibilityCriteria'] ?? json['defaultEligibilityCriteria'] ?? {},
       ),
-      processingFee: ProcessingFee.fromJson(json['processingFee'] ?? json['defaultProcessingFee'] ?? {}),
+      processingFee: ProcessingFee.fromJson(
+        json['processingFee'] ?? json['defaultProcessingFee'] ?? {},
+      ),
       prepaymentCharges: PrepaymentCharges.fromJson(
-        json['prepaymentCharges'] ?? json['defaultPrepaymentCharges'] ??{},
+        json['prepaymentCharges'] ?? json['defaultPrepaymentCharges'] ?? {},
       ),
       latePaymentCharges: LatePaymentCharges.fromJson(
         json['latePaymentCharges'] ?? json['defaultLatePaymentCharges'] ?? {},

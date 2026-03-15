@@ -12,6 +12,8 @@ import 'package:provider/provider.dart';
 import '../../../models/user.dart';
 import '../../../services/auth_service.dart';
 
+String appId = "69aaae77dea6cdb5da391b6d"; // FIVO PAY MAIN BRANCH
+
 class AuthProvider extends ChangeNotifier {
   User? _currentUser;
   bool _isLoading = false;
@@ -20,7 +22,10 @@ class AuthProvider extends ChangeNotifier {
   User? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  bool get isLoggedIn => _currentUser != null;
+  bool get isLoggedIn =>
+      (_currentUser != null &&
+      appAccessToken != null &&
+      appAccessToken!.isNotEmpty);
   String? appAccessToken;
   String? apiKey;
   String? kycaccessToken;
@@ -51,7 +56,7 @@ class AuthProvider extends ChangeNotifier {
         notifyListeners();
       }
       final accessToken = await SfService.getString(SfService.accesstoken);
-      if (accessToken != null) {
+      if (accessToken != null && accessToken.isNotEmpty) {
         updateAppAccessToken(accessToken);
       }
     } catch (e) {
@@ -146,7 +151,8 @@ class AuthProvider extends ChangeNotifier {
     try {
       var res = await AuthService.createprofile(params);
       if (res != null) {
-        _currentUser = res;
+        _currentUser = res['user'];
+        updateAppAccessToken(res['appAccessToken']);
         notifyListeners();
       }
     } on ApiException catch (e) {
@@ -159,6 +165,10 @@ class AuthProvider extends ChangeNotifier {
   savePand(PanData pan) async {
     try {
       var res = await AuthService.savePanDetails(pan, _currentUser!.id);
+      _currentUser = _currentUser!.copyWith(
+        panVerificationStatus: true,
+        panNumber: pan.pan,
+      );
 
       if (res != null) {
         // _currentUser = res;

@@ -419,7 +419,8 @@ class _KycScreenState extends State<KycScreen> {
             aadhaarNumber: _aadharController.text.trim(),
             dateOfBirth: response.data!.dateOfBirth,
             gender: response.data!.gender,
-            address: response.data!.fullAddress,
+            
+            // address: response.data!.fullAddress,
           );
 
           // Update form fields with verified data
@@ -506,7 +507,7 @@ class _KycScreenState extends State<KycScreen> {
 
       // Update user with KYC information
       final updatedUser = userProvider.currentUser?.copyWith(
-        kycStatus: 'completed',
+        // kycStatus: 'completed',
         kycType: _selectedKycType,
         panNumber: _panController.text.trim(),
         aadharNumber: _aadharController.text.trim(),

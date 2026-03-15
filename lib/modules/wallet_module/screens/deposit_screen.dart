@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:janseva/routes/navigator.dart';
+import 'package:janseva/routes/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:janseva/utils/theme_extension.dart';
 import '../../../utils/constants.dart';
@@ -92,7 +94,8 @@ class _DepositScreenState extends State<DepositScreen> {
             onPressed: () {
               context.read<WalletProvider>().clearPaymentStatus();
               Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Pop deposit screen
+              pushAndRemoveUntil(NamedRoutes.dashboard);
+              // Navigator.of(context).pop(); // Pop deposit screen
             },
             style: TextButton.styleFrom(
               foregroundColor: context.colors.brandColor,
@@ -132,7 +135,7 @@ class _DepositScreenState extends State<DepositScreen> {
             onPressed: () {
               context.read<WalletProvider>().clearPaymentStatus();
               Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Pop deposit screen
+              // Navigator.of(context).pop(); // Pop deposit screen
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: Text(

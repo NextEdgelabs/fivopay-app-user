@@ -39,6 +39,8 @@ class DepositProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  // List<DepositAccountModel> _DepositTransaction = [];
+
   void clearError() {
     _errorMessage = null;
     notifyListeners();
@@ -83,8 +85,6 @@ class DepositProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-
 
   Future<DepositResponse?> createTermDeposit({
     required String productId,
@@ -153,6 +153,11 @@ class DepositProvider extends ChangeNotifier {
       }
 
       _depositsPagination = response.pagination;
+
+      // Also fetch pending term deposit transactions and append them
+      // if (!loadMore || page == 1) {
+      //   await fetchPendingTermDepositTransactions(userId);
+      // }
     } catch (e) {
       if (e is Failure) {
         _errorMessage = e.message;
@@ -167,6 +172,29 @@ class DepositProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Future<void> fetchPendingTermDepositTransactions(
+  //   String userId, {
+  //   int page = 1,
+  //   int limit = 10,
+  // }) async {
+  //   try {
+  //     final response = await DepositService.getPendingTermDepositTransactions(
+  //       userId,
+  //       page: page,
+  //       limit: limit,
+  //     );
+
+  //     for (var transaction in response.data) {
+  //       if (!_myTermDeposits.any((element) => element.id == transaction.id)) {
+  //         _myTermDeposits.insert(0, transaction);
+  //       }
+  //     }
+  //     notifyListeners();
+  //   } catch (e) {
+  //     debugPrint('Failed to fetch pending term deposit transactions: $e');
+  //   }
+  // }
 
   // Load more deposits (next page)
   Future<void> loadMoreDeposits(String userId) async {

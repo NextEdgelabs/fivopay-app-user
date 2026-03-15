@@ -8,11 +8,8 @@ class AddressProofUploadWidget extends StatefulWidget {
   final Color? primaryColor;
   final Function(String proofType)? onPickFile;
 
-  const AddressProofUploadWidget({
-    Key? key,
-    this.primaryColor,
-    this.onPickFile,
-  }) : super(key: key);
+  const AddressProofUploadWidget({Key? key, this.primaryColor, this.onPickFile})
+    : super(key: key);
 
   @override
   State<AddressProofUploadWidget> createState() =>
@@ -24,36 +21,20 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
   bool _isUploading = false;
 
   final List<Map<String, dynamic>> _proofTypes = [
-    {
-      'value': 'aadhaar',
-      'label': 'Aadhaar Card',
-      'icon': Icons.credit_card,
-    },
+    {'value': 'aadhaar', 'label': 'Aadhaar Card', 'icon': Icons.credit_card},
     {
       'value': 'driving_license',
       'label': 'Driving License',
       'icon': Icons.credit_card_outlined,
     },
-    {
-      'value': 'passport',
-      'label': 'Passport',
-      'icon': Icons.flight,
-    },
-    {
-      'value': 'voter_id',
-      'label': 'Voter ID Card',
-      'icon': Icons.how_to_vote,
-    },
+    {'value': 'passport', 'label': 'Passport', 'icon': Icons.flight},
+    {'value': 'voter_id', 'label': 'Voter ID Card', 'icon': Icons.how_to_vote},
     {
       'value': 'electricity_bill',
       'label': 'Electricity Bill',
       'icon': Icons.electric_bolt,
     },
-    {
-      'value': 'landline_bill',
-      'label': 'Landline Bill',
-      'icon': Icons.phone,
-    },
+    {'value': 'landline_bill', 'label': 'Landline Bill', 'icon': Icons.phone},
     {
       'value': 'gas_bill',
       'label': 'Gas Connection Bill',
@@ -116,10 +97,10 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
 
   String? _getUploadedFileName() {
     if (_selectedProofType == null) return null;
-    
+
     final loanProvider = context.watch<LoanProvider>();
     final files = loanProvider.applicationData['files'] as List?;
-    
+
     if (files != null) {
       for (var fileData in files) {
         final type = fileData['type'] as String?;
@@ -134,10 +115,10 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
 
   void _removeDocument() {
     if (_selectedProofType == null) return;
-    
+
     final loanProvider = context.read<LoanProvider>();
     loanProvider.removeDocument('address_proof_$_selectedProofType');
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Document removed successfully'),
@@ -156,10 +137,7 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
       decoration: BoxDecoration(
         color: primaryColor.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: primaryColor.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: primaryColor.withOpacity(0.2), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,11 +145,7 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
           // Header
           Row(
             children: [
-              Icon(
-                Icons.upload_file,
-                color: primaryColor,
-                size: 24,
-              ),
+              Icon(Icons.upload_file, color: primaryColor, size: 24),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -181,14 +155,11 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
                     fontWeight: FontWeight.w600,
                     color: primaryColor,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (hasUploadedFile)
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 20,
-                ),
+                Icon(Icons.check_circle, color: Colors.green, size: 20),
             ],
           ),
           const SizedBox(height: 16),
@@ -224,24 +195,26 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
                     children: [
                       Icon(Icons.document_scanner, color: Colors.grey[600]),
                       const SizedBox(width: 8),
-                      Text(
-                        'Choose address proof type',
-                        style: TextStyle(color: Colors.grey[600]),
+                      Expanded(
+                        child: Text(
+                          overflow: TextOverflow.ellipsis,
+                          'Choose address proof type',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 items: _proofTypes.map((proof) {
                   return DropdownMenuItem<String>(
                     value: proof['value'],
                     child: Row(
                       children: [
-                        Icon(
-                          proof['icon'],
-                          color: primaryColor,
-                          size: 20,
-                        ),
+                        Icon(proof['icon'], color: primaryColor, size: 20),
                         const SizedBox(width: 8),
                         Text(proof['label']),
                       ],
@@ -270,8 +243,9 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(primaryColor),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            primaryColor,
+                          ),
                         ),
                       )
                     : Icon(Icons.cloud_upload, color: primaryColor),
@@ -296,10 +270,7 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
               decoration: BoxDecoration(
                 color: Colors.green.shade50,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: Colors.green.shade300,
-                  width: 1,
-                ),
+                border: Border.all(color: Colors.green.shade300, width: 1),
               ),
               child: Row(
                 children: [
@@ -334,10 +305,7 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
                   ),
                   IconButton(
                     onPressed: _removeDocument,
-                    icon: Icon(
-                      Icons.close,
-                      color: Colors.red.shade700,
-                    ),
+                    icon: Icon(Icons.close, color: Colors.red.shade700),
                     tooltip: 'Remove document',
                   ),
                 ],
@@ -350,19 +318,12 @@ class _AddressProofUploadWidgetState extends State<AddressProofUploadWidget> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.info_outline,
-                size: 16,
-                color: Colors.grey[600],
-              ),
+              Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   'Supported formats: PDF, JPG, PNG (Max 5MB). Select proof type before uploading.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ),
             ],

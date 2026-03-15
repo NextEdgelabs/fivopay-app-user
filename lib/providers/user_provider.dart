@@ -36,7 +36,7 @@ class UserProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
-   
+
     return;
   }
 
@@ -119,9 +119,10 @@ class UserProvider extends ChangeNotifier {
     required String name,
     required String aadhaarNumber,
     AadhaarData? aadhaarData,
+    // Address? addressdata,
     String? dateOfBirth,
     String? gender,
-    String? address,
+    String? aadharNumber,
   }) {
     if (_currentUser != null) {
       _currentUser = _currentUser!.copyWith(
@@ -129,7 +130,14 @@ class UserProvider extends ChangeNotifier {
         aadharNumber: aadhaarNumber,
         dateOfBirth: dateOfBirth ?? _currentUser!.dateOfBirth,
         gender: gender ?? _currentUser!.gender,
-        address: address ?? _currentUser!.address,
+        address:
+            "${aadhaarData?.address?.house} ${aadhaarData?.address?.street} ${aadhaarData?.address?.district}",
+        pincode: aadhaarData?.address?.pincode?.toString(),
+        state: aadhaarData?.address?.state,
+
+        // district: aadhaarData?.address?.district,
+        city: aadhaarData?.address?.district,
+        aadhaarVerificationStatus: true,
       );
       if (aadhaarData != null) {
         AuthService.saveAadharDetails(

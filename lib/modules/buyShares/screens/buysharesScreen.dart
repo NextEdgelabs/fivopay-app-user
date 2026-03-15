@@ -207,25 +207,24 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
                     yourShares: '${shareProvider.totalSharesOwned}',
                   ),
 
-                  SizedBox(height: AppSizes.paddingXL),
+                  // SizedBox(height: AppSizes.paddingXL),
 
-                  // Purchase Method Section
-                  Text(
-                    'Purchase Method',
-                    style: AppTextStyles.heading3.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                  SizedBox(height: AppSizes.paddingL),
+                  // // Purchase Method Section
+                  // Text(
+                  //   'Purchase Method',
+                  //   style: AppTextStyles.heading3.copyWith(
+                  //     fontWeight: FontWeight.w600,
+                  //     fontSize: 16,
+                  //   ),
+                  // ),
+                  // SizedBox(height: AppSizes.paddingL),
 
-                  PurchaseMethodButton(
-                    label: 'By Quantity',
-                    icon: Iconsax.hashtag,
-                    isSelected: true,
-                    onTap: () {},
-                  ),
-
+                  // PurchaseMethodButton(
+                  //   label: 'By Quantity',
+                  //   icon: Iconsax.hashtag,
+                  //   isSelected: true,
+                  //   onTap: () {},
+                  // ),
                   SizedBox(height: AppSizes.paddingXL),
 
                   // Enter Quantity Section

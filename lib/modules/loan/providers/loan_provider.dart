@@ -162,6 +162,14 @@ class LoanProvider extends ChangeNotifier {
     return {};
   }
 
+  void setPanAndAadhaarStatus() {
+    var user = bContext.read<UserProvider>().currentUser;
+    if (user != null) {
+      _isPanVerified = user.panVerificationStatus;
+      _isAadhaarVerified = user.aadhaarVerificationStatus;
+    }
+  }
+
   // Fetch loan categories
   Future<void> fetchLoanCategories({
     bool refresh = false,
@@ -288,7 +296,7 @@ class LoanProvider extends ChangeNotifier {
     _clearError();
 
     try {
-     await  uploadLoanDocument();
+      await uploadLoanDocument();
       // Simulate API call for loan application
       var params = CreateLoanparams(
         categoryId: selectedLoanCategory!.id,
@@ -296,7 +304,6 @@ class LoanProvider extends ChangeNotifier {
         productId: selectedProduct!.id,
         amount: _applicationData['loanAmount'],
         document: _loanDocuments,
-        
       );
       var res = await LoanServices.submmitLoanApplicattion(params);
 
@@ -738,43 +745,49 @@ class LoanProvider extends ChangeNotifier {
   }
 
   //upload LOan Document
-Future<void> uploadLoanDocument() async {
-  _isLoading = true;
-  notifyListeners();
-  try {
-    if (_loanDocuments.isEmpty) return;
-
-    for (int i = 0; i < _loanDocuments.length; i++) {
-      final doc = _loanDocuments[i];
-      if (doc.file == null) continue;
-
-      final urls = await S3Service.getMultipleSignedUrls([doc.file!]);
-      if (urls.isNotEmpty) {
-        _loanDocuments[i] = doc.copyWith(documentUrl: urls.first);
-      }
-    }
-  } catch (e, st) {
-    // log/handle
-  } finally {
-    _isLoading = false;
+  Future<void> uploadLoanDocument() async {
+    _isLoading = true;
     notifyListeners();
+    try {
+      if (_loanDocuments.isEmpty) return;
+
+      for (int i = 0; i < _loanDocuments.length; i++) {
+        final doc = _loanDocuments[i];
+        if (doc.file == null) continue;
+
+        final urls = await S3Service.getMultipleSignedUrls([doc.file!]);
+        if (urls.isNotEmpty) {
+          _loanDocuments[i] = doc.copyWith(documentUrl: urls.first);
+        }
+      }
+    } catch (e, st) {
+      // log/handle
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
-}
+
   Future<void> selectLoanDocuments(File file, String type) async {
     String fileName = file.path.split('/').last;
     // if (_applicationData['files'] == null) {
     //   _applicationData['files'] = [];
     // }
-   _loanDocuments = [
+    _loanDocuments = [
       ..._loanDocuments,
-      LoanDocumentModel(documentType: type, documentName: fileName, documentUrl: '' , file: file),
-    //   {
-    //   'file': file,
-    //   'fileName': fileName,
-    //   'type': type,
-    // }
+      LoanDocumentModel(
+        documentType: type,
+        documentName: fileName,
+        documentUrl: '',
+        file: file,
+      ),
+      //   {
+      //   'file': file,
+      //   'fileName': fileName,
+      //   'type': type,
+      // }
     ];
-      
+
     notifyListeners();
   }
 

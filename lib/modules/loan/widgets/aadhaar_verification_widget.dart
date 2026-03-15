@@ -173,7 +173,7 @@ class _AadhaarVerificationWidgetState extends State<AadhaarVerificationWidget> {
             aadhaarNumber: _aadhaarController.text.trim(),
             dateOfBirth: response.data!.dateOfBirth,
             gender: response.data!.gender,
-            address: response.data!.fullAddress,
+            // address: response.data!.fullAddress,
           );
         }
 

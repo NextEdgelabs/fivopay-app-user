@@ -124,4 +124,39 @@ class DepositService {
       throw Failure(message: 'Failed to fetch term deposits.');
     }
   }
+
+  static Future<PaginatedResponse<DepositAccountModel>>
+  getPendingTermDepositTransactions(
+    String userId, {
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      String url =
+          '${ApiConfig.domain}${ApiConfig.getUserTransactions}?status=pending&status=pickup_scheduled&transactionType=term_deposit&page=$page&limit=$limit';
+      var res = await ApiService.get(url);
+      if (res['success'] == true) {
+        log(res.toString());
+        final List<dynamic> data = res['data']['transactions'];
+        final pagination = res['data']['pagination'];
+
+        final transactions = data
+            .map((e) => DepositAccountModel.fromJson(e))
+            .toList();
+        final paginationModel = PaginationModel.fromJson(pagination ?? {});
+
+        return PaginatedResponse(
+          data: transactions,
+          pagination: paginationModel,
+        );
+      } else {
+        throw Failure(
+          message: res['message'] ?? 'Failed to fetch pending transactions.',
+        );
+      }
+    } catch (e) {
+      if (e is Failure) rethrow;
+      throw Failure(message: 'Failed to fetch pending transactions.');
+    }
+  }
 }

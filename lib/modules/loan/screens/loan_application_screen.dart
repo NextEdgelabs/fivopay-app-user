@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/providers/user_provider.dart';
 import 'package:janseva/routes/arguments.dart';
+import 'package:janseva/utils/theme_extension.dart';
 import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../providers/loan_provider.dart';
@@ -108,7 +109,10 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Loan Application'),
+          title: Text(
+            'Loan Application',
+            style: TextStyle(color: context.colors.bgColors),
+          ),
           backgroundColor: LoanUtils.getLoanTypeColor(
             widget.args.loan.loanType,
           ),
@@ -125,7 +129,8 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
         ),
         body: PageView(
           controller: _pageController,
-          physics: const NeverScrollableScrollPhysics(), // Disable swipe, use buttons only
+          physics:
+              const NeverScrollableScrollPhysics(), // Disable swipe, use buttons only
           onPageChanged: (index) {
             setState(() {
               _currentStep = index;
@@ -217,7 +222,10 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
                   });
                 },
                 onSubmit: _submitApplication,
-                goldWeightController: widget.args.loan.loanType.toLowerCase() == 'gold' ? _goldWeightController : null,
+                goldWeightController:
+                    widget.args.loan.loanType.toLowerCase() == 'gold'
+                    ? _goldWeightController
+                    : null,
               ),
             ),
           ],
@@ -233,9 +241,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
           LoanApplicationProgressIndicator(
             currentStep: _currentStep,
             totalSteps: _totalSteps,
-            primaryColor: LoanUtils.getLoanTypeColor(
-              widget.args.loan.loanType,
-            ),
+            primaryColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
           ),
           contentWidget,
           LoanApplicationNavigationButtons(
@@ -243,9 +249,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
             totalSteps: _totalSteps,
             onPrevious: _currentStep > 0 ? _previousStep : null,
             onNext: _currentStep < _totalSteps - 1 ? _nextStep : null,
-            primaryColor: LoanUtils.getLoanTypeColor(
-              widget.args.loan.loanType,
-            ),
+            primaryColor: LoanUtils.getLoanTypeColor(widget.args.loan.loanType),
           ),
         ],
       ),

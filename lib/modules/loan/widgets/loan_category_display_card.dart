@@ -120,7 +120,7 @@ class LoanProductDisplayCard extends StatelessWidget {
             buildDetailRow(
               context,
               context.read<AuthProvider>().isEthicalBanking
-                  ? 'Profit Rate'
+                  ? 'Rate'
                   : 'Interest Rate',
               product.formattedInterestRate,
             ),

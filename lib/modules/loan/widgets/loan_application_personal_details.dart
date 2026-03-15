@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/modules/auth/provider/auth_provider.dart';
 import 'package:janseva/modules/loan/widgets/aadhaar_verification_widget.dart';
+import 'package:janseva/providers/user_provider.dart';
+import 'package:janseva/utils/theme_extension.dart';
 import 'package:janseva/widgets/pan_verification_widget.dart';
 import 'package:provider/provider.dart';
 import '../models/models.dart';
@@ -54,11 +57,24 @@ class _LoanApplicationPersonalDetailsWidgetState
     });
   }
 
+  @override
+  void initState() {
+    context.read<LoanProvider>().setPanAndAadhaarStatus();
+    widget.aadharController.text =
+        context.read<UserProvider>().currentUser?.aadharNumber ?? '';
+    widget.panController.text =
+        context.read<UserProvider>().currentUser?.panNumber ?? '';
+
+    // TODO: implement initState
+    super.initState();
+  }
+
   void _fillAddressFromAadhaar() {
     final loanProvider = context.read<LoanProvider>();
+    final userProvider = context.read<UserProvider>();
     final aadhaarDetails = loanProvider.aadhaarDetails;
 
-    if (aadhaarDetails != null ) {
+    if (aadhaarDetails != null) {
       final address = aadhaarDetails.fullAddress as String;
       // Parse address and fill fields
       widget.addressController.text = address;
@@ -66,13 +82,21 @@ class _LoanApplicationPersonalDetailsWidgetState
       // Update provider data for validation
       loanProvider.updateApplicationData('address', address);
 
-      if(aadhaarDetails.address?.pincode != null) {
-       widget.pincodeController.text = aadhaarDetails.address!.pincode.toString();
-       loanProvider.updateApplicationData('pincode', aadhaarDetails.address!.pincode.toString());
+      if (aadhaarDetails.address?.pincode != null) {
+        widget.pincodeController.text = aadhaarDetails.address!.pincode
+            .toString();
+        loanProvider.updateApplicationData(
+          'pincode',
+          aadhaarDetails.address!.pincode.toString(),
+        );
       }
-      if(aadhaarDetails.address?.district != null) {
-        widget.cityController.text = aadhaarDetails.address!.district.toString();
-        loanProvider.updateApplicationData('city', aadhaarDetails.address!.district.toString());
+      if (aadhaarDetails.address?.district != null) {
+        widget.cityController.text = aadhaarDetails.address!.district
+            .toString();
+        loanProvider.updateApplicationData(
+          'city',
+          aadhaarDetails.address!.district.toString(),
+        );
       }
 
       // // Try to extract city and pincode from address if possible
@@ -99,6 +123,19 @@ class _LoanApplicationPersonalDetailsWidgetState
       //     }
       //   }
       // }
+    } else if (userProvider.currentUser?.address != null &&
+        userProvider.currentUser!.address!.isNotEmpty) {
+      final user = userProvider.currentUser!;
+      widget.addressController.text = user.address!;
+      loanProvider.updateApplicationData('address', user.address!);
+      if (user.pincode != null && user.pincode!.isNotEmpty) {
+        widget.pincodeController.text = user.pincode!;
+        loanProvider.updateApplicationData('pincode', user.pincode!);
+      }
+      if (user.city != null && user.city!.isNotEmpty) {
+        widget.cityController.text = user.city!;
+        loanProvider.updateApplicationData('city', user.city!);
+      }
     }
   }
 
@@ -114,9 +151,20 @@ class _LoanApplicationPersonalDetailsWidgetState
 
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Consumer<LoanProvider>(
-        builder: (context, loanProvider, child) {
+      child: Consumer2<LoanProvider, UserProvider>(
+        builder: (context, loanProvider, userProvider, child) {
+          bool isAadhaarVerified =
+              loanProvider.isAadhaarVerified ||
+              (userProvider.currentUser?.aadhaarVerificationStatus == true &&
+                  userProvider.currentUser?.aadharNumber != null &&
+                  userProvider.currentUser!.aadharNumber!.isNotEmpty);
+          bool isPanVerified =
+              loanProvider.isPanVerified ||
+              (userProvider.currentUser?.panVerificationStatus == true &&
+                  userProvider.currentUser?.panNumber != null &&
+                  userProvider.currentUser!.panNumber!.isNotEmpty);
           // Trigger form validation if requested
+
           if (loanProvider.shouldValidateForms) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _personalFormKey.currentState?.validate();
@@ -197,11 +245,11 @@ class _LoanApplicationPersonalDetailsWidgetState
                       const SizedBox(height: 12),
                       _buildVerificationStatusItem(
                         'PAN Verification',
-                        loanProvider.isPanVerified,
+                        loanProvider.isPanVerified || isPanVerified,
                       ),
                       _buildVerificationStatusItem(
                         'Aadhaar Verification',
-                        loanProvider.isAadhaarVerified,
+                        loanProvider.isAadhaarVerified || isAadhaarVerified,
                       ),
                     ],
                   ),
@@ -276,7 +324,40 @@ class _LoanApplicationPersonalDetailsWidgetState
                   },
                 ),
                 const SizedBox(height: 16),
-                const PANVerificationWidget(),
+                (isPanVerified)
+                    ? Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.green.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'PAN number linked to your account is verified',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.green.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : const PANVerificationWidget(),
                 // LoanApplicationInputField(
                 //   controller: panController,
                 //   label: 'PAN Number',
@@ -311,10 +392,43 @@ class _LoanApplicationPersonalDetailsWidgetState
                 //     }
                 //     return null;
                 //   },
-                // ),
-                AadhaarVerificationWidget(
-                  reason: "Loan Application (${loanProvider.selectedProduct?.description})",
-                ),
+                (isAadhaarVerified)
+                    ? Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.green.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Aadhaar number linked to your account is verified',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.green.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : AadhaarVerificationWidget(
+                        reason:
+                            "Loan Application (${loanProvider.selectedProduct?.description})",
+                      ),
                 const SizedBox(height: 24),
 
                 LoanApplicationSectionHeader(
@@ -326,9 +440,9 @@ class _LoanApplicationPersonalDetailsWidgetState
                 // Radio button for address auto-fill
                 Consumer<LoanProvider>(
                   builder: (context, loanProvider, child) {
-                    final isAadhaarVerified = loanProvider.isAadhaarVerified;
+                    final isAadhaarVerifiedl = loanProvider.isAadhaarVerified;
 
-                    if (isAadhaarVerified) {
+                    if (isAadhaarVerifiedl || isAadhaarVerified) {
                       return Container(
                         margin: const EdgeInsets.only(bottom: 16),
                         padding: const EdgeInsets.all(12),
@@ -469,10 +583,11 @@ class _LoanApplicationPersonalDetailsWidgetState
                       }
 
                       // Validate file size (max 5MB)
-                      final isValidSize = await FilePickerHelper.validateFileSize(
-                        file,
-                         5 * 1024 * 1024,
-                      );
+                      final isValidSize =
+                          await FilePickerHelper.validateFileSize(
+                            file,
+                            5 * 1024 * 1024,
+                          );
 
                       if (!isValidSize) {
                         if (context.mounted) {
@@ -487,7 +602,7 @@ class _LoanApplicationPersonalDetailsWidgetState
                       }
 
                       // Validate file type
-                    
+
                       final isValidType = FilePickerHelper.isValidFileType(
                         file,
                         ['pdf', 'jpg', 'jpeg', 'png'],
@@ -595,7 +710,7 @@ class _LoanApplicationPersonalDetailsWidgetState
       case 'business':
         return Colors.teal;
       default:
-        return Colors.grey;
+        return context.colors.brandColor;
     }
   }
 

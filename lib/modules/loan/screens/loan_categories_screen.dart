@@ -191,7 +191,7 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
               const SizedBox(height: AppSizes.paddingM),
               // Interest Rate
               Text(
-                '${context.read<AuthProvider>().isEthicalBanking ? "Profit" : "Interest"}: ${category.formattedInterestRate}',
+                '${context.read<AuthProvider>().isEthicalBanking ? "Rate" : "Interest Rate"}: ${category.formattedInterestRate}',
                 style: AppTextStyles.caption.copyWith(
                   color: context.appColors.textSecondary,
                 ),
