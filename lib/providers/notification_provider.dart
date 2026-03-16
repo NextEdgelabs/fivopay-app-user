@@ -19,49 +19,49 @@ class NotificationProvider extends ChangeNotifier {
     final now = DateTime.now();
 
     _notifications = [
-      NotificationModel(
-        id: uuid.v4(),
-        title: 'Loan Approved!',
-        message:
-            'Your personal loan application has been successfully approved.',
-        createdAt: now.subtract(const Duration(hours: 2)),
-        type: 'success',
-        isRead: false,
-      ),
-      NotificationModel(
-        id: uuid.v4(),
-        title: 'Payment Reminder',
-        message: 'Your upcoming EMI payment of ₹5,400 is due in 3 days.',
-        createdAt: now.subtract(const Duration(days: 1)),
-        type: 'warning',
-        isRead: false,
-      ),
-      NotificationModel(
-        id: uuid.v4(),
-        title: 'Profile Updated',
-        message:
-            'Your address details have been successfully verified and updated.',
-        createdAt: now.subtract(const Duration(days: 2)),
-        type: 'info',
-        isRead: true,
-      ),
-      NotificationModel(
-        id: uuid.v4(),
-        title: 'New Feature Available',
-        message: 'Check out our new ethical banking investment options.',
-        createdAt: now.subtract(const Duration(days: 5)),
-        type: 'info',
-        isRead: true,
-      ),
-      NotificationModel(
-        id: uuid.v4(),
-        title: 'Failed Transaction',
-        message:
-            'Your recent attempt to verify your bank account failed. Please try again.',
-        createdAt: now.subtract(const Duration(days: 7)),
-        type: 'error',
-        isRead: true,
-      ),
+      // NotificationModel(
+      //   id: uuid.v4(),
+      //   title: 'Loan Approved!',
+      //   message:
+      //       'Your personal loan application has been successfully approved.',
+      //   createdAt: now.subtract(const Duration(hours: 2)),
+      //   type: 'success',
+      //   isRead: false,
+      // ),
+      // NotificationModel(
+      //   id: uuid.v4(),
+      //   title: 'Payment Reminder',
+      //   message: 'Your upcoming EMI payment of ₹5,400 is due in 3 days.',
+      //   createdAt: now.subtract(const Duration(days: 1)),
+      //   type: 'warning',
+      //   isRead: false,
+      // ),
+      // NotificationModel(
+      //   id: uuid.v4(),
+      //   title: 'Profile Updated',
+      //   message:
+      //       'Your address details have been successfully verified and updated.',
+      //   createdAt: now.subtract(const Duration(days: 2)),
+      //   type: 'info',
+      //   isRead: true,
+      // ),
+      // NotificationModel(
+      //   id: uuid.v4(),
+      //   title: 'New Feature Available',
+      //   message: 'Check out our new ethical banking investment options.',
+      //   createdAt: now.subtract(const Duration(days: 5)),
+      //   type: 'info',
+      //   isRead: true,
+      // ),
+      // NotificationModel(
+      //   id: uuid.v4(),
+      //   title: 'Failed Transaction',
+      //   message:
+      //       'Your recent attempt to verify your bank account failed. Please try again.',
+      //   createdAt: now.subtract(const Duration(days: 7)),
+      //   type: 'error',
+      //   isRead: true,
+      // ),
     ];
     notifyListeners();
   }

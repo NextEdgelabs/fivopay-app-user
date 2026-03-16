@@ -403,17 +403,24 @@ class _DashboardScreenState extends State<DashboardScreen>
       appBar: AppBar(
         title: Row(
           children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: context.colors.brandColor,
-                shape: BoxShape.circle,
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(AppSizes.paddingXS),
-                child: Icon(
-                  Iconsax.user_octagon,
-                  color: Colors.white,
-                  size: 26,
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _currentIndex = 4;
+                });
+              },
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: context.colors.brandColor,
+                  shape: BoxShape.circle,
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(AppSizes.paddingXS),
+                  child: Icon(
+                    Iconsax.user_octagon,
+                    color: Colors.white,
+                    size: 26,
+                  ),
                 ),
               ),
             ),

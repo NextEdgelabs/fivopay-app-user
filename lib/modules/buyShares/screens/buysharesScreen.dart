@@ -92,7 +92,7 @@ class _BuySharesScreenState extends State<BuySharesScreen> {
             backgroundColor: AppColors.success,
           ),
         );
-        Navigator.pop(context);
+        // Navigator.pop(context);
       }
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

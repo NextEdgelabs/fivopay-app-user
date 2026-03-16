@@ -161,20 +161,21 @@ class _LoanCategoriesScreenState extends State<LoanCategoriesScreen> {
                       size: AppSizes.iconSizeL,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => loanProvider.toggleFavorite(category),
-                    icon: Icon(
-                      loanProvider.isFavorite(category)
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: loanProvider.isFavorite(category)
-                          ? context.appColors.alert2
-                          : context.appColors.textSecondary,
-                      size: AppSizes.iconSizeM,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
+
+                  // IconButton(
+                  //   onPressed: () => loanProvider.toggleFavorite(category),
+                  //   icon: Icon(
+                  //     loanProvider.isFavorite(category)
+                  //         ? Icons.favorite
+                  //         : Icons.favorite_border,
+                  //     color: loanProvider.isFavorite(category)
+                  //         ? context.appColors.alert2
+                  //         : context.appColors.textSecondary,
+                  //     size: AppSizes.iconSizeM,
+                  //   ),
+                  //   padding: EdgeInsets.zero,
+                  //   constraints: const BoxConstraints(),
+                  // ),
                 ],
               ),
               const SizedBox(height: AppSizes.paddingS),

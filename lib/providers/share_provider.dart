@@ -7,6 +7,7 @@ import '../models/share.dart';
 import '../models/user.dart';
 import '../modules/auth/provider/auth_provider.dart' show AuthProvider;
 import '../modules/wallet_module/provider/razorpay_service.dart';
+import '../services/auth_service.dart';
 import '../services/storage_service.dart';
 import 'user_provider.dart';
 
@@ -14,7 +15,7 @@ class ShareProvider with ChangeNotifier {
   // Constants
   static const int SHARE_PRICE = 100;
   static const int SHARES_FOR_MEMBERSHIP = 10;
-  
+
   // Available share (dummy data)
   final Share _availableShare = Share(
     id: 'SHARE001',
@@ -39,7 +40,7 @@ class ShareProvider with ChangeNotifier {
   List<SharePurchase> get purchases => List.unmodifiable(_purchases);
   bool get isLoading => _isLoading;
   String? get error => _error;
-  int  totalSharesOwned = 0;
+  int totalSharesOwned = 0;
   // => _purchases
   //     .where((p) => p.status == 'completed')
   //     .fold(0, (sum, p) => sum + p.quantity!);
@@ -56,14 +57,11 @@ class ShareProvider with ChangeNotifier {
 
   ShareProvider() {
     _initializeRazorpay();
-
-
-
   }
 
-  void _initShareProvider(){
+  void _initShareProvider() {
     totalSharesOwned = _currentUser?.totalSharePurchased ?? 0;
-    
+
     notifyListeners();
   }
 
@@ -76,6 +74,7 @@ class ShareProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+
   // Load purchases from storage
   Future<void> _loadPurchases() async {
     try {
@@ -191,6 +190,16 @@ class ShareProvider with ChangeNotifier {
               completedAt: DateTime.now(),
             );
 
+            // totalSharesOwned += quantity;
+            _currentUser = _currentUser?.copyWith(
+              totalSharePurchased: totalSharesOwned + quantity,
+            );
+            // final user = await AuthService.getCurrentUser();
+            // if (user != null) {
+            //   _currentUser = user;
+            // }
+
+            bContext.read<UserProvider>().updateUser(_currentUser!);
             _purchases.insert(0, purchase);
             await _savePurchases();
 

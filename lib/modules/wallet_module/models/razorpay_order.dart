@@ -29,7 +29,10 @@ class RazorpayOrder {
     this.razorpayKeyId,
   });
 
-  factory RazorpayOrder.fromJson(Map<String, dynamic> json) {
+  factory RazorpayOrder.fromJson(
+    Map<String, dynamic> json, {
+    String? razorpayKeyId,
+  }) {
     return RazorpayOrder(
       amount: json['amount'] ?? 0,
       amountDue: json['amount_due'] ?? 0,
@@ -43,7 +46,7 @@ class RazorpayOrder {
       offerId: json['offer_id'],
       receipt: json['receipt'] ?? '',
       status: json['status'] ?? 'created',
-      razorpayKeyId: json['razorpay_key_id'],
+      razorpayKeyId: json['razorpay_key_id'] ?? razorpayKeyId,
     );
   }
 

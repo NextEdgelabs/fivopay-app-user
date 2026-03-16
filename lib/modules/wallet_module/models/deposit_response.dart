@@ -77,7 +77,10 @@ class SharePurchaseResponse {
         transactionId: json["transactionId"],
         id: json["_id"],
         razorpayKeyId: json["razorpayKeyId"],
-        razorpayOrder: RazorpayOrder.fromJson(json["razorpayOrder"]),
+        razorpayOrder: RazorpayOrder.fromJson(
+          json["razorpayOrder"],
+          razorpayKeyId: json["razorpayKeyId"],
+        ),
       );
 
   Map<String, dynamic> toJson() => {

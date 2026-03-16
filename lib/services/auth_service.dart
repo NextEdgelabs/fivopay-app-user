@@ -64,7 +64,7 @@ class AuthService {
       user.copyWith(isNew: false);
       return {'user': user, 'appAccessToken': res['accessToken']};
     } catch (e) {
-      throw ApiException('Error creating profile');
+    throw ApiException('Error creating profile');
     }
   }
 
