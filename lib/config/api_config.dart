@@ -2,16 +2,16 @@
 class ApiConfig {
   // KYC Base URL
   // static const String baseUrl = 'https://api.sandbox.co.in';
-  //   static const String domain = 'https://api.fivopay.nextlabsonline.com';
+  static const String domain = 'https://api.fivopay.nextlabsonline.com';
   //
   //   static const String domain = 'http://192.168.1.82:4000';
-  static const String domain = 'http://localhost:4000';
+  //   static const String domain = 'http://localhost:4000';
 
   static const String razorpayKeyId = 'rzp_test_SRvw88XOCl81iF';
 
   //Estamp+Esign
-//   static const String eStampBaseUrl = 'https://test.zoop.one/contract/estamp';
-//   static const String eSignBaseUrl = 'https://test.zoop.plus/contract/esign';
+  //   static const String eStampBaseUrl = 'https://test.zoop.one/contract/estamp';
+  //   static const String eSignBaseUrl = 'https://test.zoop.plus/contract/esign';
 
   //estam+sign Endpoints
 
