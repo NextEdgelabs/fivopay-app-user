@@ -2,10 +2,10 @@
 class ApiConfig {
   // KYC Base URL
   // static const String baseUrl = 'https://api.sandbox.co.in';
-  static const String domain = 'https://api.fivopay.nextlabsonline.com';
+  // static const String domain = 'https://api.fivopay.nextlabsonline.com';
   //
-  //   static const String domain = 'http://192.168.1.82:4000';
-  //   static const String domain = 'http://localhost:4000';
+  static const String domain = 'http://172.16.39.187:4000';
+  // static const String domain = 'http://localhost:4000';
 
   static const String razorpayKeyId = 'rzp_test_SRvw88XOCl81iF';
 
@@ -45,6 +45,7 @@ class ApiConfig {
   //Wallet
   static const String createDeposit = '/api/v1/deposit/create-deposit';
   static const String getWalletBalance = '/api/v1/deposit/get-user-balance';
+  static const String createWithdrawal = '/api/v1/payout/withdraw-money';
 
   //FD/Rd
   static const String createTermDeposit = '/api/v1/deposit/create-term-deposit';
@@ -56,6 +57,10 @@ class ApiConfig {
       "/api/v1/deposit/category/get-by-type";
   static const String getUserTransactions =
       "/api/v1/deposit/get-user-transactions";
+
+  //brannches
+  static const String getBranches =
+      '/api/v1/branch/get-all-branches'; //?page=1&limit=10&status=Active&branchType=Main&city=Mumbai&state=Maharashtra
 
   //customers
   static const String getAllCustomers = '/api/v1/customer/get-all-customers';

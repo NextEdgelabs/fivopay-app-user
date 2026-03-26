@@ -560,6 +560,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                           ),
                         ),
                       )
+                   
                     else if (loan.agreement?.estampId != null)
                       SizedBox(
                         width: double.infinity,

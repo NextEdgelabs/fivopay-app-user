@@ -20,6 +20,12 @@ class EsignLoanArguments {
   EsignLoanArguments({required this.loan});
 }
 
+class DashboardScreenArguments {
+  final int initialIndex;
+
+  DashboardScreenArguments({this.initialIndex = 0});
+}
+
 class AadharVerifyArguments {
   final int stepNumber;
   final Color themeColor;

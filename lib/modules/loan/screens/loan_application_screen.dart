@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:janseva/providers/user_provider.dart';
 import 'package:janseva/routes/arguments.dart';
+import 'package:janseva/routes/navigator.dart';
+import 'package:janseva/routes/routes.dart';
 import 'package:janseva/utils/theme_extension.dart';
 import 'package:provider/provider.dart';
 import '../models/models.dart';
@@ -532,7 +534,11 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
       // Clear loan provider data after successful submission
       context.read<LoanProvider>().clearApplicationData();
       Navigator.of(context).pop(); // Close dialog
-      Navigator.of(context).pop(); // Go back to previous screen
+      pushAndRemoveUntil(
+        NamedRoutes.dashboard,
+        arguments: DashboardScreenArguments(initialIndex: 1),
+      );
+      // Go back to previous screen
     });
   }
 }

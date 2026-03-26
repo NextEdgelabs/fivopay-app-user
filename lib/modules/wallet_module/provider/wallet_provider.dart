@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../../models/user.dart';
 import '../../../services/storage_service.dart';
 import '../models/transaction_model.dart';
+import '../models/withdrawl_params.dart';
 
 class WalletProvider with ChangeNotifier {
   double _balance = 0.0;
@@ -151,77 +152,72 @@ class WalletProvider with ChangeNotifier {
     }
   }
 
-  // Withdraw money from wallet
-  Future<bool> withdrawMoney({
-    required double amount,
-    String description = 'Cash withdrawal',
-    String? toAccount,
-    String? referenceNumber,
-  }) async {
-    if (amount <= 0) {
-      _error = 'Amount must be greater than zero';
-      notifyListeners();
-      return false;
-    }
+  // // Withdraw money from wallet
+  // Future<bool> withdrawMoney({
+  //   required double amount,
+  //   String description = 'Cash withdrawal',
+  //   String? toAccount,
+  //   String? referenceNumber,
+  // }) async {
+  //   if (amount <= 0) {
+  //     _error = 'Amount must be greater than zero';
+  //     notifyListeners();
+  //     return false;
+  //   }
 
-    if (amount > _balance) {
-      _error = 'Insufficient balance';
-      notifyListeners();
-      return false;
-    }
+  //   if (amount > _balance) {
+  //     _error = 'Insufficient balance';
+  //     notifyListeners();
+  //     return false;
+  //   }
 
-    _setProcessing(true);
-    _clearError();
+  //   _setProcessing(true);
+  //   _clearError();
 
-    try {
-      // Simulate withdrawal processing delay
-      await Future.delayed(const Duration(seconds: 2));
+  //   try {
+  //     // Simulate withdrawal processing delay
+  //     await Future.delayed(const Duration(seconds: 2));
 
-      // Create completed transaction
-      final transaction = Transaction(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        type: 'withdraw',
-        amount: amount,
-        description: description,
-        timestamp: DateTime.now(),
-        status: 'completed',
-        referenceNumber: referenceNumber,
-        toAccount: toAccount,
-      );
+  //     // Create completed transaction
+  //     final transaction = Transaction(
+  //       id: DateTime.now().millisecondsSinceEpoch.toString(),
+  //       type: 'withdraw',
+  //       amount: amount,
+  //       description: description,
+  //       timestamp: DateTime.now(),
+  //       status: 'completed',
+  //       referenceNumber: referenceNumber,
+  //       toAccount: toAccount,
+  //     );
 
-      // Update balance and add transaction
-      _balance -= amount;
-      _transactions.insert(0, transaction);
+  //     // Update balance and add transaction
+  //     _balance -= amount;
+  //     _transactions.insert(0, transaction);
 
-      // // Save to storage
-      // await _saveBalanceToStorage();
-      // await _saveTransactionHistory();
+  //     // // Save to storage
+  //     // await _saveBalanceToStorage();
+  //     // await _saveTransactionHistory();
 
-      _setProcessing(false);
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _error = 'Failed to withdraw money: $e';
-      _setProcessing(false);
-      notifyListeners();
-      return false;
-    }
-  }
+  //     _setProcessing(false);
+  //     notifyListeners();
+  //     return true;
+  //   } catch (e) {
+  //     _error = 'Failed to withdraw money: $e';
+  //     _setProcessing(false);
+  //     notifyListeners();
+  //     return false;
+  //   }
+  // }
 
   // Transfer money to another user
-  Future<bool> transferMoney({
-    required double amount,
-    required String recipientAccount,
-    String? description,
-    String? referenceNumber,
-  }) async {
-    if (amount <= 0) {
+  Future<bool> withdrawMoney(WithdrawalParams params) async {
+    if (params.amount <= 0) {
       _error = 'Amount must be greater than zero';
       notifyListeners();
       return false;
     }
 
-    if (amount > _balance) {
+    if (params.amount > _balance) {
       _error = 'Insufficient balance';
       notifyListeners();
       return false;
@@ -232,23 +228,23 @@ class WalletProvider with ChangeNotifier {
 
     try {
       // Simulate transfer processing delay
-      await Future.delayed(const Duration(seconds: 2));
+      var res = await WalletService.createWithdrawal(params: params);
 
       // Create completed transaction
       final transaction = Transaction(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: res,
         type: 'transfer',
-        amount: amount,
-        description: description ?? 'Transfer to $recipientAccount',
+        amount: params.amount,
+        description: "Money Withdrawal",
         timestamp: DateTime.now(),
-        status: 'completed',
-        referenceNumber: referenceNumber,
+        status: 'processing',
+        referenceNumber: res,
         fromAccount: _currentUser?.id,
-        toAccount: recipientAccount,
+        // toAccount: ,
       );
 
       // Update balance and add transaction
-      _balance -= amount;
+      _balance -= params.amount;
       _transactions.insert(0, transaction);
 
       // // Save to storage
@@ -324,7 +320,9 @@ class WalletProvider with ChangeNotifier {
 
   // Get transactions by type
   List<Transaction> getTransactionsByType(String type) {
-    return _transactions.where((t) => t.type == type).toList();
+    return _transactions
+        .where((t) => t.type.toLowerCase() == type.toLowerCase())
+        .toList();
   }
 
   // Get transactions by date range

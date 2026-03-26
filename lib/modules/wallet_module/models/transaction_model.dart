@@ -41,7 +41,7 @@ class Transaction {
       type: json['type'],
       amount: json['amount'].toDouble(),
       description: json['description'],
-      timestamp: DateTime.parse(json['timestamp']),
+      timestamp: DateTime.parse(json['timestamp']).toLocal(),
       status: json['status'],
       referenceNumber: json['referenceNumber'],
       fromAccount: json['fromAccount'],

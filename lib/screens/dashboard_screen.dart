@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:janseva/main.dart';
+import 'package:janseva/modules/auth/provider/auth_provider.dart';
 import 'package:janseva/modules/buyShares/screens/buysharesScreen.dart';
 import 'package:janseva/modules/loan/screens/loan_product_screen.dart';
 import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
@@ -9,6 +10,7 @@ import 'package:janseva/routes/navigator.dart';
 import 'package:janseva/routes/routes.dart';
 import 'package:janseva/modules/wallet_module/screens/withdraw_screen.dart';
 import 'package:janseva/screens/fixed_deposit_screen.dart';
+import 'package:janseva/screens/select_branch_screen.dart';
 import 'package:janseva/utils/app_color_extension.dart';
 import 'package:janseva/utils/theme_extension.dart';
 
@@ -29,7 +31,8 @@ import 'transactions_screen.dart';
 import 'applications_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final int initialIndex;
+  const DashboardScreen({super.key, this.initialIndex = 0});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -40,6 +43,27 @@ class _DashboardScreenState extends State<DashboardScreen>
   AnimationController? _animationController;
   int _currentIndex = 0;
   int _topTabIndex = 0;
+
+  Future<void> _refreshDashboardData() async {
+    final authProvider = context.read<AuthProvider>();
+    final userProvider = context.read<UserProvider>();
+    final walletProvider = context.read<WalletProvider>();
+
+    await authProvider.initialize();
+
+    final refreshedUser = authProvider.currentUser;
+    final userId = refreshedUser?.id ?? userProvider.currentUser?.id;
+
+    if (refreshedUser != null) {
+      await userProvider.updateUser(refreshedUser);
+    }
+
+    if (userId != null && userId.isNotEmpty) {
+      await walletProvider.loadWalletBalance(userId);
+    }
+
+    await walletProvider.fetchUserTransactions();
+  }
 
   @override
   void initState() {
@@ -59,6 +83,9 @@ class _DashboardScreenState extends State<DashboardScreen>
         context,
         listen: false,
       ).fetchUserTransactions();
+      setState(() {
+        _currentIndex = widget.initialIndex;
+      });
     });
   }
 
@@ -152,132 +179,139 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildBankTab(WalletProvider transactionProvider) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSizes.paddingL),
-        child: Consumer2<UserProvider, WalletProvider>(
-          builder: (context, provider, walletProvider, child) {
-            var user = provider.currentUser;
-            var transactions = walletProvider.transactions;
-            bool isKycCompleted =
-                user?.kycStatus?.toLowerCase() == 'completed' ||
-                user?.kycStatus?.toLowerCase() == 'verified';
+    return RefreshIndicator(
+      onRefresh: _refreshDashboardData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSizes.paddingL),
+          child: Consumer2<UserProvider, WalletProvider>(
+            builder: (context, provider, walletProvider, child) {
+              var user = provider.currentUser;
+              var transactions = walletProvider.transactions;
+              bool isKycCompleted =
+                  user?.kycStatus?.toLowerCase() == 'completed' ||
+                  user?.kycStatus?.toLowerCase() == 'verified';
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Balance Card
-                BalanceCard(
-                  title: 'TOTAL BALANCE',
-                  amountText:
-                      '₹ ${transactionProvider.balanceDisplay.replaceAll('₹', '').trim()}',
-                  onPrimary: () => push(NamedRoutes.depositScreen),
-                  onSecondary: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WithdrawScreen(),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Balance Card
+                  BalanceCard(
+                    title: 'TOTAL BALANCE',
+                    amountText:
+                        '₹ ${transactionProvider.balanceDisplay.replaceAll('₹', '').trim()}',
+                    onPrimary: () => push(NamedRoutes.depositScreen),
+                    onSecondary: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WithdrawScreen(),
+                      ),
                     ),
                   ),
-                ),
 
-                const SizedBox(height: AppSizes.sectionSpacing),
+                  const SizedBox(height: AppSizes.sectionSpacing),
 
-                // User Info Card
-                UserInfoCard(
-                  name: user?.name ?? 'Sham Kapoor',
-                  accountNumber: user?.memberId ?? 'JNS1234567890',
-                  memberSince: user?.memberSince ?? '20 Jan, 2025',
-                  isPro: true,
-                ),
+                  // User Info Card
+                  UserInfoCard(
+                    name: user?.name ?? 'Sham Kapoor',
+                    accountNumber: user?.memberId ?? 'JNS1234567890',
+                    memberSince: user?.memberSince ?? '20 Jan, 2025',
+                    isPro: true,
+                  ),
 
-                const SizedBox(height: AppSizes.paddingM),
+                  const SizedBox(height: AppSizes.paddingM),
 
-                // Two small stat cards row
-                Row(
-                  children: [
-                    Expanded(
-                      child: SmallStatCard(
-                        iconPath: "shield",
-                        icon: Icons.verified_user_outlined,
-                        label: 'KYC STATUS',
-                        value: isKycCompleted ? 'Completed' : 'Pending',
-                        iconColor: context.colors.textSecondary,
-                        valueColor: isKycCompleted
-                            ? Colors.green
-                            : Colors.deepOrange,
-                      ),
-                    ),
-                    const SizedBox(width: AppSizes.paddingM),
-                    Expanded(
-                      child: SmallStatCard(
-                        iconPath: "profile",
-                        icon: Icons.person_outline,
-                        label: 'MEMBER TYPE',
-                        value: user?.isMember == true ? 'Active' : 'Guest',
-                        iconColor: context.colors.textSecondary,
-                        valueColor: context.colors.text,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: AppSizes.sectionSpacing),
-
-                // Recent Transactions Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Recent Transactions',
-                      style: AppTextStyles.heading2.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        push(NamedRoutes.transactionHistory);
-                      },
-                      child: Text(
-                        'See All',
-                        style: AppTextStyles.body1.copyWith(
-                          color: context.colors.brandColor,
-                          fontWeight: FontWeight.w600,
+                  // Two small stat cards row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SmallStatCard(
+                          iconPath: "shield",
+                          icon: Icons.verified_user_outlined,
+                          label: 'KYC STATUS',
+                          value: isKycCompleted ? 'Completed' : 'Pending',
+                          iconColor: context.colors.textSecondary,
+                          valueColor: isKycCompleted
+                              ? Colors.green
+                              : Colors.deepOrange,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                transactions.isEmpty
-                    ? Center(
-                        child: Container(
-                          margin: const EdgeInsets.all(AppSizes.paddingL),
-                          padding: const EdgeInsets.all(AppSizes.paddingL),
-                          child: const Text('No transactions'),
+                      const SizedBox(width: AppSizes.paddingM),
+                      Expanded(
+                        child: SmallStatCard(
+                          iconPath: "profile",
+                          icon: Icons.person_outline,
+                          label: 'MEMBER TYPE',
+                          value: user?.isMember == true ? 'Active' : 'Guest',
+                          iconColor: context.colors.textSecondary,
+                          valueColor: context.colors.text,
                         ),
-                      )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.zero,
-                        itemCount: transactions.length > 5
-                            ? 5
-                            : transactions.length,
-                        itemBuilder: (context, index) {
-                          final t = transactions[index];
-                          return TransactionListItem(
-                            name: t.description,
-                            timestamp: t.timestamp,
-                            amountText: t.amount.toStringAsFixed(2),
-                            isNegative: t.type == 'withdraw',
-                            showIcon: false,
-                            status: t.status,
-                          );
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: AppSizes.sectionSpacing),
+
+                  // Recent Transactions Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Recent Transactions',
+                        style: AppTextStyles.heading2.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          push(NamedRoutes.transactionHistory);
                         },
+                        child: Text(
+                          'See All',
+                          style: AppTextStyles.body1.copyWith(
+                            color: context.colors.brandColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                const SizedBox(height: 20),
-              ],
-            );
-          },
+                    ],
+                  ),
+                  transactions.isEmpty
+                      ? Center(
+                          child: Container(
+                            margin: const EdgeInsets.all(AppSizes.paddingL),
+                            padding: const EdgeInsets.all(AppSizes.paddingL),
+                            child: const Text('No transactions'),
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemCount: transactions.length > 5
+                              ? 5
+                              : transactions.length,
+                          itemBuilder: (context, index) {
+                            final t = transactions[index];
+                            return TransactionListItem(
+                              name: t.description,
+                              timestamp: t.timestamp,
+                              amountText: t.amount.toStringAsFixed(2),
+                              isNegative:
+                                  t.type.toLowerCase() == 'withdraw' ||
+                                  t.type.toLowerCase() == 'withdrawal' ||
+                                  t.type.toLowerCase() == 'transfer',
+                              showIcon: false,
+                              status: t.status,
+                            );
+                          },
+                        ),
+                  const SizedBox(height: 20),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -400,6 +434,17 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     return Scaffold(
       backgroundColor: context.colors.bgColors,
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(builder: (b) => const SelectUserBranch()),
+      //     );
+      //     // push(NamedRoutes.depositScreen);
+      //   },
+      //   backgroundColor: context.colors.brandColor,
+      //   child: const Icon(Icons.add),
+      // ),
       appBar: AppBar(
         title: Row(
           children: [

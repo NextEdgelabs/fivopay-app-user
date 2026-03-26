@@ -22,7 +22,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   final _filters = const {
     'all': 'All',
     'deposit': 'Deposits',
-    'withdraw': 'Withdrawals',
+    'withdrawal': 'Withdrawal',
     'transfer': 'Transfers',
     'bonus': 'Bonuses',
   };
@@ -116,7 +116,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             name: t.description,
                             timestamp: t.timestamp,
                             amountText: t.amount.toStringAsFixed(2),
-                            isNegative: t.type == 'withdraw',
+                            isNegative:
+                                t.type.toLowerCase() == 'withdraw' ||
+                                t.type.toLowerCase() == 'withdrawal' ||
+                                t.type.toLowerCase() == 'transfer',
                             showIcon: false,
                             status: t.status,
                           );
@@ -136,8 +139,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       ),
     );
   }
-
-
 
   Widget _buildSummaryCard(Map<String, dynamic> stats, String balance) {
     return Container(

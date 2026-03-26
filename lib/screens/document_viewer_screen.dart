@@ -213,16 +213,20 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: AppColors.error),
-            const SizedBox(height: AppSizes.paddingL),
-            Text(
-              'Failed to load document',
-              style: AppTextStyles.heading3,
-              textAlign: TextAlign.center,
+            Icon(
+              Icons.open_in_browser,
+              size: 64,
+              color: context.colors.textSecondary,
             ),
+            const SizedBox(height: AppSizes.paddingL),
+            // Text(
+            //   'Failed to load document',
+            //   style: AppTextStyles.heading3,
+            //   textAlign: TextAlign.center,
+            // ),
             const SizedBox(height: AppSizes.paddingM),
             Text(
-              'Unable to display the document. Please try opening it in your browser.',
+              'Please try opening it in your browser.',
               style: AppTextStyles.body2.copyWith(
                 color: context.colors.textSecondary,
               ),

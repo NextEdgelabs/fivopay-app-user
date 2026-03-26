@@ -1,8 +1,10 @@
 import 'dart:developer';
 import 'package:janseva/config/api_config.dart';
+import 'package:janseva/config/exceptions.dart';
 import 'package:janseva/services/api_service.dart';
 
 import '../../models/transaction_model.dart';
+import '../../models/withdrawl_params.dart';
 
 class WalletService {
   static Future<double> getWalletBalance(
@@ -50,6 +52,28 @@ class WalletService {
       }
     } catch (e) {
       return [];
+    }
+  }
+
+  static Future<String> createWithdrawal({
+    required WithdrawalParams params,
+  }) async {
+    try {
+      var res = await ApiService.post(
+        "${ApiConfig.domain}${ApiConfig.createWithdrawal}",
+        body: params.toJson(),
+      );
+      if (res['success'] == true) {
+        return res['result']['transactionId'];
+      } else {
+        throw Failure(message: res['message'] ?? 'Withdrawal failed');
+      }
+    } catch (e) {
+      if (e is Failure) {
+        rethrow;
+      } else {
+        throw Failure(message: 'Network error');
+      }
     }
   }
 }

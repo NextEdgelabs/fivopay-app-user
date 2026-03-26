@@ -1,5 +1,7 @@
 import 'package:janseva/models/organization.dart';
+import 'package:janseva/modules/fd_rd/model/term_deposit_model.dart';
 
+import '../modules/fd_rd/model/branch_model.dart';
 import 'fixed_deposit.dart';
 import 'loan_application.dart';
 
@@ -47,6 +49,7 @@ class User {
   final bool isShareHolder;
   final int totalSharePurchased;
   final Organization? organization;
+  final BranchModel? branch;
 
   User({
     this.memberId,
@@ -88,6 +91,7 @@ class User {
     this.organization,
     this.panVerificationStatus = false,
     this.aadhaarVerificationStatus = false,
+    this.branch,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {

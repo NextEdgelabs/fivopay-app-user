@@ -1,5 +1,7 @@
 import 'package:janseva/modules/fd_rd/model/deposit_product_model.dart';
 
+import 'branch_model.dart';
+
 class DepositAccountModel {
   final String id;
   final String? depositId;
@@ -240,32 +242,7 @@ class DepositAccountModel {
   };
 }
 
-class BranchModel {
-  final String? id;
-  final String? branchName;
-  final String? branchCode;
 
-  BranchModel({this.id, this.branchName, this.branchCode});
-
-  BranchModel copyWith({String? id, String? branchName, String? branchCode}) =>
-      BranchModel(
-        id: id ?? this.id,
-        branchName: branchName ?? this.branchName,
-        branchCode: branchCode ?? this.branchCode,
-      );
-
-  factory BranchModel.fromJson(Map<String, dynamic> json) => BranchModel(
-    id: json["_id"],
-    branchName: json["branchName"],
-    branchCode: json["branchCode"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "_id": id,
-    "branchName": branchName,
-    "branchCode": branchCode,
-  };
-}
 
 class CustomerId {
   final String? id;

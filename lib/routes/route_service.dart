@@ -34,7 +34,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case '/splash':
       return _getPageRoute(SplashScreen());
     case NamedRoutes.dashboard:
-      return _getPageRoute(DashboardScreen());
+      return _getPageRoute(
+        DashboardScreen(
+          initialIndex:
+              (settings.arguments as DashboardScreenArguments).initialIndex,
+        ),
+      );
     case NamedRoutes.login:
       return _getPageRoute(LoginScreen());
     case NamedRoutes.register:

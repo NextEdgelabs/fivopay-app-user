@@ -1,13 +1,85 @@
-import 'dart:convert';
 import 'dart:developer';
-import 'package:http/http.dart' as http;
 import 'package:janseva/config/api_config.dart';
+import 'package:janseva/config/exceptions.dart';
 import 'package:janseva/modules/auth/models/create_profile_params.dart';
 import 'package:janseva/services/kyc_service.dart';
 import 'package:janseva/services/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
+import '../modules/auth/provider/auth_provider.dart';
+import '../modules/fd_rd/model/branch_model.dart';
 import 'api_service.dart';
+
+class BranchesResponse {
+  final List<BranchModel> branches;
+  final int? page;
+  final int? limit;
+  final int? totalPages;
+  final int? totalCount;
+  final bool? hasNextPage;
+
+  const BranchesResponse({
+    required this.branches,
+    this.page,
+    this.limit,
+    this.totalPages,
+    this.totalCount,
+    this.hasNextPage,
+  });
+
+  factory BranchesResponse.fromJson(Map<String, dynamic> json) {
+    final data = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : <String, dynamic>{};
+
+    final rawBranches = data['branches'];
+    final branches = rawBranches is List
+        ? rawBranches
+              .map((e) => BranchModel.fromJson(Map<String, dynamic>.from(e)))
+              .toList()
+        : <BranchModel>[];
+
+    final pagination = data['pagination'] is Map<String, dynamic>
+        ? data['pagination'] as Map<String, dynamic>
+        : data['meta'] is Map<String, dynamic>
+        ? data['meta'] as Map<String, dynamic>
+        : <String, dynamic>{};
+
+    final page = _toInt(pagination['page'] ?? data['page']);
+    final limit = _toInt(pagination['limit'] ?? data['limit']);
+    final totalPages = _toInt(
+      pagination['totalPages'] ?? pagination['pages'] ?? data['totalPages'],
+    );
+    final totalCount = _toInt(
+      pagination['total'] ?? pagination['totalCount'] ?? data['total'],
+    );
+
+    bool? hasNextPage;
+    final hasNextRaw = pagination['hasNextPage'] ?? pagination['hasNext'];
+    if (hasNextRaw is bool) {
+      hasNextPage = hasNextRaw;
+    } else if (pagination['nextPage'] != null) {
+      hasNextPage = true;
+    } else if (page != null && totalPages != null) {
+      hasNextPage = page < totalPages;
+    }
+
+    return BranchesResponse(
+      branches: branches,
+      page: page,
+      limit: limit,
+      totalPages: totalPages,
+      totalCount: totalCount,
+      hasNextPage: hasNextPage,
+    );
+  }
+
+  static int? _toInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    return int.tryParse(value.toString());
+  }
+}
 
 class AuthService {
   // Send OTP to phone number
@@ -42,11 +114,18 @@ class AuthService {
         log(res.toString());
         // log(res['result']['accessToken']);
         await _saveToken(res['result']['accessToken']);
+        return res;
+      } else {
+        throw Failure(message: res['message'] ?? 'OTP verification failed');
       }
-      return res;
     } catch (e) {
-      print('Error verifying OTP: $e');
-      return {'success': false, 'message': 'Network error'};
+      if (e is Failure) {
+        throw e;
+      } else {
+        print('Error verifying OTP: $e');
+        throw Failure(message: 'Network error');
+      }
+     
     }
   }
 
@@ -64,7 +143,7 @@ class AuthService {
       user.copyWith(isNew: false);
       return {'user': user, 'appAccessToken': res['accessToken']};
     } catch (e) {
-    throw ApiException('Error creating profile');
+      throw ApiException('Error creating profile');
     }
   }
 
@@ -146,6 +225,47 @@ class AuthService {
       await SfService.clear();
     } catch (e) {
       print('Error logging out: $e');
+    }
+  }
+
+  static Future<BranchesResponse> getBranches({
+    String? city,
+    String? state,
+    int? page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      final queryParameters = <String, String>{
+        'page': (page ?? 1).toString(),
+        'limit': limit.toString(),
+        'status': 'Active',
+        'organisation': appId,
+      };
+
+      if (city != null && city.trim().isNotEmpty) {
+        queryParameters['city'] = city.trim();
+      }
+
+      if (state != null && state.trim().isNotEmpty) {
+        queryParameters['state'] = state.trim();
+      }
+
+      final url = Uri.parse(
+        '${ApiConfig.domain}${ApiConfig.getBranches}',
+      ).replace(queryParameters: queryParameters).toString();
+
+      var response = await ApiService.get(url);
+      if (response['success'] == true) {
+        return BranchesResponse.fromJson(response);
+      } else {
+        throw Failure(message: 'Failed to fetch branches');
+      }
+    } catch (e) {
+      if (e is Failure) {
+        throw e;
+      } else {
+        throw ApiException('Network error: ${e.toString()}');
+      }
     }
   }
 

@@ -103,7 +103,7 @@ class _OtpScreenState extends State<OtpScreen> {
     );
 
     setState(() => _isLoading = false);
-    if (res['success'] != true) {
+    if (res == true) {
       if (!mounted) return;
 
       setState(() => _isLoading = false);
@@ -338,45 +338,45 @@ class _OtpScreenState extends State<OtpScreen> {
                   const SizedBox(height: AppSizes.paddingL),
 
                   // Test Info
-                  Container(
-                    padding: const EdgeInsets.all(AppSizes.paddingM),
-                    decoration: BoxDecoration(
-                      color: AppColors.info.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(AppSizes.radiusM),
-                      border: Border.all(
-                        color: AppColors.info.withOpacity(0.3),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: AppColors.info,
-                              size: AppSizes.iconSizeS,
-                            ),
-                            const SizedBox(width: AppSizes.paddingS),
-                            Text(
-                              'Test Mode',
-                              style: AppTextStyles.body2.copyWith(
-                                color: AppColors.info,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: AppSizes.paddingS),
-                        Text(
-                          'Use OTP: 123456',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.info,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Container(
+                  //   padding: const EdgeInsets.all(AppSizes.paddingM),
+                  //   decoration: BoxDecoration(
+                  //     color: AppColors.info.withOpacity(0.1),
+                  //     borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                  //     border: Border.all(
+                  //       color: AppColors.info.withOpacity(0.3),
+                  //     ),
+                  //   ),
+                  //   child: Column(
+                  //     children: [
+                  //       Row(
+                  //         children: [
+                  //           Icon(
+                  //             Icons.info_outline,
+                  //             color: AppColors.info,
+                  //             size: AppSizes.iconSizeS,
+                  //           ),
+                  //           const SizedBox(width: AppSizes.paddingS),
+                  //           Text(
+                  //             'Test Mode',
+                  //             style: AppTextStyles.body2.copyWith(
+                  //               color: AppColors.info,
+                  //               fontWeight: FontWeight.w600,
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //       const SizedBox(height: AppSizes.paddingS),
+                  //       Text(
+                  //         'Use OTP: 123456',
+                  //         style: AppTextStyles.caption.copyWith(
+                  //           color: AppColors.info,
+                  //         ),
+                  //         textAlign: TextAlign.center,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               );
             },

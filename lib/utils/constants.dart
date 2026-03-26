@@ -3,17 +3,15 @@ import 'package:janseva/main.dart';
 
 class AppColors {
   // Primary Colors (Cyan Blue - Main Theme)
-  static const Color primary = Color(0xFF1EBDFF); // Bright cyan blue (brandColor)
-  static const Color primaryLight = Color(
-    0xFF5AD8FF,
-  ); // Lighter cyan blue
+  static const Color primary = Color(
+    0xFF1EBDFF,
+  ); // Bright cyan blue (brandColor)
+  static const Color primaryLight = Color(0xFF5AD8FF); // Lighter cyan blue
   static const Color primaryDark = Color(0xFF0099E6); // Darker cyan blue
 
   // Secondary Colors (Purple for accents)
   static const Color secondary = Color(0xFF5416D8); // Deep purple (gradientTwo)
-  static const Color secondaryLight = Color(
-    0xFF7B3EF5,
-  ); // Lighter purple
+  static const Color secondaryLight = Color(0xFF7B3EF5); // Lighter purple
   static const Color secondaryDark = Color(0xFF4312B5); // Darker purple
 
   // Background Colors (Clean & Minimal)
@@ -131,16 +129,14 @@ class AppSizes {
   static const double buttonHeight = 52.0; // Increased from 48
   static const double inputHeight = 52.0; // Increased from 48
 
-  // Card spacing
+// Card spacing
   static const double cardSpacing = 16.0; // Consistent card gaps
   static const double sectionSpacing = 24.0; // Space between sections
 }
 
-
-
 class AppStrings {
   // App Info
-  static const String appName = 'JanSeva';
+  static const String appName = 'Fivopay';
   static const String appTagline = 'Cooperative Credit Society';
 
   // Auth
