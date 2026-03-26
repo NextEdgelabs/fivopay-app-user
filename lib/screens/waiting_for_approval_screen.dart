@@ -57,10 +57,7 @@ class WaitingForApprovalScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.background,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppColors.border,
-                    width: 1,
-                  ),
+                  border: Border.all(color: AppColors.border, width: 1),
                 ),
                 child: Column(
                   children: [
@@ -92,7 +89,10 @@ class WaitingForApprovalScreen extends StatelessWidget {
 
               // Additional Info
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -142,10 +142,8 @@ class WaitingForApprovalScreen extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: Text(
-                    'Continue (Demo)',
-                    style: AppTextStyles.button.copyWith(
-                      color: Colors.white,
-                    ),
+                    'Continue To HomeScreen',
+                    style: AppTextStyles.button.copyWith(color: Colors.white),
                   ),
                 ),
               ),

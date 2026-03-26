@@ -1,0 +1,109 @@
+  // Load balance from storage
+  Future<void> _loadBalanceFromStorage() async {
+    try {
+      final savedBalance = await SfService.getString(
+        'wallet_balance_${_currentUser?.id}',
+      );
+      if (savedBalance != null) {
+        _balance = double.tryParse(savedBalance) ?? _balance;
+      }
+    } catch (e) {
+      _error = 'Failed to load balance: $e';
+    }
+  }
+
+  // Load transaction history from storage
+  Future<void> _loadTransactionHistory() async {
+    try {
+      final transactionData = await SfService.getJson(
+        'wallet_transactions_${_currentUser?.id}',
+      );
+      if (transactionData != null) {
+        final List<dynamic> transactionList =
+            transactionData['transactions'] ?? [];
+        _transactions =
+            transactionList.map((json) => Transaction.fromJson(json)).toList()
+              ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      } else {
+        // Load mock data for demo if no saved data
+        _loadMockTransactions();
+      }
+    } catch (e) {
+      _error = 'Failed to load transaction history: $e';
+      // Load mock data as fallback
+      _loadMockTransactions();
+    }
+  }
+
+  // Save transaction history to storage
+  Future<void> _saveTransactionHistory() async {
+    try {
+      final transactionData = {
+        'transactions': _transactions.map((t) => t.toJson()).toList(),
+      };
+      await SfService.saveJson(
+        'wallet_transactions_${_currentUser?.id}',
+        transactionData,
+      );
+    } catch (e) {
+      _error = 'Failed to save transaction history: $e';
+    }
+  }
+
+  // Save balance to storage
+  Future<void> _saveBalanceToStorage() async {
+    try {
+      await SfService.saveString(
+        'wallet_balance_${_currentUser?.id}',
+        _balance.toString(),
+      );
+    } catch (e) {
+      _error = 'Failed to save balance: $e';
+    }
+  }
+  // Load mock transactions for demo
+  void _loadMockTransactions() {
+    _transactions = [
+      Transaction(
+        id: '1',
+        type: 'deposit',
+        amount: 5000.0,
+        description: 'Initial deposit',
+        timestamp: DateTime.now().subtract(const Duration(days: 30)),
+        status: 'completed',
+      ),
+      Transaction(
+        id: '2',
+        type: 'bonus',
+        amount: 100.0,
+        description: 'Referral bonus',
+        timestamp: DateTime.now().subtract(const Duration(days: 25)),
+        status: 'completed',
+      ),
+      Transaction(
+        id: '3',
+        type: 'withdraw',
+        amount: 1000.0,
+        description: 'ATM withdrawal',
+        timestamp: DateTime.now().subtract(const Duration(days: 20)),
+        status: 'completed',
+      ),
+      Transaction(
+        id: '4',
+        type: 'transfer',
+        amount: 500.0,
+        description: 'Transfer to JS123456',
+        timestamp: DateTime.now().subtract(const Duration(days: 15)),
+        status: 'completed',
+        toAccount: 'JS123456',
+      ),
+      Transaction(
+        id: '5',
+        type: 'deposit',
+        amount: 2000.0,
+        description: 'Salary deposit',
+        timestamp: DateTime.now().subtract(const Duration(days: 10)),
+        status: 'completed',
+      ),
+    ];
+  }

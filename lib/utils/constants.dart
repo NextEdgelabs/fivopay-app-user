@@ -1,39 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/main.dart';
 
 class AppColors {
-  // Primary Colors
-  static const Color primary = Color(0xFFFB7185); // rose-400
-  static const Color primaryLight = Color(0xFFFDA4AF); // rose-300
-  static const Color primaryDark = Color(0xFFF43F5E); // rose-500
+  // Primary Colors (Cyan Blue - Main Theme)
+  static const Color primary = Color(
+    0xFF1EBDFF,
+  ); // Bright cyan blue (brandColor)
+  static const Color primaryLight = Color(0xFF5AD8FF); // Lighter cyan blue
+  static const Color primaryDark = Color(0xFF0099E6); // Darker cyan blue
 
-  // Secondary Colors (soft indigo)
-  static const Color secondary = Color(0xFF818CF8); // indigo-400
-  static const Color secondaryLight = Color(0xFFA5B4FC); // indigo-300
+  // Secondary Colors (Purple for accents)
+  static const Color secondary = Color(0xFF5416D8); // Deep purple (gradientTwo)
+  static const Color secondaryLight = Color(0xFF7B3EF5); // Lighter purple
+  static const Color secondaryDark = Color(0xFF4312B5); // Darker purple
 
-  // Background Colors
-  static const Color background = Color(0xFFFFF7F9); // very light rose
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color cardBackground = Color(0xFFFFFFFF);
+  // Background Colors (Clean & Minimal)
+  static const Color background = Color.fromARGB(
+    255,
+    228,
+    228,
+    228,
+  ); // pure white
+  static const Color surface = Color(0xFFF9FAFB); // very light gray (gray-50)
+  static const Color cardBackground = Color(0xFFFFFFFF); // white cards
 
-  // Text Colors
-  static const Color textPrimary = Color(0xFF1F2937);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color textLight = Color(0xFF9CA3AF);
+  // Text Colors (High Contrast)
+  static const Color textPrimary = Color(0xFF111827); // gray-900 (almost black)
+  static const Color textSecondary = Color(
+    0xFF6B7280,
+  ); // gray-500 (medium gray)
+  static const Color textLight = Color(0xFF9CA3AF); // gray-400 (light gray)
 
   // Status Colors
-  static const Color success = Color(0xFF10B981);
-  static const Color successLight = Color(0xFF34D399);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFEF4444);
-  static const Color info = Color(0xFF3B82F6);
+  static const Color success = Color(0xFF10B981); // green-500
+  static const Color successLight = Color(0xFF34D399); // green-400
+  static const Color warning = Color(0xFFF59E0B); // amber-500
+  static const Color error = Color(0xFFEF4444); // red-500
+  static const Color info = Color(0xFF1EBDFF); // Cyan blue (matches primary)
 
-  // Border Colors
-  static const Color border = Color(0xFFF2E8EC); // soft rose border
-  static const Color borderLight = Color(0xFFFFEEF2); // lighter rose
+  // Border Colors (Subtle & Clean)
+  static const Color border = Color(0xFFE5E7EB); // gray-200 (light gray border)
+  static const Color borderLight = Color(
+    0xFFF3F4F6,
+  ); // gray-100 (very light border)
 
-  // Shadow Colors (soft subtle shadows)
-  static const Color shadow = Color(0x14000000);
-  static const Color shadowLight = Color(0x0A000000);
+  // Shadow Colors (Minimal & Subtle)
+  static const Color shadow = Color(0x0D000000); // rgba(0, 0, 0, 0.05)
+  static const Color shadowLight = Color(0x05000000); // rgba(0, 0, 0, 0.02)
 }
 
 class AppTextStyles {
@@ -88,28 +101,42 @@ class AppTextStyles {
 }
 
 class AppSizes {
-  static const double paddingXS = 4.0;
-  static const double paddingS = 8.0;
-  static const double paddingM = 12.0;
-  static const double paddingL = 16.0;
-  static const double paddingXL = 24.0;
+  static double dW = MediaQuery.of(bContext).size.width;
+  static double dH = MediaQuery.of(bContext).size.height;
+  // Spacing (Generous spacing for breathable UI)
+  static const double paddingXS = 6.0; // Increased from 4
+  static const double paddingS = 10.0; // Increased from 8
+  static const double paddingM = 16.0; // Increased from 12
+  static const double paddingL = 20.0; // Increased from 16
+  static const double paddingXL = 28.0; // Increased from 24
+  static const double padding2XL = 36.0; // Increased from 32
 
-  static const double radiusS = 6.0;
-  static const double radiusM = 8.0;
-  static const double radiusL = 12.0;
-  static const double radiusXL = 16.0;
+  // Border Radius (Smoother, more modern)
+  static const double radiusS = 6.0; // Increased from 4
+  static const double radiusM = 10.0; // Increased from 6
+  static const double radiusL = 14.0; // Increased from 8
+  static const double radiusXL = 18.0; // Increased from 12
+  static const double radiusXXL = 24.0; // Increased from 16
 
-  static const double iconSizeS = 14.0;
-  static const double iconSizeM = 20.0;
-  static const double iconSizeL = 24.0;
+  // Icon Sizes (Better visual hierarchy)
+  static const double iconSizeS = 18.0; // Increased from 16
+  static const double iconSizeM = 22.0; // Increased from 20
+  static const double iconSizeL = 26.0; // Increased from 24
+  static const double iconSizeXL = 32.0; // Increased from 28
+  static double iconSizeXXL = 0.3 * dW; // Increased from 32
 
-  static const double buttonHeight = 48.0;
-  static const double inputHeight = 48.0;
+  // Component Heights (More comfortable touch targets)
+  static const double buttonHeight = 52.0; // Increased from 48
+  static const double inputHeight = 52.0; // Increased from 48
+
+// Card spacing
+  static const double cardSpacing = 16.0; // Consistent card gaps
+  static const double sectionSpacing = 24.0; // Space between sections
 }
 
 class AppStrings {
   // App Info
-  static const String appName = 'JanSeva';
+  static const String appName = 'Fivopay';
   static const String appTagline = 'Cooperative Credit Society';
 
   // Auth

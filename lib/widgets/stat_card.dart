@@ -1,65 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/utils/theme_extension.dart';
 import '../utils/constants.dart';
 
 class StatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
+  final String icon;
+  final String? label;
   final String value;
   final Color? color;
+  final VoidCallback? onTap;
 
   const StatCard({
     super.key,
     required this.icon,
-    required this.label,
+    this.label,
     required this.value,
     this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final Color accent = color ?? AppColors.secondary;
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingL),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: accent.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(AppSizes.radiusM),
-            ),
-            child: Icon(icon, color: accent, size: 22),
-          ),
-          const SizedBox(width: AppSizes.paddingM),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: AppTextStyles.caption),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: AppTextStyles.body1.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+    return InkWell(
+      onTap: onTap,
+
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.paddingM),
+        decoration: BoxDecoration(
+          color: context.colors.specialCard,
+          borderRadius: BorderRadius.circular(AppSizes.radiusM),
+          // border: Border.all(color: AppColors.borderLight),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            // Icon(icon, color: AppColors.textLight, size: AppSizes.iconSizeS),
+            if (label != null) ...[
+              const SizedBox(height: AppSizes.paddingS),
+              Text(label!, style: AppTextStyles.caption),
+              // const SizedBox(height:),
+            ],
+
+            Padding(
+              padding: const EdgeInsets.only(top: AppSizes.paddingS),
+              child: Text(
+                value,
+                style: AppTextStyles.body1.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: AppSizes.paddingXS),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Image.asset(
+                "assets/icons/$icon.png",
+                fit: BoxFit.contain,
+                width: 0.15 * AppSizes.dW,
+                height: 0.15 * AppSizes.dW,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

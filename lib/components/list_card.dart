@@ -24,12 +24,13 @@ class ListCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSizes.paddingM),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(AppSizes.radiusL),
+        borderRadius: BorderRadius.circular(AppSizes.radiusM), // Reduced radius
         border: Border.all(color: AppColors.border),
+        // Minimal shadow
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 8,
+            color: AppColors.shadow,
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],

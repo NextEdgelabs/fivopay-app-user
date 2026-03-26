@@ -20,11 +20,12 @@ class ActionTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(AppSizes.radiusL),
-        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        // Minimal shadow for subtle depth
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: AppColors.shadow,
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -34,28 +35,31 @@ class ActionTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppSizes.radiusL),
+          borderRadius: BorderRadius.circular(AppSizes.radiusXL),
           child: Padding(
-            padding: const EdgeInsets.all(AppSizes.paddingM),
+            padding: const EdgeInsets.all(AppSizes.paddingL),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                    color: color.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusL),
                   ),
-                  child: Icon(icon, color: color, size: 24),
+                  child: Icon(icon, color: color, size: 28),
                 ),
-                const SizedBox(height: AppSizes.paddingS),
+                const SizedBox(height: AppSizes.paddingM),
                 Text(
                   title,
                   style: AppTextStyles.body2.copyWith(
                     fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                   textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

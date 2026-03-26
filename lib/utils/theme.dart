@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:janseva/utils/app_color.dart';
 import 'constants.dart';
 
 class AppTheme {
@@ -18,10 +19,11 @@ class AppTheme {
       useMaterial3: true,
       fontFamily: 'Poppins',
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.background,
+      scaffoldBackgroundColor: NewAppColors.light.bgColors,
+      extensions: [NewAppColors.light],
 
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.background,
+        backgroundColor: NewAppColors.light.bgColors,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         centerTitle: true,
@@ -184,7 +186,7 @@ class AppTheme {
         ),
       ),
 
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         displayLarge: AppTextStyles.heading1,
         displayMedium: AppTextStyles.heading2,
         displaySmall: AppTextStyles.heading3,
@@ -246,6 +248,7 @@ class AppTheme {
       useMaterial3: true,
       fontFamily: 'Poppins',
       colorScheme: colorScheme,
+      extensions: const [NewAppColors.dark],
       scaffoldBackgroundColor: colorScheme.background,
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.background,

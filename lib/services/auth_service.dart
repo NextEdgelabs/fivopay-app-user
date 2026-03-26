@@ -1,27 +1,98 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'dart:developer';
+import 'package:janseva/config/api_config.dart';
+import 'package:janseva/config/exceptions.dart';
+import 'package:janseva/modules/auth/models/create_profile_params.dart';
+import 'package:janseva/services/kyc_service.dart';
+import 'package:janseva/services/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
+import '../modules/auth/provider/auth_provider.dart';
+import '../modules/fd_rd/model/branch_model.dart';
+import 'api_service.dart';
+
+class BranchesResponse {
+  final List<BranchModel> branches;
+  final int? page;
+  final int? limit;
+  final int? totalPages;
+  final int? totalCount;
+  final bool? hasNextPage;
+
+  const BranchesResponse({
+    required this.branches,
+    this.page,
+    this.limit,
+    this.totalPages,
+    this.totalCount,
+    this.hasNextPage,
+  });
+
+  factory BranchesResponse.fromJson(Map<String, dynamic> json) {
+    final data = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : <String, dynamic>{};
+
+    final rawBranches = data['branches'];
+    final branches = rawBranches is List
+        ? rawBranches
+              .map((e) => BranchModel.fromJson(Map<String, dynamic>.from(e)))
+              .toList()
+        : <BranchModel>[];
+
+    final pagination = data['pagination'] is Map<String, dynamic>
+        ? data['pagination'] as Map<String, dynamic>
+        : data['meta'] is Map<String, dynamic>
+        ? data['meta'] as Map<String, dynamic>
+        : <String, dynamic>{};
+
+    final page = _toInt(pagination['page'] ?? data['page']);
+    final limit = _toInt(pagination['limit'] ?? data['limit']);
+    final totalPages = _toInt(
+      pagination['totalPages'] ?? pagination['pages'] ?? data['totalPages'],
+    );
+    final totalCount = _toInt(
+      pagination['total'] ?? pagination['totalCount'] ?? data['total'],
+    );
+
+    bool? hasNextPage;
+    final hasNextRaw = pagination['hasNextPage'] ?? pagination['hasNext'];
+    if (hasNextRaw is bool) {
+      hasNextPage = hasNextRaw;
+    } else if (pagination['nextPage'] != null) {
+      hasNextPage = true;
+    } else if (page != null && totalPages != null) {
+      hasNextPage = page < totalPages;
+    }
+
+    return BranchesResponse(
+      branches: branches,
+      page: page,
+      limit: limit,
+      totalPages: totalPages,
+      totalCount: totalCount,
+      hasNextPage: hasNextPage,
+    );
+  }
+
+  static int? _toInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    return int.tryParse(value.toString());
+  }
+}
 
 class AuthService {
-  static const String baseUrl =
-      'https://api.janseva.com'; // Replace with actual API URL
-  static const String tokenKey = 'auth_token';
-  static const String userKey = 'user_data';
-
   // Send OTP to phone number
   static Future<bool> sendOtp(String phoneNumber) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/send-otp'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'phoneNumber': phoneNumber}),
-      );
-
-      if (response.statusCode == 200) {
+      String url = '${ApiConfig.domain}${ApiConfig.loginPath}';
+      final res = await ApiService.post(url, body: {'mobileNo': phoneNumber});
+      log(res.toString());
+      if (res['success'] == true) {
         return true;
+      } else {
+        return false;
       }
-      return false;
     } catch (e) {
       print('Error sending OTP: $e');
       return false;
@@ -34,89 +105,103 @@ class AuthService {
     String otp,
   ) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/verify-otp'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'phoneNumber': phoneNumber, 'otp': otp}),
+      var res = await ApiService.post(
+        '${ApiConfig.domain}${ApiConfig.verifyOtpPath}',
+        body: {'mobileNo': phoneNumber, 'otp': otp},
       );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final token = data['token'];
-        final userData = data['user'];
-
-        // Save token and user data
-        await _saveToken(token);
-        await _saveUserData(userData);
-
-        return {
-          'success': true,
-          'user': User.fromJson(userData),
-          'token': token,
-        };
+      if (res['success'] == true) {
+        print("_______________________________________");
+        log(res.toString());
+        // log(res['result']['accessToken']);
+        await _saveToken(res['result']['accessToken']);
+        return res;
+      } else {
+        throw Failure(message: res['message'] ?? 'OTP verification failed');
       }
-      return {'success': false, 'message': 'Invalid OTP'};
     } catch (e) {
-      print('Error verifying OTP: $e');
-      return {'success': false, 'message': 'Network error'};
+      if (e is Failure) {
+        throw e;
+      } else {
+        print('Error verifying OTP: $e');
+        throw Failure(message: 'Network error');
+      }
+     
     }
   }
 
-  // Register new user
-  static Future<Map<String, dynamic>> registerUser(
-    Map<String, dynamic> userData,
+  static Future<Map<String, dynamic>?> createprofile(
+    CreateProfileParams userdata,
   ) async {
     try {
-      // For now, use mock registration since we don't have a real API
-      // In production, this would make an API call
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Create a mock user with the provided data
-      final mockUser = User(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        phoneNumber: userData['phoneNumber'] ?? '',
-        name: userData['name'] ?? '',
-        email: userData['email'] ?? '',
-        dateOfBirth: userData['dateOfBirth'] ?? '',
-        gender: userData['gender'] ?? '',
-        address: userData['address'] ?? '',
-        city: userData['city'] ?? '',
-        state: userData['state'] ?? '',
-        pincode: userData['pincode'] ?? '',
-        nomineeName: userData['nomineeName'] ?? '',
-        nomineeRelation: userData['nomineeRelation'] ?? '',
-        nomineePhone: userData['nomineePhone'] ?? '',
-        isMember: userData['isMember'] ?? false,
-        accountNumber:
-            'JS${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-        memberSince: DateTime.now().year.toString(),
-        kycStatus: 'pending',
-        kycType: 'pending',
-        referralCode:
-            'JANSEVA${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+      var res = await ApiService.post(
+        '${ApiConfig.domain}${ApiConfig.createProfile}',
+        body: userdata.toJson(),
       );
+      log(res.toString());
+      var user = User.fromJson(res['result']);
 
-      // Save user data locally
-      await _saveUserData(mockUser.toJson());
-
-      // Save a token to indicate user is logged in
-      await _saveToken('mock_token_${DateTime.now().millisecondsSinceEpoch}');
-
-      return {'success': true, 'user': mockUser};
+      user.copyWith(isNew: false);
+      return {'user': user, 'appAccessToken': res['accessToken']};
     } catch (e) {
-      print('Error registering user: $e');
-      return {'success': false, 'message': 'Registration failed'};
+      throw ApiException('Error creating profile');
+    }
+  }
+
+  static Future<bool?> savePanDetails(PanData pandata, String id) async {
+    try {
+      var res = await ApiService.post(
+        '${ApiConfig.domain}${ApiConfig.savePan}',
+        body: {
+          'id': id,
+          'panNumber': pandata.pan,
+          'panDetails': pandata.toJson(),
+        },
+      );
+      log(res.toString());
+      return null;
+    } catch (e) {
+      throw ApiException('Error getting profile');
+    }
+  }
+
+  static Future<bool?> saveAadharDetails(
+    String aadharNumber,
+    AadhaarData aadharData,
+    String id,
+  ) async {
+    try {
+      var res = await ApiService.post(
+        '${ApiConfig.domain}${ApiConfig.saveAdhar}',
+        body: {
+          'id': id,
+          'aadharNumber': aadharNumber,
+          'address': aadharData.address,
+          'aadharDetails': aadharData.toJson(),
+        },
+      );
+      log(res.toString());
+      return null;
+    } catch (e) {
+      return false;
     }
   }
 
   // Get current user
   static Future<User?> getCurrentUser() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userData = prefs.getString(userKey);
-      if (userData != null) {
-        return User.fromJson(json.decode(userData));
+      var userData = await SfService.getJson(SfService.userKey);
+      String userId = userData?['id'] ?? '';
+      if (userData != null && userId.isNotEmpty) {
+        var res = await ApiService.get(
+          '${ApiConfig.domain}/api/v1/user/get-user-by-id/$userId',
+        );
+        if (res['success'] == true) {
+          var user = User.fromJson(res['data']);
+          _saveUserData(user.toJson());
+          return user;
+        }
       }
+
       return null;
     } catch (e) {
       print('Error getting current user: $e');
@@ -137,40 +222,79 @@ class AuthService {
   // Logout
   static Future<void> logout() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(tokenKey);
-      await prefs.remove(userKey);
+      await SfService.clear();
     } catch (e) {
       print('Error logging out: $e');
     }
   }
 
-  // Update user profile
-  static Future<Map<String, dynamic>> updateProfile(
-    Map<String, dynamic> userData,
-  ) async {
+  static Future<BranchesResponse> getBranches({
+    String? city,
+    String? state,
+    int? page = 1,
+    int limit = 10,
+  }) async {
     try {
-      final token = await _getToken();
-      final response = await http.put(
-        Uri.parse('$baseUrl/user/profile'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode(userData),
-      );
+      final queryParameters = <String, String>{
+        'page': (page ?? 1).toString(),
+        'limit': limit.toString(),
+        'status': 'Active',
+        'organisation': appId,
+      };
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        await _saveUserData(data['user']);
-        return {'success': true, 'user': User.fromJson(data['user'])};
+      if (city != null && city.trim().isNotEmpty) {
+        queryParameters['city'] = city.trim();
       }
-      return {'success': false, 'message': 'Update failed'};
+
+      if (state != null && state.trim().isNotEmpty) {
+        queryParameters['state'] = state.trim();
+      }
+
+      final url = Uri.parse(
+        '${ApiConfig.domain}${ApiConfig.getBranches}',
+      ).replace(queryParameters: queryParameters).toString();
+
+      var response = await ApiService.get(url);
+      if (response['success'] == true) {
+        return BranchesResponse.fromJson(response);
+      } else {
+        throw Failure(message: 'Failed to fetch branches');
+      }
     } catch (e) {
-      print('Error updating profile: $e');
-      return {'success': false, 'message': 'Network error'};
+      if (e is Failure) {
+        throw e;
+      } else {
+        throw ApiException('Network error: ${e.toString()}');
+      }
     }
   }
+
+  // // Update user profile
+  // static Future<Map<String, dynamic>> updateProfile(
+  //   Map<String, dynamic> userData,
+  // ) async {
+  //   try {
+  //     final token = await _getToken();
+  //     final response = await http.put(
+  //       Uri.parse('$baseUrl/user/profile'),
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': 'Bearer $token',
+  //       },
+  //       body: json.encode(userData),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       final data = json.decode(response.body);
+  //       await _saveUserData(data['user']);
+  //       return {'success': true, 'user': User.fromJson(data['user'])};
+  //     }
+  //     return {'success': false, 'message': 'Update failed'};
+  //   } catch (e) {
+  //     print('Error updating profile: $e');
+  //     return {'success': false, 'message': 'Network error'};
+  //   }
+  // }
 
   // Update user data after KYC
   static Future<bool> updateUserAfterKyc(User user) async {
@@ -184,75 +308,17 @@ class AuthService {
   }
 
   // Helper methods
-  static Future<void> _saveToken(String token) async {
+  static Future<void> _saveToken(String? token) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(tokenKey, token);
+    await prefs.setString(SfService.accesstoken, token ?? '');
   }
 
   static Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(tokenKey);
+    return prefs.getString(SfService.accesstoken);
   }
 
   static Future<void> _saveUserData(Map<String, dynamic> userData) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(userKey, json.encode(userData));
-  }
-
-  // Mock methods for development (remove in production)
-  static Future<bool> sendOtpMock(String phoneNumber) async {
-    // Simulate API delay
-    await Future.delayed(const Duration(seconds: 2));
-    return true;
-  }
-
-  static Future<Map<String, dynamic>> verifyOtpMock(
-    String phoneNumber,
-    String otp,
-  ) async {
-    // Simulate API delay
-    await Future.delayed(const Duration(seconds: 2));
-
-    // Mock OTP verification (use '123456' for testing)
-    if (otp == '123456') {
-      // Check if user exists (for demo, we'll create a new user each time)
-      // In production, this would check against a database
-      final existingUser = await getCurrentUser();
-
-      User mockUser;
-      if (existingUser != null && existingUser.phoneNumber == phoneNumber) {
-        // User exists, return existing user
-        mockUser = existingUser;
-      } else {
-        // Create new user
-        mockUser = User(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          phoneNumber: phoneNumber,
-          name: 'New User',
-          isMember: false,
-          accountNumber:
-              'JS${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-          memberSince: DateTime.now().year.toString(),
-          kycStatus: 'pending',
-          kycType: 'pending',
-          referralCode:
-              'JANSEVA${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-        );
-      }
-
-      // Save user data and token locally
-      await _saveUserData(mockUser.toJson());
-      await _saveToken('mock_token_${DateTime.now().millisecondsSinceEpoch}');
-
-      return {
-        'success': true,
-        'user': mockUser,
-        'token': 'mock_token_${DateTime.now().millisecondsSinceEpoch}',
-        'isNewUser':
-            existingUser == null || existingUser.phoneNumber != phoneNumber,
-      };
-    }
-
-    return {'success': false, 'message': 'Invalid OTP'};
+    await SfService.saveJson(SfService.userKey, userData);
   }
 }

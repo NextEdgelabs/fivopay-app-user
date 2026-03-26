@@ -1,17 +1,20 @@
+import 'package:janseva/modules/fd_rd/model/deposit_enum.dart';
+import 'package:janseva/modules/fd_rd/model/pickup_address_model.dart';
+
 class FixedDeposit {
   final String id;
-  final String accountNumber;
+  final String? accountNumber;
   final double amount;
   final int tenureMonths;
   final double profitRate; // Annual profit rate
   final DateTime startDate;
-  final DateTime maturityDate;
+  // final DateTime maturityDate;
   final String status; // active, matured, withdrawn
-  final double expectedProfit;
-  final double totalAmount; // amount + profit
-  final String? notes;
-  final String depositMethod; // cash_collection, online, branch
-  final String? collectionAddress; // For cash collection
+  // final double? expectedProfit;
+  // final double? totalAmount; // amount + profit
+  // final String? notes;
+  final PaymentMethod depositMethod; // cash_collection, online, branch
+  final PickupAddress? collectionAddress; // For cash collection
   final DateTime? collectionDate; // For cash collection
   final String? branchName; // For branch deposit
   final String? transactionId; // For online deposit
@@ -23,11 +26,11 @@ class FixedDeposit {
     required this.tenureMonths,
     required this.profitRate,
     required this.startDate,
-    required this.maturityDate,
+    // required this.maturityDate,
     required this.status,
-    required this.expectedProfit,
-    required this.totalAmount,
-    this.notes,
+    // required this.expectedProfit,
+    // required this.totalAmount,
+    // this.notes,
     required this.depositMethod,
     this.collectionAddress,
     this.collectionDate,
@@ -43,15 +46,15 @@ class FixedDeposit {
       tenureMonths: json['tenureMonths'] ?? 0,
       profitRate: (json['profitRate'] ?? 0).toDouble(),
       startDate: DateTime.parse(json['startDate']),
-      maturityDate: DateTime.parse(json['maturityDate']),
+      // maturityDate: DateTime.parse(json['maturityDate']),
       status: json['status'] ?? 'active',
-      expectedProfit: (json['expectedProfit'] ?? 0).toDouble(),
-      totalAmount: (json['totalAmount'] ?? 0).toDouble(),
-      notes: json['notes'],
+      // expectedProfit: (json['expectedProfit'] ?? 0).toDouble(),
+      // totalAmount: (json['totalAmount'] ?? 0).toDouble(),
+      // notes: json['notes'],
       depositMethod: json['depositMethod'] ?? 'online',
       collectionAddress: json['collectionAddress'],
-      collectionDate: json['collectionDate'] != null 
-          ? DateTime.parse(json['collectionDate']) 
+      collectionDate: json['collectionDate'] != null
+          ? DateTime.parse(json['collectionDate'])
           : null,
       branchName: json['branchName'],
       transactionId: json['transactionId'],
@@ -66,11 +69,11 @@ class FixedDeposit {
       'tenureMonths': tenureMonths,
       'profitRate': profitRate,
       'startDate': startDate.toIso8601String(),
-      'maturityDate': maturityDate.toIso8601String(),
+      // 'maturityDate': maturityDate.toIso8601String(),
       'status': status,
-      'expectedProfit': expectedProfit,
-      'totalAmount': totalAmount,
-      'notes': notes,
+      // 'expectedProfit': expectedProfit,
+      // 'totalAmount': totalAmount,
+      // 'notes': notes,
       'depositMethod': depositMethod,
       'collectionAddress': collectionAddress,
       'collectionDate': collectionDate?.toIso8601String(),
@@ -91,8 +94,8 @@ class FixedDeposit {
     double? expectedProfit,
     double? totalAmount,
     String? notes,
-    String? depositMethod,
-    String? collectionAddress,
+    PaymentMethod? depositMethod,
+    PickupAddress? collectionAddress,
     DateTime? collectionDate,
     String? branchName,
     String? transactionId,
@@ -104,16 +107,32 @@ class FixedDeposit {
       tenureMonths: tenureMonths ?? this.tenureMonths,
       profitRate: profitRate ?? this.profitRate,
       startDate: startDate ?? this.startDate,
-      maturityDate: maturityDate ?? this.maturityDate,
+      // maturityDate: maturityDate ?? this.maturityDate,
       status: status ?? this.status,
-      expectedProfit: expectedProfit ?? this.expectedProfit,
-      totalAmount: totalAmount ?? this.totalAmount,
-      notes: notes ?? this.notes,
+      // expectedProfit: expectedProfit ?? this.expectedProfit,
+      // totalAmount: totalAmount ?? this.totalAmount,
+      // notes: notes ?? this.notes,
       depositMethod: depositMethod ?? this.depositMethod,
       collectionAddress: collectionAddress ?? this.collectionAddress,
       collectionDate: collectionDate ?? this.collectionDate,
       branchName: branchName ?? this.branchName,
       transactionId: transactionId ?? this.transactionId,
     );
+  }
+
+  maturityDate() {
+    return DateTime(
+      startDate.year + (tenureMonths ~/ 12),
+      startDate.month + (tenureMonths % 12),
+      startDate.day,
+    );
+  }
+
+  profitAmount() {
+    return amount * (profitRate / 100) * (tenureMonths / 12);
+  }
+
+  totalAmount() {
+    return amount + profitAmount();
   }
 }

@@ -1,0 +1,8 @@
+{
+  "cmake.sourceDirectory": "/Users/robin/Development/NextLabs/fivopay-app-user/linux",
+  "dart.flutterSdkPath": ".fvm/versions/3.35.6",
+  "flutterTools.displayGetxContextMenu": false,
+  "flutterTools.displayMobxContextMenu": false,
+  "flutterTools.displayRiverpodContextMenu": false,
+  "flutterTools.displayModularContextMenu": false
+}

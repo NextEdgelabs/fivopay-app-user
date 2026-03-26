@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
-import 'login_screen.dart';
+import '../modules/auth/screens/login_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});

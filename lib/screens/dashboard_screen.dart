@@ -1,477 +1,565 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:janseva/main.dart';
+import 'package:janseva/modules/auth/provider/auth_provider.dart';
+import 'package:janseva/modules/buyShares/screens/buysharesScreen.dart';
+import 'package:janseva/modules/loan/screens/loan_product_screen.dart';
+import 'package:janseva/modules/wallet_module/provider/wallet_provider.dart';
+import 'package:janseva/routes/arguments.dart';
+import 'package:janseva/routes/navigator.dart';
+import 'package:janseva/routes/routes.dart';
+import 'package:janseva/modules/wallet_module/screens/withdraw_screen.dart';
+import 'package:janseva/screens/fixed_deposit_screen.dart';
+import 'package:janseva/screens/select_branch_screen.dart';
+import 'package:janseva/utils/app_color_extension.dart';
+import 'package:janseva/utils/theme_extension.dart';
+
 import 'package:provider/provider.dart';
+import '../modules/loan/screens/loan_categories_screen.dart';
 import '../providers/user_provider.dart';
-import '../providers/transaction_provider.dart';
 import '../utils/constants.dart';
-import '../widgets/custom_button.dart';
-import '../widgets/custom_text_field.dart';
-import '../widgets/section_header.dart';
-import '../widgets/stat_card.dart';
-import '../widgets/action_tile.dart';
+
 import '../widgets/balance_card.dart';
-import '../widgets/sparkline_chart.dart';
+import '../widgets/user_info_card.dart';
+import '../widgets/small_stat_card.dart';
+import '../widgets/transaction_list_item.dart';
+import '../widgets/custom_bottom_nav_bar.dart';
+
 import 'referral_screen.dart';
 import 'profile_screen.dart';
-import 'loan_application_screen.dart';
-import 'fixed_deposit_screen.dart';
 import 'transactions_screen.dart';
 import 'applications_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final int initialIndex;
+  const DashboardScreen({super.key, this.initialIndex = 0});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen>
+    with TickerProviderStateMixin {
+  AnimationController? _animationController;
   int _currentIndex = 0;
+  int _topTabIndex = 0;
+
+  Future<void> _refreshDashboardData() async {
+    final authProvider = context.read<AuthProvider>();
+    final userProvider = context.read<UserProvider>();
+    final walletProvider = context.read<WalletProvider>();
+
+    await authProvider.initialize();
+
+    final refreshedUser = authProvider.currentUser;
+    final userId = refreshedUser?.id ?? userProvider.currentUser?.id;
+
+    if (refreshedUser != null) {
+      await userProvider.updateUser(refreshedUser);
+    }
+
+    if (userId != null && userId.isNotEmpty) {
+      await walletProvider.loadWalletBalance(userId);
+    }
+
+    await walletProvider.fetchUserTransactions();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _animationController?.forward();
+
+    WidgetsBinding.instance.addPostFrameCallback((e) {
+      Provider.of<WalletProvider>(
+        context,
+        listen: false,
+      ).loadWalletBalance(context.read<UserProvider>().currentUser!.id);
+      Provider.of<WalletProvider>(
+        context,
+        listen: false,
+      ).fetchUserTransactions();
+      setState(() {
+        _currentIndex = widget.initialIndex;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          _buildHomeTab(),
-          _buildTransactionsTab(),
-          _buildApplicationsTab(),
-          _buildReferralTab(),
-          _buildProfileTab(),
-        ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() => _currentIndex = index);
+      backgroundColor: context.colors.bgColors,
+      body: Consumer<UserProvider>(
+        builder: (context, provider, _) {
+          return Column(
+            children: [
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  switchInCurve: Curves.easeInOut,
+                  switchOutCurve: Curves.easeInOut,
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0.1, 0),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        );
+                      },
+                  child: _getScreen(_currentIndex),
+                ),
+              ),
+            ],
+          );
         },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
+      ),
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (_currentIndex != index) {
+            setState(() {
+              _currentIndex = index;
+            });
+            _animationController?.reset();
+            _animationController?.forward();
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _getScreen(int index) {
+    switch (index) {
+      case 0:
+        return Container(key: const ValueKey(0), child: _buildHomeTab());
+      case 1: // Analytics
+        return Container(key: const ValueKey(1), child: ApplicationsScreen());
+      case 2: // FAB (Add)
+        return Container(
+          key: const ValueKey(2),
+          child: _buildApplicationsTab(),
+        );
+      case 3: // Cards
+        return Container(key: const ValueKey(3), child: _buildReferralTab());
+      case 4: // Profile
+        return Container(key: const ValueKey(4), child: const ProfileScreen());
+      default:
+        return Container(key: const ValueKey(0), child: _buildHomeTab());
+    }
+  }
+
+  Widget _getTopTabContent(WalletProvider transactionProvider) {
+    switch (_topTabIndex) {
+      case 0:
+        return _buildBankTab(transactionProvider);
+      case 1:
+        return SizedBox.shrink();
+      case 2:
+        return BuySharesScreen();
+      case 3:
+        return LoanCategoriesScreen();
+      default:
+        return _buildBankTab(transactionProvider);
+    }
+  }
+
+  Widget _buildBankTab(WalletProvider transactionProvider) {
+    return RefreshIndicator(
+      onRefresh: _refreshDashboardData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSizes.paddingL),
+          child: Consumer2<UserProvider, WalletProvider>(
+            builder: (context, provider, walletProvider, child) {
+              var user = provider.currentUser;
+              var transactions = walletProvider.transactions;
+              bool isKycCompleted =
+                  user?.kycStatus?.toLowerCase() == 'completed' ||
+                  user?.kycStatus?.toLowerCase() == 'verified';
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Balance Card
+                  BalanceCard(
+                    title: 'TOTAL BALANCE',
+                    amountText:
+                        '₹ ${transactionProvider.balanceDisplay.replaceAll('₹', '').trim()}',
+                    onPrimary: () => push(NamedRoutes.depositScreen),
+                    onSecondary: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WithdrawScreen(),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: AppSizes.sectionSpacing),
+
+                  // User Info Card
+                  UserInfoCard(
+                    name: user?.name ?? 'Sham Kapoor',
+                    accountNumber: user?.memberId ?? 'JNS1234567890',
+                    memberSince: user?.memberSince ?? '20 Jan, 2025',
+                    isPro: true,
+                  ),
+
+                  const SizedBox(height: AppSizes.paddingM),
+
+                  // Two small stat cards row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SmallStatCard(
+                          iconPath: "shield",
+                          icon: Icons.verified_user_outlined,
+                          label: 'KYC STATUS',
+                          value: isKycCompleted ? 'Completed' : 'Pending',
+                          iconColor: context.colors.textSecondary,
+                          valueColor: isKycCompleted
+                              ? Colors.green
+                              : Colors.deepOrange,
+                        ),
+                      ),
+                      const SizedBox(width: AppSizes.paddingM),
+                      Expanded(
+                        child: SmallStatCard(
+                          iconPath: "profile",
+                          icon: Icons.person_outline,
+                          label: 'MEMBER TYPE',
+                          value: user?.isMember == true ? 'Active' : 'Guest',
+                          iconColor: context.colors.textSecondary,
+                          valueColor: context.colors.text,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: AppSizes.sectionSpacing),
+
+                  // Recent Transactions Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Recent Transactions',
+                        style: AppTextStyles.heading2.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          push(NamedRoutes.transactionHistory);
+                        },
+                        child: Text(
+                          'See All',
+                          style: AppTextStyles.body1.copyWith(
+                            color: context.colors.brandColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  transactions.isEmpty
+                      ? Center(
+                          child: Container(
+                            margin: const EdgeInsets.all(AppSizes.paddingL),
+                            padding: const EdgeInsets.all(AppSizes.paddingL),
+                            child: const Text('No transactions'),
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemCount: transactions.length > 5
+                              ? 5
+                              : transactions.length,
+                          itemBuilder: (context, index) {
+                            final t = transactions[index];
+                            return TransactionListItem(
+                              name: t.description,
+                              timestamp: t.timestamp,
+                              amountText: t.amount.toStringAsFixed(2),
+                              isNegative:
+                                  t.type.toLowerCase() == 'withdraw' ||
+                                  t.type.toLowerCase() == 'withdrawal' ||
+                                  t.type.toLowerCase() == 'transfer',
+                              showIcon: false,
+                              status: t.status,
+                            );
+                          },
+                        ),
+                  const SizedBox(height: 20),
+                ],
+              );
+            },
           ),
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
-            label: 'Transactions',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFixedDepositTab() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSizes.paddingXL),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.account_balance_outlined,
+              size: 80,
+              color: context.colors.textSecondary.withOpacity(0.5),
+            ),
+            const SizedBox(height: AppSizes.paddingL),
+            Text(
+              'Fixed Deposit',
+              style: AppTextStyles.heading1.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: AppSizes.paddingM),
+            Text(
+              'Fixed Deposit feature coming soon',
+              style: AppTextStyles.body1.copyWith(
+                color: context.colors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPayBillsTab() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSizes.paddingXL),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.receipt_long_outlined,
+              size: 80,
+              color: context.colors.textSecondary.withOpacity(0.5),
+            ),
+            const SizedBox(height: AppSizes.paddingL),
+            Text(
+              'Pay Bills',
+              style: AppTextStyles.heading1.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: AppSizes.paddingM),
+            Text(
+              'Bill payment feature coming soon',
+              style: AppTextStyles.body1.copyWith(
+                color: context.colors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopTabItem(int index, String title, {VoidCallback? onTap}) {
+    final isSelected = _topTabIndex == index;
+    return GestureDetector(
+      onTap:
+          onTap ??
+          () {
+            setState(() {
+              _topTabIndex = index;
+            });
+          },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.paddingL,
+              vertical: AppSizes.paddingS,
+            ),
+            child: Text(
+              title,
+              style: TextStyle(
+                color: isSelected
+                    ? context.colors.brandColor
+                    : context.colors.textSecondary,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 15,
+              ),
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.description_outlined),
-            selectedIcon: Icon(Icons.description),
-            label: 'Applications',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.share_outlined),
-            selectedIcon: Icon(Icons.share),
-            label: 'Referral',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          if (isSelected)
+            Container(
+              height: 3,
+              width: 50,
+              decoration: BoxDecoration(
+                color: context.colors.brandColor,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(3),
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
   Widget _buildHomeTab() {
-    final user = Provider.of<UserProvider>(context).currentUser;
-    final transactionProvider = Provider.of<TransactionProvider>(context);
+    final transactionProvider = Provider.of<WalletProvider>(bContext);
 
     return Scaffold(
+      backgroundColor: context.colors.bgColors,
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(builder: (b) => const SelectUserBranch()),
+      //     );
+      //     // push(NamedRoutes.depositScreen);
+      //   },
+      //   backgroundColor: context.colors.brandColor,
+      //   child: const Icon(Icons.add),
+      // ),
       appBar: AppBar(
-        title: Text(AppStrings.dashboard),
+        title: Row(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _currentIndex = 4;
+                });
+              },
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: context.colors.brandColor,
+                  shape: BoxShape.circle,
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(AppSizes.paddingXS),
+                  child: Icon(
+                    Iconsax.user_octagon,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
+              ),
+            ),
+            // CircleAvatar(
+            //         backgroundColor: contet,
+            //         radius: 18,
+            //         child: Icon(Iconsax.user_octagon, color: Colors.white),
+            //       ),
+            const SizedBox(width: AppSizes.paddingM),
+            Text(
+              'FIVOPAY',
+              style: AppTextStyles.heading2.copyWith(
+                fontWeight: FontWeight.bold,
+                color: context.colors.brandColor,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
+        ),
+        elevation: 0,
+        backgroundColor: context.colors.bgColors,
+        centerTitle: false,
+        surfaceTintColor: Colors.transparent,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              // TODO: Implement notifications
-            },
+          Container(
+            margin: const EdgeInsets.only(right: AppSizes.paddingM),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                ),
+              ],
+            ),
+            child: InkWell(
+              onTap: () => push(NamedRoutes.notificationScreen),
+              child: Icon(
+                Icons.notifications_none,
+                color: context.colors.textSecondary,
+                size: 24,
+              ),
+            ),
           ),
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSizes.paddingL),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Card
-              Container(
-                padding: const EdgeInsets.all(AppSizes.paddingL),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-                  border: Border.all(color: AppColors.border),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.shadowLight,
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(
-                              AppSizes.radiusM,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                        ),
-                        const SizedBox(width: AppSizes.paddingM),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hello ${user?.name ?? 'Member'}',
-                                style: AppTextStyles.heading3,
-                              ),
-                              const SizedBox(height: 2),
-                              Text('Welcome back!', style: AppTextStyles.body2),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSizes.paddingL),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildInfoCard(
-                            'Account Number',
-                            user?.accountNumber ?? 'JS001234567',
-                            Icons.account_balance,
-                          ),
-                        ),
-                        const SizedBox(width: AppSizes.paddingM),
-                        Expanded(
-                          child: _buildInfoCard(
-                            'Member Since',
-                            user?.memberSince ?? 'Jan 2024',
-                            Icons.calendar_today,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: AppSizes.paddingL),
-
-              // Membership Status
-              SectionHeader(title: 'Membership Status'),
-              const SizedBox(height: AppSizes.paddingM),
-              Row(
-                children: [
-                  Expanded(
-                    child: StatCard(
-                      icon: Icons.verified_user,
-                      label: 'KYC Status',
-                      value: user?.kycStatus == 'completed'
-                          ? 'Completed'
-                          : 'Pending',
-                      color: user?.kycStatus == 'completed'
-                          ? AppColors.success
-                          : AppColors.warning,
-                    ),
-                  ),
-                  const SizedBox(width: AppSizes.paddingM),
-                  Expanded(
-                    child: StatCard(
-                      icon: Icons.person,
-                      label: 'Member Type',
-                      value: user?.isMember == true ? 'Active Member' : 'Guest',
-                      color: user?.isMember == true
-                          ? AppColors.primary
-                          : AppColors.textLight,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: AppSizes.paddingL),
-
-              // Balance Card
-              BalanceCard(
-                title: AppStrings.balance,
-                amountText:
-                    '₹${transactionProvider.currentBalance.toStringAsFixed(2)}',
-                onPrimary: () =>
-                    _showDepositDialog(context, transactionProvider),
-                onSecondary: () =>
-                    _showWithdrawDialog(context, transactionProvider),
-              ),
-
-              const SizedBox(height: AppSizes.paddingL),
-
-              // Savings trend (sparkline)
-              Container(
-                padding: const EdgeInsets.all(AppSizes.paddingL),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SectionHeader(title: 'Savings'),
-                    const SizedBox(height: AppSizes.paddingM),
-                    SparklineChart(
-                      values: const [20, 24, 30, 28, 35, 40, 38, 45],
-                      lineColor: Theme.of(context).colorScheme.primary,
-                      fillColor: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.15),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: AppSizes.paddingL),
-
-              // Quick Actions
-              SectionHeader(title: 'Quick Actions'),
-              const SizedBox(height: AppSizes.paddingM),
-
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: AppSizes.paddingM,
-                mainAxisSpacing: AppSizes.paddingM,
-                children: [
-                  ActionTile(
-                    title: 'Fixed Deposit',
-                    icon: Icons.account_balance,
-                    color: AppColors.secondary,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FixedDepositScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  ActionTile(
-                    title: 'Pay Bills',
-                    icon: Icons.receipt,
-                    color: AppColors.warning,
-                    onTap: () {
-                      // TODO: Implement bill payment
-                    },
-                  ),
-                  ActionTile(
-                    title: 'Loan',
-                    icon: Icons.credit_card,
-                    color: AppColors.info,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoanApplicationScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  ActionTile(
-                    title: 'Support',
-                    icon: Icons.support_agent,
-                    color: AppColors.error,
-                    onTap: () {
-                      // TODO: Implement support
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoCard(String title, String value, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingM),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        border: Border.all(color: AppColors.borderLight),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: AppColors.textLight, size: AppSizes.iconSizeS),
-          const SizedBox(height: AppSizes.paddingS),
-          Text(title, style: AppTextStyles.caption),
-          const SizedBox(height: AppSizes.paddingXS),
-          Text(
-            value,
-            style: AppTextStyles.body1.copyWith(fontWeight: FontWeight.w600),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Removed legacy status/action card builders in favor of reusable widgets
-
-  Widget _buildTransactionsTab() {
-    return const TransactionsScreen();
-  }
-
-  Widget _buildApplicationsTab() {
-    return const ApplicationsScreen();
-  }
-
-  Widget _buildReferralTab() {
-    return const ReferralScreen();
-  }
-
-  Widget _buildProfileTab() {
-    return const ProfileScreen();
-  }
-
-  // Deposit Dialog
-  void _showDepositDialog(
-    BuildContext context,
-    TransactionProvider transactionProvider,
-  ) {
-    final amountController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Deposit Money'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomTextField(
-              controller: amountController,
-              labelText: 'Amount',
-              hintText: 'Enter amount to deposit',
-              keyboardType: TextInputType.number,
-              prefixIcon: Icons.account_balance_wallet,
+            // Top Tabs
+            Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: context.colors.border.withOpacity(0.5),
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildTopTabItem(0, 'Bank'),
+                    _buildTopTabItem(
+                      1,
+                      'Fixed Deposit',
+                      onTap: () {
+                        push(NamedRoutes.selectDepositTypeHomeScreen);
+                      },
+                    ),
+                    _buildTopTabItem(2, 'Buy Shares'),
+                    _buildTopTabItem(3, "Apply Loan"),
+                  ],
+                ),
+              ),
             ),
+
+            // Top Tab Content
+            Expanded(child: _getTopTabContent(transactionProvider)),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          CustomButton(
-            onPressed: () async {
-              final amount = double.tryParse(amountController.text);
-              if (amount != null && amount > 0) {
-                Navigator.pop(context);
-                final success = await transactionProvider.deposit(amount);
-                if (success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Successfully deposited ₹${amount.toStringAsFixed(2)}',
-                      ),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                } else if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        transactionProvider.error ?? 'Deposit failed',
-                      ),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
-              }
-            },
-            text: 'Deposit',
-          ),
-        ],
       ),
     );
   }
+}
 
-  // Withdraw Dialog
-  void _showWithdrawDialog(
-    BuildContext context,
-    TransactionProvider transactionProvider,
-  ) {
-    final amountController = TextEditingController();
+Widget _buildApplicationsTab() {
+  return const ApplicationsScreen();
+}
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Withdraw Money'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomTextField(
-              controller: amountController,
-              labelText: 'Amount',
-              hintText: 'Enter amount to withdraw',
-              keyboardType: TextInputType.number,
-              prefixIcon: Icons.account_balance_wallet,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          CustomButton(
-            onPressed: () async {
-              final amount = double.tryParse(amountController.text);
-              if (amount != null && amount > 0) {
-                Navigator.pop(context);
-                final success = await transactionProvider.withdraw(amount);
-                if (success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Successfully withdrew ₹${amount.toStringAsFixed(2)}',
-                      ),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                } else if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        transactionProvider.error ?? 'Withdrawal failed',
-                      ),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
-              }
-            },
-            text: 'Withdraw',
-          ),
-        ],
-      ),
-    );
-  }
+Widget _buildReferralTab() {
+  return const ReferralScreen();
 }

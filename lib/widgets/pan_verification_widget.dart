@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/loan_provider.dart';
+import '../modules/loan/providers/loan_provider.dart';
+
+import '../providers/user_provider.dart';
+import '../services/kyc_service.dart';
+import '../screens/pan_confirmation_screen.dart';
 import '../utils/constants.dart';
 import 'custom_text_field.dart';
 import 'custom_button.dart';
@@ -14,23 +18,32 @@ class PANVerificationWidget extends StatefulWidget {
 
 class _PANVerificationWidgetState extends State<PANVerificationWidget> {
   final _panController = TextEditingController();
-  final _otpController = TextEditingController();
-  bool _showOTPField = false;
+  final _nameController = TextEditingController();
+  final _dobController = TextEditingController();
+  final _kycService = KycService();
+  bool _isVerifying = false;
+
   String? _errorMessage;
+  String? userId;
+  PanVerificationResponse? _verificationResponse;
 
   @override
   void initState() {
     super.initState();
-    final loanProvider = context.read<LoanProvider>();
-    if (loanProvider.relativePAN != null) {
-      _panController.text = loanProvider.relativePAN!;
+    // final loanProvider = context.read<LoanProvider>();
+    final user = context.read<UserProvider>().currentUser;
+    if (user != null) {
+       userId = user.id;
+      _panController.text = user.panNumber ?? '';
+      _nameController.text = user.name ?? '';
     }
   }
 
   @override
   void dispose() {
     _panController.dispose();
-    _otpController.dispose();
+    _nameController.dispose();
+    _dobController.dispose();
     super.dispose();
   }
 
@@ -41,7 +54,9 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
 
   Future<void> _verifyPAN() async {
     final pan = _panController.text.trim().toUpperCase();
-    
+    final name = _nameController.text.trim();
+    final dob = _dobController.text.trim();
+
     if (!_isValidPAN(pan)) {
       setState(() {
         _errorMessage = 'Please enter a valid PAN number';
@@ -49,71 +64,93 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
       return;
     }
 
-    setState(() {
-      _errorMessage = null;
-    });
-
-    try {
-      final loanProvider = context.read<LoanProvider>();
-      await loanProvider.verifyPAN(pan);
-      
+    if (name.isEmpty) {
       setState(() {
-        _showOTPField = true;
+        _errorMessage = 'Please enter name as per PAN';
       });
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('OTP sent successfully'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
-        });
-      }
+      return;
     }
-  }
 
-  Future<void> _verifyOTP() async {
-    final otp = _otpController.text.trim();
-    
-    if (otp.length != 6) {
+    if (dob.isEmpty) {
       setState(() {
-        _errorMessage = 'Please enter a valid 6-digit OTP';
+        _errorMessage = 'Please enter date of birth';
       });
       return;
     }
 
     setState(() {
       _errorMessage = null;
+      _isVerifying = true;
     });
 
     try {
-      final loanProvider = context.read<LoanProvider>();
-      await loanProvider.verifyPANOTP(otp);
-      
+      // Call real Sandbox API for PAN verification
+      final response = await KycService.verifyPan(
+        panNumber: pan,
+        name: name,
+        dateOfBirth: dob,
+        userId: userId!,
+      );
+
+      setState(() {
+        _verificationResponse = response;
+        _isVerifying = false;
+      });
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('PAN verified successfully'),
-            backgroundColor: AppColors.success,
+        // Navigate to confirmation screen
+        final result = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PanConfirmationScreen(
+              verificationResponse: response,
+              enteredName: name,
+              onConfirm: () {
+                Navigator.pop(context, true);
+              },
+              onRetry: () {
+                Navigator.pop(context, false);
+              },
+            ),
           ),
         );
-        
-        setState(() {
-          _showOTPField = false;
-          _otpController.clear();
-        });
+
+        if (result == true && response.isSuccess) {
+          // Update loan provider with verified PAN
+          final loanProvider = context.read<LoanProvider>();
+          await loanProvider.setPANVerified(pan, response);
+
+          // Update user profile with PAN details
+          final userProvider = context.read<UserProvider>();
+          userProvider.updateFromPanVerification(
+            panNumber: pan,
+            name: _nameController.text.trim(),
+          );
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('PAN verified successfully! ✓'),
+                backgroundColor: AppColors.success,
+              ),
+            );
+          }
+        }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
+          _isVerifying = false;
+          _errorMessage = e.toString().replaceAll('KycApiException: ', '');
         });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Verification failed: ${_errorMessage}'),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
+          ),
+        );
       }
     }
   }
@@ -122,14 +159,16 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
   Widget build(BuildContext context) {
     return Consumer<LoanProvider>(
       builder: (context, loanProvider, child) {
-        final isVerified = loanProvider.isPANVerified;
-        final isVerifying = loanProvider.isVerifyingPAN;
+        final isVerified = loanProvider.isPanVerified;
+        // final isVerifying = loanProvider.isVerifyingPAN;
 
         return Container(
           padding: const EdgeInsets.all(AppSizes.paddingL),
           decoration: BoxDecoration(
             color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+            borderRadius: BorderRadius.circular(
+              AppSizes.radiusL,
+            ), // Reduced for minimalism
             border: Border.all(
               color: isVerified ? AppColors.success : AppColors.border,
               width: isVerified ? 2 : 1,
@@ -146,10 +185,7 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
                     size: 24,
                   ),
                   const SizedBox(width: AppSizes.paddingS),
-                  Text(
-                    'PAN Verification',
-                    style: AppTextStyles.heading3,
-                  ),
+                  Text('PAN Verification', style: AppTextStyles.heading3),
                   const Spacer(),
                   if (isVerified)
                     Container(
@@ -182,15 +218,15 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
                 ],
               ),
               const SizedBox(height: AppSizes.paddingL),
-              
-              if (!isVerified || _showOTPField) ...[
+
+              if (!isVerified) ...[
                 CustomTextField(
                   controller: _panController,
                   labelText: 'PAN Number',
-                  hintText: 'Enter PAN number',
+                  hintText: 'e.g., ABCDE1234F',
                   prefixIcon: Icons.credit_card,
                   textCapitalization: TextCapitalization.characters,
-                  enabled: !_showOTPField && !isVerifying,
+                  enabled: !_isVerifying,
                   maxLength: 10,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -202,63 +238,93 @@ class _PANVerificationWidgetState extends State<PANVerificationWidget> {
                     return null;
                   },
                 ),
-                
-                if (_showOTPField) ...[
-                  const SizedBox(height: AppSizes.paddingM),
-                  CustomTextField(
-                    controller: _otpController,
-                    labelText: 'Enter OTP',
-                    hintText: '6-digit OTP',
-                    prefixIcon: Icons.lock,
-                    keyboardType: TextInputType.number,
-                    maxLength: 6,
-                    enabled: !isVerifying,
-                  ),
-                ],
-                
+                const SizedBox(height: AppSizes.paddingM),
+
+                CustomTextField(
+                  controller: _nameController,
+                  labelText: 'Name as per PAN',
+                  hintText: 'Enter full name',
+                  prefixIcon: Icons.person_outline,
+                  textCapitalization: TextCapitalization.words,
+                  enabled: !_isVerifying,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter name as per PAN';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppSizes.paddingM),
+
+                CustomTextField(
+                  controller: _dobController,
+                  labelText: 'Date of Birth',
+                  hintText: 'DD/MM/YYYY',
+                  prefixIcon: Icons.calendar_today,
+                  enabled: !_isVerifying,
+                  keyboardType: TextInputType.datetime,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter date of birth';
+                    }
+                    return null;
+                  },
+                  onTap: () async {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime(1990),
+                      firstDate: DateTime(1940),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      _dobController.text =
+                          '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
+                    }
+                  },
+                ),
+
                 if (_errorMessage != null) ...[
                   const SizedBox(height: AppSizes.paddingS),
-                  Text(
-                    _errorMessage!,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.error,
+                  Container(
+                    padding: const EdgeInsets.all(AppSizes.paddingM),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                      border: Border.all(
+                        color: AppColors.error.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: AppColors.error,
+                          size: 20,
+                        ),
+                        const SizedBox(width: AppSizes.paddingS),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.error,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
-                
-                const SizedBox(height: AppSizes.paddingM),
-                
-                if (!_showOTPField)
-                  CustomButton(
-                    onPressed: isVerifying ? null : _verifyPAN,
-                    text: isVerifying ? 'Verifying...' : 'Verify PAN',
-                    isLoading: isVerifying,
-                  )
-                else
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomButton(
-                          onPressed: isVerifying ? null : _verifyOTP,
-                          text: isVerifying ? 'Verifying...' : 'Verify OTP',
-                          isLoading: isVerifying,
-                        ),
-                      ),
-                      const SizedBox(width: AppSizes.paddingM),
-                      TextButton(
-                        onPressed: isVerifying
-                            ? null
-                            : () {
-                                setState(() {
-                                  _showOTPField = false;
-                                  _otpController.clear();
-                                  _errorMessage = null;
-                                });
-                              },
-                        child: const Text('Cancel'),
-                      ),
-                    ],
-                  ),
+
+                const SizedBox(height: AppSizes.paddingL),
+
+                CustomButton(
+                  onPressed: _isVerifying ? null : _verifyPAN,
+                  text: _isVerifying
+                      ? 'Verifying with Sandbox API...'
+                      : 'Verify PAN',
+                  isLoading: _isVerifying,
+                ),
               ] else ...[
                 Container(
                   padding: const EdgeInsets.all(AppSizes.paddingM),

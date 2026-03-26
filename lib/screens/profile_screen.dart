@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:janseva/routes/navigator.dart';
+import 'package:janseva/utils/theme_extension.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
-import '../providers/auth_provider.dart';
+import '../modules/auth/provider/auth_provider.dart';
 import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
-import 'login_screen.dart';
+import '../modules/auth/screens/login_screen.dart';
 import '../widgets/section_header.dart';
+import '../routes/routes.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -50,35 +54,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _updateProfile() async {
-    setState(() => _isLoading = true);
+    // setState(() => _isLoading = true);
 
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final userData = {
-      'name': _nameController.text.trim(),
-      'email': _emailController.text.trim(),
-      'address': _addressController.text.trim(),
-    };
+    // final userProvider = Provider.of<UserProvider>(context, listen: false);
+    // final userData = {
+    //   'name': _nameController.text.trim(),
+    //   'email': _emailController.text.trim(),
+    //   'address': _addressController.text.trim(),
+    // };
 
-    final success = await userProvider.updateProfile(userData);
+    // // final success = await userProvider.updateProfile(userData);
 
-    setState(() => _isLoading = false);
+    // setState(() => _isLoading = false);
 
-    if (success && mounted) {
-      setState(() => _isEditing = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully'),
-          backgroundColor: AppColors.success,
-        ),
-      );
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(userProvider.error ?? 'Failed to update profile'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-    }
+    // if (success && mounted) {
+    //   setState(() => _isEditing = false);
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text('Profile updated successfully'),
+    //       backgroundColor: AppColors.success,
+    //     ),
+    //   );
+    // } else if (mounted) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text(userProvider.error ?? 'Failed to update profile'),
+    //       backgroundColor: AppColors.error,
+    //     ),
+    //   );
+    // }
   }
 
   Future<void> _logout() async {
@@ -102,13 +106,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
-          if (!_isEditing)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                setState(() => _isEditing = true);
-              },
-            ),
+          // if (!_isEditing)
+          //   IconButton(
+          //     icon: const Icon(Icons.edit),
+          //     onPressed: () {
+          //       setState(() => _isEditing = true);
+          //     },
+          //   ),
         ],
       ),
       body: SafeArea(
@@ -118,16 +122,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               // Profile Header
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(AppSizes.paddingL),
                 decoration: BoxDecoration(
                   color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                  borderRadius: BorderRadius.circular(
+                    AppSizes.radiusL,
+                  ), // Reduced for minimalism
                   border: Border.all(color: AppColors.border),
+                  // Minimal shadow
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.shadowLight,
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
+                      color: AppColors.shadow,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -137,13 +145,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        // Sky blue gradient
+                        gradient: LinearGradient(
+                          colors: [
+                            context.colors.gradientOne,
+                            context.colors.gradientTwo,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         borderRadius: BorderRadius.circular(50),
+                        // Minimal shadow
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                            color: AppColors.shadow,
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
@@ -268,7 +285,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Membership Information
               if (user?.isMember == true) ...[
                 Container(
-                  padding: const EdgeInsets.all(AppSizes.paddingL),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSizes.paddingL,
+                    horizontal: AppSizes.paddingM,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.cardBackground,
                     borderRadius: BorderRadius.circular(AppSizes.radiusXL),
@@ -339,7 +359,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               // Actions
               Container(
-                padding: const EdgeInsets.all(AppSizes.paddingL),
+                padding: EdgeInsets.symmetric(
+                  vertical: AppSizes.paddingL,
+                  horizontal: AppSizes.paddingM,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.cardBackground,
                   borderRadius: BorderRadius.circular(AppSizes.radiusXL),
@@ -357,21 +380,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     const SectionHeader(title: 'Actions'),
                     const SizedBox(height: AppSizes.paddingM),
-                    _buildActionTile('Change Password', Icons.lock, () {
-                      // TODO: Implement change password
+
+                    _buildActionTile('Privacy Policy', Iconsax.shield_tick, () {
+                      push(NamedRoutes.privacyPolicy);
                     }),
-                    _buildActionTile('Privacy Policy', Icons.privacy_tip, () {
-                      // TODO: Implement privacy policy
+                    _buildActionTile('Terms of Service', Iconsax.document, () {
+                      push(NamedRoutes.termsOfService);
                     }),
-                    _buildActionTile('Terms of Service', Icons.description, () {
-                      // TODO: Implement terms of service
-                    }),
-                    _buildActionTile('Support', Icons.support_agent, () {
-                      // TODO: Implement support
+                    _buildActionTile('Support', Iconsax.headphone, () {
+                      push(NamedRoutes.support);
                     }),
                     _buildActionTile(
                       'Logout',
-                      Icons.logout,
+                      Iconsax.logout,
                       _logout,
                       isDestructive: true,
                     ),

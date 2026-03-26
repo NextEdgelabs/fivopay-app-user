@@ -3,7 +3,10 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  awesome_notifications
+  firebase_core
   flutter_secure_storage_windows
+  flutter_tts
   permission_handler_windows
   url_launcher_windows
 )

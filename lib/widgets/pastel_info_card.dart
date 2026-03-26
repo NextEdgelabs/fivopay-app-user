@@ -20,9 +20,9 @@ class PastelInfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingL),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(AppSizes.radiusXL),
-        border: Border.all(color: color.withOpacity(0.2)),
+        color: color.withOpacity(0.08), // More subtle background
+        borderRadius: BorderRadius.circular(AppSizes.radiusL), // Reduced radius for minimalism
+        border: Border.all(color: color.withOpacity(0.15)), // Lighter border
       ),
       child: Row(
         children: [

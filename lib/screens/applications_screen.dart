@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:janseva/modules/fd_rd/deposit_provider.dart';
+import 'package:janseva/modules/loan/models/loan_application_response.dart';
+import 'package:janseva/modules/loan/providers/loan_provider.dart';
+import 'package:janseva/modules/loan/screens/esign/view_pdf.dart';
+import 'package:janseva/routes/arguments.dart';
+import 'package:janseva/routes/navigator.dart';
+import 'package:janseva/routes/routes.dart';
+import 'package:janseva/utils/app_color_extension.dart';
+import 'package:janseva/utils/theme_extension.dart';
 import 'package:provider/provider.dart';
+import '../modules/auth/provider/auth_provider.dart';
+import '../modules/fd_rd/model/term_deposit_model.dart';
 import '../providers/user_provider.dart';
 import '../models/fixed_deposit.dart';
-import '../models/loan_application.dart';
+import '../services/common_utils.dart';
 import '../utils/constants.dart';
 import '../components/components.dart';
+import '../utils/app_color_extension.dart';
+import 'document_viewer_screen.dart';
 
 class ApplicationsScreen extends StatefulWidget {
   const ApplicationsScreen({super.key});
@@ -14,6 +27,21 @@ class ApplicationsScreen extends StatefulWidget {
 }
 
 class _ApplicationsScreenState extends State<ApplicationsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = context.read<UserProvider>();
+      final userId = userProvider.currentUser?.id;
+
+      context.read<LoanProvider>().getmmyLoanApplications();
+
+      if (userId != null) {
+        context.read<DepositProvider>().fetchUserTermDeposits(userId);
+      }
+    });
+  }
+
   String _selectedFilter = 'all'; // all, fd, loan
   String _selectedStatus = 'all'; // all, active, pending, approved, rejected
 
@@ -30,8 +58,8 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
           ),
         ],
       ),
-      body: Consumer<UserProvider>(
-        builder: (context, userProvider, child) {
+      body: Consumer3<UserProvider, LoanProvider, DepositProvider>(
+        builder: (context, userProvider, loanProvider, depositProvider, child) {
           final user = userProvider.currentUser;
           if (user == null) {
             return const Center(
@@ -39,8 +67,9 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
             );
           }
 
-          final fixedDeposits = user.fixedDeposits ?? [];
-          final loanApplications = user.loanApplications ?? [];
+          final fixedDeposits = depositProvider.myTermDeposits;
+          final loanApplications = loanProvider.myLoanApplications;
+          // final depositApplications = ;
 
           final filteredApplications = _getFilteredApplications(
             fixedDeposits,
@@ -50,6 +79,12 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
           return RefreshIndicator(
             onRefresh: () async {
               await userProvider.initializeUser();
+              await loanProvider.getmmyLoanApplications();
+
+              final userId = userProvider.currentUser?.id;
+              if (userId != null) {
+                await depositProvider.refreshDeposits(userId);
+              }
             },
             child: filteredApplications.isEmpty
                 ? const EmptyState(
@@ -57,18 +92,39 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                     title: 'No Applications Found',
                     subtitle: 'You have not applied for any FD or Loan yet.',
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(AppSizes.paddingL),
-                    itemCount: filteredApplications.length,
-                    itemBuilder: (context, index) {
-                      final application = filteredApplications[index];
-                      if (application is FixedDeposit) {
-                        return _buildFDCard(application);
-                      } else if (application is LoanApplication) {
-                        return _buildLoanCard(application);
+                : NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      if (!depositProvider.isLoadingMoreDeposits &&
+                          depositProvider.hasMoreDeposits &&
+                          scrollInfo.metrics.pixels ==
+                              scrollInfo.metrics.maxScrollExtent) {
+                        depositProvider.loadMoreDeposits(user.id);
                       }
-                      return const SizedBox.shrink();
+                      return false;
                     },
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(AppSizes.paddingL),
+                      itemCount:
+                          filteredApplications.length +
+                          (depositProvider.isLoadingMoreDeposits ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        // Show loading indicator at the bottom when loading more
+                        if (index == filteredApplications.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+
+                        final application = filteredApplications[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: application is DepositAccountModel
+                              ? _buildFDCard(application)
+                              : _buildLoanCard(application),
+                        );
+                      },
+                    ),
                   ),
           );
         },
@@ -77,8 +133,8 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
   }
 
   List<dynamic> _getFilteredApplications(
-    List<FixedDeposit> fixedDeposits,
-    List<LoanApplication> loanApplications,
+    List<DepositAccountModel> fixedDeposits,
+    List<LoanApplicationData> loanApplications,
   ) {
     List<dynamic> allApplications = [];
 
@@ -95,10 +151,12 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
     // Filter by status
     if (_selectedStatus != 'all') {
       allApplications = allApplications.where((app) {
-        if (app is FixedDeposit) {
+        if (app is DepositAccountModel) {
           return app.status == _selectedStatus;
-        } else if (app is LoanApplication) {
+        } else if (app is FixedDeposit) {
           return app.status == _selectedStatus;
+        } else if (app is LoanApplicationData) {
+          return app.approvalStatus == _selectedStatus;
         }
         return false;
       }).toList();
@@ -106,8 +164,16 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
 
     // Sort by date (newest first)
     allApplications.sort((a, b) {
-      DateTime dateA = a is FixedDeposit ? a.startDate : a.applicationDate;
-      DateTime dateB = b is FixedDeposit ? b.startDate : b.applicationDate;
+      DateTime dateA = a is DepositAccountModel
+          ? (a.createdAt ?? DateTime.now())
+          : a is FixedDeposit
+          ? a.startDate
+          : a.createdAt;
+      DateTime dateB = b is DepositAccountModel
+          ? (b.createdAt ?? DateTime.now())
+          : b is FixedDeposit
+          ? b.startDate
+          : b.createdAt;
       return dateB.compareTo(dateA);
     });
 
@@ -116,216 +182,534 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
 
   // Removed legacy empty state in favor of shared EmptyState component
 
-  Widget _buildFDCard(FixedDeposit fd) {
-    return FormSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListCard(
-            leading: Container(
-              padding: const EdgeInsets.all(AppSizes.paddingS),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppSizes.radiusS),
-              ),
-              child: const Icon(
-                Icons.account_balance,
-                color: AppColors.primary,
-                size: 20,
-              ),
-            ),
-            title: 'Fixed Deposit',
-            subtitle: 'FD ID: ${fd.id}',
-            trailing: _buildStatusChip(fd.status),
-          ),
-          const SizedBox(height: AppSizes.paddingS),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Amount',
-                  '₹${fd.amount.toStringAsFixed(2)}',
-                ),
-              ),
-              Expanded(
-                child: _buildInfoItem('Tenure', '${fd.tenureMonths} months'),
+  Widget _buildFDCard(DepositAccountModel fd) {
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: () {
+          push(
+            NamedRoutes.depositDetailScreen,
+            arguments: DepositDetailScreenArguments(deposit: fd),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSizes.radiusM),
+            color: context.colors.specialCard,
+            border: Border.all(color: context.colors.border, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: context.colors.shadowWithOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          const SizedBox(height: AppSizes.paddingS),
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Expected Profit',
-                  '₹${fd.expectedProfit.toStringAsFixed(2)}',
-                ),
-              ),
-              Expanded(
-                child: _buildInfoItem(
-                  'Deposit Method',
-                  _getDepositMethodText(fd.depositMethod),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSizes.paddingS),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem('Start Date', _formatDate(fd.startDate)),
-              ),
-              Expanded(
-                child: _buildInfoItem(
-                  'Maturity Date',
-                  _formatDate(fd.maturityDate),
-                ),
-              ),
-            ],
-          ),
-          if (fd.depositMethod == 'cash_collection' &&
-              fd.collectionDate != null) ...[
-            const SizedBox(height: AppSizes.paddingS),
-            _buildInfoItem('Collection Date', _formatDate(fd.collectionDate!)),
-          ],
-          if (fd.depositMethod == 'branch' && fd.branchName != null) ...[
-            const SizedBox(height: AppSizes.paddingS),
-            _buildInfoItem('Branch', fd.branchName!),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoanCard(LoanApplication loan) {
-    return FormSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListCard(
-            leading: Container(
-              padding: const EdgeInsets.all(AppSizes.paddingS),
-              decoration: BoxDecoration(
-                color: AppColors.secondary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppSizes.radiusS),
-              ),
-              child: const Icon(
-                Icons.receipt_long,
-                color: AppColors.secondary,
-                size: 20,
-              ),
-            ),
-            title: 'Loan Application',
-            subtitle: 'Loan ID: ${loan.id}',
-            trailing: _buildStatusChip(loan.status),
-          ),
-          const SizedBox(height: AppSizes.paddingS),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Amount',
-                  '₹${loan.requestedAmount.toStringAsFixed(2)}',
-                ),
-              ),
-              Expanded(
-                child: _buildInfoItem('Tenure', '${loan.tenureMonths} months'),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSizes.paddingS),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Monthly EMI',
-                  loan.monthlyInstallment != null
-                      ? '₹${loan.monthlyInstallment!.toStringAsFixed(2)}'
-                      : 'TBD',
-                ),
-              ),
-              Expanded(child: _buildInfoItem('Purpose', loan.purpose)),
-            ],
-          ),
-          const SizedBox(height: AppSizes.paddingS),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Applied Date',
-                  _formatDate(loan.applicationDate),
-                ),
-              ),
-              if (loan.approvalDate != null)
-                Expanded(
-                  child: _buildInfoItem(
-                    'Approved Date',
-                    _formatDate(loan.approvalDate!),
+              // Header with professional design
+              Container(
+                padding: const EdgeInsets.all(AppSizes.paddingM),
+                decoration: BoxDecoration(
+                  color: context.colors.specialCardTwo,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(AppSizes.radiusM),
+                    topRight: Radius.circular(AppSizes.radiusM),
+                  ),
+                  border: Border(
+                    bottom: BorderSide(color: context.colors.border, width: 1),
                   ),
                 ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppSizes.paddingS),
+                      decoration: BoxDecoration(
+                        color: context.colors.brandColor,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusS),
+                      ),
+                      child: Icon(
+                        Icons.account_balance,
+                        color: context.colors.buttonLabelText,
+                        size: AppSizes.iconSizeS,
+                      ),
+                    ),
+                    const SizedBox(width: AppSizes.paddingS),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Fixed Deposit',
+                            style: AppTextStyles.heading3.copyWith(
+                              color: context.colors.heading,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Account: ${fd.accountNumber ?? fd.depositId ?? fd.transactionId ?? 'N/A'}',
+                            style: AppTextStyles.caption.copyWith(
+                              color: context.colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildStatusBadge(fd.status, context),
+                  ],
+                ),
+              ),
+
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(AppSizes.paddingM),
+                child: Column(
+                  children: [
+                    // Amount highlight
+                    Container(
+                      padding: const EdgeInsets.all(AppSizes.paddingM),
+                      decoration: BoxDecoration(
+                        color: context.colors.selectedField,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusS),
+                        border: Border.all(
+                          color: context.colors.fieldBorder,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Deposit Amount',
+                            style: AppTextStyles.body2.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: context.colors.textSecondary,
+                            ),
+                          ),
+                          Text(
+                            '₹${(fd.depositAmount ?? 0).toStringAsFixed(2)}',
+                            style: AppTextStyles.heading2.copyWith(
+                              color: context.colors.brandColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSizes.paddingM),
+
+                    // Grid of info
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoCard(
+                            icon: Icons.calendar_today_outlined,
+                            label: 'Tenure',
+                            value:
+                                '${fd.productId?.lockInPeriodMonths ?? 0} months',
+                          ),
+                        ),
+                        const SizedBox(width: AppSizes.paddingS),
+                        Expanded(
+                          child: _buildInfoCard(
+                            icon: Icons.calendar_month_outlined,
+                            label: 'Opened On',
+                            value: _formatDate(fd.createdAt!).trim(),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: AppSizes.paddingS),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoCard(
+                            icon: Icons.percent_outlined,
+                            label: context.read<AuthProvider>().isEthicalBanking
+                                ? 'Profit Rate'
+                                : 'Interest Rate',
+                            value:
+                                '${(fd.interestRate ?? 0).toStringAsFixed(2)}%',
+                          ),
+                        ),
+                        const SizedBox(width: AppSizes.paddingS),
+                        Expanded(
+                          child: _buildInfoCard(
+                            icon: Icons.account_balance_wallet_outlined,
+                            label: 'Current Balance',
+                            value:
+                                '₹${(fd.currentBalance ?? 0).toStringAsFixed(0)}',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-          if (loan.notes != null && loan.notes!.isNotEmpty) ...[
-            const SizedBox(height: AppSizes.paddingS),
-            _buildInfoItem('Notes', loan.notes!),
-          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoanCard(LoanApplicationData loan) {
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: () {
+          push(
+            NamedRoutes.loanApplicationDetailScreen,
+            arguments: LoanApplicationDetailScreenArguments(loan: loan),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSizes.radiusM),
+            color: context.colors.specialCard,
+            border: Border.all(color: context.colors.border, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: context.colors.shadowWithOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with professional design
+              Container(
+                padding: const EdgeInsets.all(AppSizes.paddingM),
+                decoration: BoxDecoration(
+                  color: context.colors.specialCardTwo,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(AppSizes.radiusM),
+                    topRight: Radius.circular(AppSizes.radiusM),
+                  ),
+                  border: Border(
+                    bottom: BorderSide(color: context.colors.border, width: 1),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppSizes.paddingS),
+                      decoration: BoxDecoration(
+                        gradient: context.colors.brandLinearGradient,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusS),
+                      ),
+                      child: Icon(
+                        Icons.receipt_long,
+                        color: context.colors.buttonLabelText,
+                        size: AppSizes.iconSizeS,
+                      ),
+                    ),
+                    const SizedBox(width: AppSizes.paddingS),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Loan Application',
+                            style: AppTextStyles.heading3.copyWith(
+                              color: context.colors.heading,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'ID: ${loan.id}',
+                            style: AppTextStyles.caption.copyWith(
+                              color: context.colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildStatusBadge(loan.approvalStatus, context),
+                  ],
+                ),
+              ),
+
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(AppSizes.paddingM),
+                child: Column(
+                  children: [
+                    // Amount highlight
+                    Container(
+                      padding: const EdgeInsets.all(AppSizes.paddingM),
+                      decoration: BoxDecoration(
+                        color: context.colors.selectedField,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusS),
+                        border: Border.all(
+                          color: context.colors.fieldBorder,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Loan Amount',
+                            style: AppTextStyles.body2.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: context.colors.textSecondary,
+                            ),
+                          ),
+                          Text(
+                            '₹${loan.amount.toStringAsFixed(2)}',
+                            style: AppTextStyles.heading2.copyWith(
+                              color: context.colors.brandColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSizes.paddingM),
+
+                    // Grid of info
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoCard(
+                            icon: Icons.calendar_today_outlined,
+                            label: 'Applied Date',
+                            value: _formatDate(loan.createdAt),
+                          ),
+                        ),
+                        const SizedBox(width: AppSizes.paddingS),
+                        Expanded(
+                          child: _buildInfoCard(
+                            icon: Icons.draw_outlined,
+                            label: 'Signed At',
+                            value:
+                                loan.esignStatus?.result?.document?.signedAt !=
+                                    null
+                                ? _formatDate(
+                                    loan
+                                        .esignStatus!
+                                        .result!
+                                        .document!
+                                        .signedAt,
+                                  )
+                                : 'Not signed',
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: AppSizes.paddingM),
+
+                    // Action buttons
+                    if (loan.esignStatus != null)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DocumentViewerScreen(
+                                  url: loan
+                                      .esignStatus!
+                                      .result!
+                                      .document!
+                                      .signedUrl,
+                                  documentName:
+                                      loan.esignStatus!.result!.document!.info,
+                                  isPdf: isPdfDocument(
+                                    loan
+                                        .esignStatus!
+                                        .result!
+                                        .document!
+                                        .signedUrl,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.visibility_outlined,
+                            size: AppSizes.iconSizeS,
+                          ),
+                          label: const Text('View Details'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: context.colors.brandColor,
+                            foregroundColor: context.colors.buttonLabelText,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSizes.paddingM,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusS,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                   
+                    else if (loan.agreement?.estampId != null)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            push(
+                              NamedRoutes.signAgreement,
+                              arguments: EsignLoanArguments(loan: loan),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.draw_outlined,
+                            size: AppSizes.iconSizeS,
+                          ),
+                          label: const Text('Sign Agreement'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: context.colors.alert3,
+                            foregroundColor: context.colors.buttonLabelText,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSizes.paddingM,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusS,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard({
+    required IconData icon,
+    required String label,
+    required String value,
+    bool fullWidth = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.paddingS),
+      decoration: BoxDecoration(
+        color: context.appColors.cardBackground,
+        borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        border: Border.all(color: context.appColors.border, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: fullWidth
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: fullWidth
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: AppSizes.iconSizeS,
+                color: context.appColors.textSecondary,
+              ),
+              const SizedBox(width: AppSizes.paddingXS),
+              Flexible(
+                child: Text(
+                  label,
+                  style: AppTextStyles.caption.copyWith(
+                    color: context.appColors.textSecondary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSizes.paddingXS),
+          Text(
+            value,
+            style: AppTextStyles.body2.copyWith(
+              fontWeight: FontWeight.w600,
+              color: context.appColors.text,
+            ),
+            textAlign: fullWidth ? TextAlign.left : TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoItem(String label, String value) {
-    return InfoRow(label: label, value: value);
-  }
-
-  Widget _buildStatusChip(String status) {
+  Widget _buildStatusBadge(String status, BuildContext context) {
     Color backgroundColor;
     Color textColor;
 
     switch (status.toLowerCase()) {
       case 'active':
-        backgroundColor = AppColors.success;
-        textColor = Colors.white;
-        break;
-      case 'pending':
-        backgroundColor = AppColors.warning;
-        textColor = Colors.white;
-        break;
       case 'approved':
-        backgroundColor = AppColors.success;
-        textColor = Colors.white;
+      case 'success':
+        backgroundColor = context.appColors.alert1.withOpacity(0.1);
+        textColor = context.appColors.alert1;
+        break;
+      case 'pickup_scheduled':
+      // backgroundColor = context.appColors.alert1.withOpacity(0.1);
+      // textColor = context.appColors.alert1;
+      // break;
+      case 'pending':
+        backgroundColor = context.appColors.alert3.withOpacity(0.1);
+        textColor = context.appColors.alert3;
         break;
       case 'rejected':
-        backgroundColor = AppColors.error;
-        textColor = Colors.white;
+      case 'failed':
+        backgroundColor = context.appColors.alert2.withOpacity(0.1);
+        textColor = context.appColors.alert2;
         break;
       case 'matured':
-        backgroundColor = AppColors.info;
-        textColor = Colors.white;
+      case 'info':
+        backgroundColor = context.appColors.alert4.withOpacity(0.1);
+        textColor = context.appColors.alert4;
         break;
       default:
-        backgroundColor = AppColors.textLight;
-        textColor = Colors.white;
+        backgroundColor = context.appColors.disabled;
+        textColor = context.appColors.textSecondary;
     }
 
-    return ChipBadge(
-      text: status.toUpperCase(),
-      color: backgroundColor,
-      textColor: textColor,
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.paddingS,
+        vertical: AppSizes.paddingXS,
+      ),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(AppSizes.radiusS),
+      ),
+      child: Text(
+        status == 'pickup_scheduled'
+            ? 'PICKUP SCHEDULED'
+            : status.toUpperCase(),
+        style: AppTextStyles.caption.copyWith(
+          color: textColor,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
-  }
-
-  String _getDepositMethodText(String method) {
-    switch (method) {
-      case 'online':
-        return 'Online';
-      case 'cash_collection':
-        return 'Cash Collection';
-      case 'branch':
-        return 'Branch';
-      default:
-        return method;
-    }
   }
 
   String _formatDate(DateTime date) {

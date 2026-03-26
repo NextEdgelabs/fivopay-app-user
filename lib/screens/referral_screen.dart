@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:janseva/utils/theme_extension.dart';
+
 import '../providers/user_provider.dart';
 import '../providers/referral_provider.dart';
 import '../utils/constants.dart';
-import '../components/components.dart';
 
 class ReferralScreen extends StatefulWidget {
   const ReferralScreen({super.key});
@@ -18,261 +19,175 @@ class _ReferralScreenState extends State<ReferralScreen> {
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context).currentUser;
     final referralProvider = Provider.of<ReferralProvider>(context);
-    final referralCode = referralProvider.referralCode ?? 'JANSEVA123';
+    final referralCode = "app.janseva/${user?.memberId ?? 'JNS1234567890'}";
 
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.inviteFriends)),
+      backgroundColor: context.colors.bgColors,
+      appBar: AppBar(
+        title: Text(
+          'Invite Friends',
+          style: AppTextStyles.heading2.copyWith(
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF8B5CF6), // Matches the purple in image title
+          ),
+        ),
+        backgroundColor: context.colors.bgColors,
+        elevation: 0,
+        centerTitle: true,
+        surfaceTintColor: Colors.transparent,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSizes.paddingL),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Referral Code Card
-              FormSectionCard(
-                child: Column(
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondary,
-                        borderRadius: BorderRadius.circular(AppSizes.radiusL),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.secondary.withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.share,
-                        color: Colors.white,
-                        size: 40,
-                      ),
-                    ),
-                    const SizedBox(height: AppSizes.paddingM),
-                    Text(
-                      AppStrings.referralCode,
-                      style: AppTextStyles.heading3,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppSizes.paddingS),
-                    Text(
-                      'Share your referral code with friends and earn rewards!',
-                      style: AppTextStyles.body2,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppSizes.paddingL),
+              // 1. Referral Code Card
+              _buildReferralCodeCard(context, referralCode),
 
-                    // Referral Code Display
-                    Container(
-                      padding: const EdgeInsets.all(AppSizes.paddingM),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              referralCode,
-                              style: AppTextStyles.heading3.copyWith(
-                                color: AppColors.primary,
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              Clipboard.setData(
-                                ClipboardData(text: referralCode),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Referral code copied to clipboard',
-                                  ),
-                                  backgroundColor: AppColors.success,
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.copy),
-                            color: AppColors.primary,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: AppSizes.sectionSpacing),
+
+              // 2. Transactions History (Share Via row)
+              Text(
+                'Transactions History',
+                style: AppTextStyles.heading3.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-
-              const SizedBox(height: AppSizes.paddingL),
-
-              // Share Options
-              Text('Share via', style: AppTextStyles.heading3),
               const SizedBox(height: AppSizes.paddingM),
-
               Row(
                 children: [
                   Expanded(
-                    child: _buildShareOption(
-                      'WhatsApp',
-                      Icons.chat,
-                      AppColors.success,
+                    child: _buildShareSquare(
+                      context,
+                      'Whatsapp',
+                      Icons
+                          .chat, // Can improve with font_awesome flutter if available, fallback to chat
+                      const Color(0xFF22C55E),
                       () => _shareViaWhatsApp(referralCode),
                     ),
                   ),
                   const SizedBox(width: AppSizes.paddingM),
                   Expanded(
-                    child: _buildShareOption(
+                    child: _buildShareSquare(
+                      context,
                       'SMS',
-                      Icons.sms,
-                      AppColors.info,
+                      Icons.sms_outlined,
+                      const Color(0xFF8B5CF6),
                       () => _shareViaSMS(referralCode),
                     ),
                   ),
                   const SizedBox(width: AppSizes.paddingM),
                   Expanded(
-                    child: _buildShareOption(
+                    child: _buildShareSquare(
+                      context,
                       'More',
                       Icons.more_horiz,
-                      AppColors.textSecondary,
+                      const Color(0xFF6B7280),
                       () => _shareMore(referralCode),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: AppSizes.paddingL),
+              const SizedBox(height: AppSizes.sectionSpacing),
 
-              // Referral Rewards
-              FormSectionCard(
+              // 3. Referral Rewards List
+              Text(
+                'Referral Rewards',
+                style: AppTextStyles.heading3.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: AppSizes.paddingM),
+              Container(
+                padding: const EdgeInsets.all(AppSizes.paddingM),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.card_giftcard,
-                          color: AppColors.secondary,
-                          size: AppSizes.iconSizeM,
-                        ),
-                        const SizedBox(width: AppSizes.paddingS),
-                        Text(
-                          AppStrings.referralRewards,
-                          style: AppTextStyles.heading3,
-                        ),
-                      ],
+                    _buildRewardRowItem(
+                      context,
+                      title: 'For You',
+                      subtitle: '₹100 bonus on each successful referral',
+                      icon: Icons.person,
+                      iconColor: const Color(0xFF6366F1),
                     ),
-                    const SizedBox(height: AppSizes.paddingM),
-                    _buildRewardItem(
-                      'For You',
-                      '₹100 bonus on each successful referral',
-                      Icons.person,
-                      AppColors.primary,
+                    const SizedBox(height: AppSizes.paddingL),
+                    _buildRewardRowItem(
+                      context,
+                      title: 'For Friend',
+                      subtitle: '₹50 welcome bonus on joining',
+                      icon: Icons.person_add_alt_1,
+                      iconColor: const Color(0xFF6366F1),
                     ),
-                    const SizedBox(height: AppSizes.paddingS),
-                    _buildRewardItem(
-                      'For Friend',
-                      '₹50 welcome bonus on joining',
-                      Icons.person_add,
-                      AppColors.secondary,
-                    ),
-                    const SizedBox(height: AppSizes.paddingS),
-                    _buildRewardItem(
-                      'Extra Benefits',
-                      'Priority support and exclusive offers',
-                      Icons.star,
-                      AppColors.warning,
+                    const SizedBox(height: AppSizes.paddingL),
+                    _buildRewardRowItem(
+                      context,
+                      title: 'Extra Benefits',
+                      subtitle: 'Priority support and exclusive offers',
+                      icon: Icons.star,
+                      iconColor: const Color(0xFFF59E0B),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: AppSizes.paddingL),
+              const SizedBox(height: AppSizes.sectionSpacing),
 
-              // Referral Statistics
-              FormSectionCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              // 4. Your Referrals Stats
+              Text(
+                'Your Referrals',
+                style: AppTextStyles.heading3.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: AppSizes.paddingM),
+              Container(
+                padding: const EdgeInsets.all(AppSizes.paddingM),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppSizes.radiusL),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
                   children: [
-                    Text('Your Referrals', style: AppTextStyles.heading3),
-                    const SizedBox(height: AppSizes.paddingM),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildStatCard(
-                            'Total Referrals',
-                            '${user?.referredUsers?.length ?? 0}',
-                            Icons.people,
-                            AppColors.primary,
-                          ),
-                        ),
-                        const SizedBox(width: AppSizes.paddingM),
-                        Expanded(
-                          child: _buildStatCard(
-                            'Total Earnings',
-                            '₹${(user?.referredUsers?.length ?? 0) * 100}',
-                            Icons.account_balance_wallet,
-                            AppColors.secondary,
-                          ),
-                        ),
-                      ],
+                    Expanded(
+                      child: _buildReferralStatSquare(
+                        context,
+                        icon: Icons.person,
+                        value: '${user?.referredUsers?.length ?? 0}',
+                        label: 'Total Referrals',
+                      ),
+                    ),
+                    const SizedBox(width: AppSizes.paddingM),
+                    Expanded(
+                      child: _buildReferralStatSquare(
+                        context,
+                        icon: Icons.person_add_alt_1,
+                        value: '₹ ${(user?.referredUsers?.length ?? 0) * 100}',
+                        label: 'Total Earnings',
+                      ),
                     ),
                   ],
                 ),
               ),
-
-              const SizedBox(height: AppSizes.paddingL),
-
-              // Referred Users List
-              if (user?.referredUsers != null &&
-                  user!.referredUsers!.isNotEmpty) ...[
-                Text('Referred Users', style: AppTextStyles.heading3),
-                const SizedBox(height: AppSizes.paddingM),
-                FormSectionCard(
-                  child: Column(
-                    children: user.referredUsers!.map((userId) {
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: AppColors.primary,
-                          child: Text(
-                            userId.substring(0, 1).toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        title: Text('User $userId'),
-                        subtitle: Text('Joined via your referral'),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSizes.paddingS,
-                            vertical: AppSizes.paddingXS,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.success.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(
-                              AppSizes.radiusS,
-                            ),
-                          ),
-                          child: Text(
-                            '₹100',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.success,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
+              const SizedBox(height: 80), // Extra padding for bottom bar
             ],
           ),
         ),
@@ -280,66 +195,175 @@ class _ReferralScreenState extends State<ReferralScreen> {
     );
   }
 
-  Widget _buildShareOption(
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
+  Widget _buildReferralCodeCard(BuildContext context, String referralCode) {
     return Container(
+      padding: const EdgeInsets.all(AppSizes.paddingL),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppSizes.radiusL),
-        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppSizes.radiusL),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSizes.paddingM),
-            child: Column(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF6366F1), Color(0xFFA855F7)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.share_outlined,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: AppSizes.paddingM),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Referral Code',
+                      style: AppTextStyles.heading3.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: context.colors.heading,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Share your referral code with friends and earn rewards',
+                      style: AppTextStyles.body2.copyWith(
+                        color: context.colors.textSecondary,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSizes.paddingL),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.paddingM,
+              vertical: 12,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(AppSizes.radiusM),
+              border: Border.all(color: context.colors.border.withOpacity(0.5)),
+            ),
+            child: Row(
               children: [
-                Icon(icon, color: color, size: AppSizes.iconSizeL),
-                const SizedBox(height: AppSizes.paddingS),
-                Text(
-                  title,
-                  style: AppTextStyles.body2.copyWith(
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Text(
+                    referralCode,
+                    style: AppTextStyles.body1.copyWith(
+                      color: context.colors.text,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: referralCode));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Referral code copied to clipboard'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  child: Icon(
+                    Icons.copy,
+                    color: context.colors.textSecondary,
+                    size: 20,
                   ),
                 ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShareSquare(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color iconColor,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: AppSizes.paddingL),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppSizes.radiusL),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 28),
+            ),
+            const SizedBox(height: AppSizes.paddingM),
+            Text(
+              title,
+              style: AppTextStyles.body2.copyWith(
+                fontWeight: FontWeight.w600,
+                color: context.colors.heading,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildRewardItem(
-    String title,
-    String description,
-    IconData icon,
-    Color color,
-  ) {
+  Widget _buildRewardRowItem(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color iconColor,
+  }) {
     return Row(
       children: [
         Container(
-          width: 40,
-          height: 40,
+          width: 50,
+          height: 50,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: iconColor.withOpacity(0.15),
             borderRadius: BorderRadius.circular(AppSizes.radiusM),
           ),
-          child: Icon(icon, color: color, size: 20),
+          child: Icon(icon, color: iconColor, size: 24),
         ),
         const SizedBox(width: AppSizes.paddingM),
         Expanded(
@@ -350,9 +374,16 @@ class _ReferralScreenState extends State<ReferralScreen> {
                 title,
                 style: AppTextStyles.body1.copyWith(
                   fontWeight: FontWeight.w600,
+                  color: context.colors.heading,
                 ),
               ),
-              Text(description, style: AppTextStyles.body2),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: AppTextStyles.body2.copyWith(
+                  color: context.colors.textSecondary,
+                ),
+              ),
             ],
           ),
         ),
@@ -360,28 +391,40 @@ class _ReferralScreenState extends State<ReferralScreen> {
     );
   }
 
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
+  Widget _buildReferralStatSquare(
+    BuildContext context, {
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingM),
+      padding: const EdgeInsets.symmetric(vertical: AppSizes.paddingL),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: const Color(0xFFF3F4F6), // Light grayish-blue from image
         borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(
+          color: const Color(0xFF6366F1).withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: color, size: AppSizes.iconSizeM),
-          const SizedBox(height: AppSizes.paddingS),
-          Text(value, style: AppTextStyles.heading3.copyWith(color: color)),
+          Icon(icon, color: const Color(0xFF6366F1), size: 28),
+          const SizedBox(height: AppSizes.paddingM),
           Text(
-            title,
-            style: AppTextStyles.caption,
-            textAlign: TextAlign.center,
+            value,
+            style: AppTextStyles.heading2.copyWith(
+              fontWeight: FontWeight.bold,
+              color: context.colors.heading,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: AppTextStyles.body2.copyWith(
+              color: context.colors.textSecondary,
+            ),
           ),
         ],
       ),
@@ -389,35 +432,20 @@ class _ReferralScreenState extends State<ReferralScreen> {
   }
 
   void _shareViaWhatsApp(String referralCode) {
-    // Placeholder for integration
-    // TODO: Implement WhatsApp sharing
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('WhatsApp sharing will be implemented'),
-        backgroundColor: AppColors.info,
-      ),
+      const SnackBar(content: Text('WhatsApp sharing will be implemented')),
     );
   }
 
   void _shareViaSMS(String referralCode) {
-    // Placeholder for integration
-    // TODO: Implement SMS sharing
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('SMS sharing will be implemented'),
-        backgroundColor: AppColors.info,
-      ),
+      const SnackBar(content: Text('SMS sharing will be implemented')),
     );
   }
 
   void _shareMore(String referralCode) {
-    // Placeholder for integration
-    // TODO: Implement general sharing
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('General sharing will be implemented'),
-        backgroundColor: AppColors.info,
-      ),
+      const SnackBar(content: Text('General sharing will be implemented')),
     );
   }
 }
